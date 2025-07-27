@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商材マスタ管理 - 顧客管理ツール</title>
+    
+    <!-- Material UI CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/@mui/material@5.14.20/umd/material-ui.development.js"></script>
+    <script src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .toolbar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .filter-select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            min-width: 150px;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #45a049;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        .products-list {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .list-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .product-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .product-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .product-item.active {
+            background-color: #e3f2fd;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .product-name {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .product-category {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .product-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .status-active {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .status-inactive {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .status-draft {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .product-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .detail-item {
+            font-size: 0.9rem;
+        }
+        
+        .detail-label {
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .product-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: #e1f5fe;
+            color: #0277bd;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        
+        .tag.new {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .tag.popular {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #333;
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .field-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .field-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .field-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .field-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .field-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .custom-fields {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .custom-field-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-add-field {
+            background: #f5f5f5;
+            color: #666;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-add-field:hover {
+            background: #e0e0e0;
+        }
+        
+        .custom-field-item {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            align-items: end;
+        }
+        
+        .custom-field-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .field-name-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .field-value-input {
+            flex: 2;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-remove {
+            padding: 0.5rem;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-remove:hover {
+            background: #d32f2f;
+        }
+        
+        .actions {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #1976d2;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .deployment-stats {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        
+        .deployment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .deployment-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .deployment-name {
+            font-size: 0.9rem;
+            color: #333;
+        }
+        
+        .deployment-count {
+            font-weight: 500;
+            color: #1976d2;
+        }
+        
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-input, .filter-select {
+                min-width: unset;
+            }
+            
+            .product-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .custom-field-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>商材マスタ管理</h1>
+    </header>
+
+    <div class="main-container">
+        <div class="toolbar">
+            <input type="text" class="search-input" placeholder="商材名・カテゴリで検索...">
+            <select class="filter-select">
+                <option value="">カテゴリ</option>
+                <option value="software">ソフトウェア</option>
+                <option value="hardware">ハードウェア</option>
+                <option value="service">サービス</option>
+                <option value="consulting">コンサルティング</option>
+            </select>
+            <select class="filter-select">
+                <option value="">ステータス</option>
+                <option value="active">アクティブ</option>
+                <option value="inactive">非アクティブ</option>
+                <option value="draft">下書き</option>
+            </select>
+            <button class="btn btn-primary">
+                <span class="material-icons">search</span>
+                検索
+            </button>
+            <button class="btn btn-success">
+                <span class="material-icons">add</span>
+                新規商材登録
+            </button>
+        </div>
+
+        <div class="content-grid">
+            <div class="products-list">
+                <div class="list-header">
+                    <h2 style="margin: 0; font-size: 1.25rem; color: #333;">商材一覧 (12件)</h2>
+                    <button class="btn btn-primary">
+                        <span class="material-icons">download</span>
+                        CSV出力
+                    </button>
+                </div>
+                
+                <div class="product-item active">
+                    <div class="product-header">
+                        <div>
+                            <div class="product-name">CRMプラットフォーム Pro</div>
+                            <div class="product-category">ソフトウェア</div>
+                        </div>
+                        <div class="product-status status-active">アクティブ</div>
+                    </div>
+                    <div class="product-details">
+                        <div class="detail-item">
+                            <div class="detail-label">導入企業数</div>
+                            <div class="detail-value">15社</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">提案中</div>
+                            <div class="detail-value">3社</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">バージョン</div>
+                            <div class="detail-value">v2.1</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">最終更新</div>
+                            <div class="detail-value">2024/01/20</div>
+                        </div>
+                    </div>
+                    <div class="product-tags">
+                        <span class="tag popular">人気</span>
+                        <span class="tag">顧客管理</span>
+                    </div>
+                </div>
+                
+                <div class="product-item">
+                    <div class="product-header">
+                        <div>
+                            <div class="product-name">AIチャットボット Basic</div>
+                            <div class="product-category">ソフトウェア</div>
+                        </div>
+                        <div class="product-status status-active">アクティブ</div>
+                    </div>
+                    <div class="product-details">
+                        <div class="detail-item">
+                            <div class="detail-label">導入企業数</div>
+                            <div class="detail-value">8社</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">提案中</div>
+                            <div class="detail-value">5社</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">バージョン</div>
+                            <div class="detail-value">v1.3</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">最終更新</div>
+                            <div class="detail-value">2024/01/15</div>
+                        </div>
+                    </div>
+                    <div class="product-tags">
+                        <span class="tag new">新商材</span>
+                        <span class="tag">AI</span>
+                        <span class="tag">カスタマーサポート</span>
+                    </div>
+                </div>
+                
+                <div class="product-item">
+                    <div class="product-header">
+                        <div>
+                            <div class="product-name">データ分析ツール Enterprise</div>
+                            <div class="product-category">ソフトウェア</div>
+                        </div>
+                        <div class="product-status status-active">アクティブ</div>
+                    </div>
+                    <div class="product-details">
+                        <div class="detail-item">
+                            <div class="detail-label">導入企業数</div>
+                            <div class="detail-value">6社</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">提案中</div>
+                            <div class="detail-value">2社</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">バージョン</div>
+                            <div class="detail-value">v3.0</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">最終更新</div>
+                            <div class="detail-value">2024/01/10</div>
+                        </div>
+                    </div>
+                    <div class="product-tags">
+                        <span class="tag">データ分析</span>
+                        <span class="tag">BI</span>
+                    </div>
+                </div>
+                
+                <div class="product-item">
+                    <div class="product-header">
+                        <div>
+                            <div class="product-name">セキュリティ監視サービス</div>
+                            <div class="product-category">サービス</div>
+                        </div>
+                        <div class="product-status status-active">アクティブ</div>
+                    </div>
+                    <div class="product-details">
+                        <div class="detail-item">
+                            <div class="detail-label">導入企業数</div>
+                            <div class="detail-value">12社</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">提案中</div>
+                            <div class="detail-value">1社</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">サービスレベル</div>
+                            <div class="detail-value">24/7</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">最終更新</div>
+                            <div class="detail-value">2024/01/05</div>
+                        </div>
+                    </div>
+                    <div class="product-tags">
+                        <span class="tag">セキュリティ</span>
+                        <span class="tag">監視</span>
+                    </div>
+                </div>
+                
+                <div class="product-item">
+                    <div class="product-header">
+                        <div>
+                            <div class="product-name">クラウドストレージ Basic</div>
+                            <div class="product-category">ハードウェア</div>
+                        </div>
+                        <div class="product-status status-inactive">非アクティブ</div>
+                    </div>
+                    <div class="product-details">
+                        <div class="detail-item">
+                            <div class="detail-label">導入企業数</div>
+                            <div class="detail-value">3社</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">提案中</div>
+                            <div class="detail-value">0社</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">容量</div>
+                            <div class="detail-value">1TB</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">最終更新</div>
+                            <div class="detail-value">2023/12/15</div>
+                        </div>
+                    </div>
+                    <div class="product-tags">
+                        <span class="tag">ストレージ</span>
+                        <span class="tag">廃止予定</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">CRMプラットフォーム Pro</h3>
+                        <button class="btn-icon" style="background: rgba(255,255,255,0.2); color: #1976d2;">
+                            <span class="material-icons">edit</span>
+                        </button>
+                    </div>
+                    
+                    <div class="card-content">
+                        <div class="field-group">
+                            <label class="field-label">商材名 *</label>
+                            <input type="text" class="field-input" value="CRMプラットフォーム Pro">
+                        </div>
+                        
+                        <div class="field-group">
+                            <label class="field-label">カテゴリ</label>
+                            <select class="field-input">
+                                <option value="software" selected>ソフトウェア</option>
+                                <option value="hardware">ハードウェア</option>
+                                <option value="service">サービス</option>
+                                <option value="consulting">コンサルティング</option>
+                            </select>
+                        </div>
+                        
+                        <div class="field-group">
+                            <label class="field-label">商材説明</label>
+                            <textarea class="field-textarea" placeholder="商材の詳細説明を入力...">顧客管理に特化したCRMプラットフォーム。営業活動の効率化と顧客満足度向上を実現します。</textarea>
+                        </div>
+                        
+                        <div class="field-group">
+                            <label class="field-label">ステータス</label>
+                            <select class="field-input">
+                                <option value="active" selected>アクティブ</option>
+                                <option value="inactive">非アクティブ</option>
+                                <option value="draft">下書き</option>
+                            </select>
+                        </div>
+                        
+                        <div class="custom-fields">
+                            <div class="custom-field-header">
+                                <h4 style="margin: 0; color: #333;">カスタム項目</h4>
+                                <button class="btn btn-add-field">
+                                    <span class="material-icons">add</span>
+                                    項目追加
+                                </button>
+                            </div>
+                            
+                            <div class="custom-field-item">
+                                <input type="text" class="field-name-input" value="対応OS" placeholder="項目名">
+                                <input type="text" class="field-value-input" value="Windows, Mac, Linux" placeholder="値">
+                                <button class="btn-remove">
+                                    <span class="material-icons">close</span>
+                                </button>
+                            </div>
+                            
+                            <div class="custom-field-item">
+                                <input type="text" class="field-name-input" value="同時接続数" placeholder="項目名">
+                                <input type="text" class="field-value-input" value="最大100ユーザー" placeholder="値">
+                                <button class="btn-remove">
+                                    <span class="material-icons">close</span>
+                                </button>
+                            </div>
+                            
+                            <div class="custom-field-item">
+                                <input type="text" class="field-name-input" value="サポート" placeholder="項目名">
+                                <input type="text" class="field-value-input" value="24時間365日" placeholder="値">
+                                <button class="btn-remove">
+                                    <span class="material-icons">close</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="actions">
+                            <button class="btn btn-primary">
+                                <span class="material-icons">save</span>
+                                保存
+                            </button>
+                            <button class="btn" style="background: #f5f5f5; color: #666;">
+                                キャンセル
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">商材統計</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value">12</div>
+                                <div class="stat-label">総商材数</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">10</div>
+                                <div class="stat-label">アクティブ</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">44</div>
+                                <div class="stat-label">総導入企業</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">11</div>
+                                <div class="stat-label">提案中</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">導入状況</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="deployment-stats">
+                            <div class="deployment-item">
+                                <span class="deployment-name">CRMプラットフォーム Pro</span>
+                                <span class="deployment-count">15社</span>
+                            </div>
+                            <div class="deployment-item">
+                                <span class="deployment-name">セキュリティ監視サービス</span>
+                                <span class="deployment-count">12社</span>
+                            </div>
+                            <div class="deployment-item">
+                                <span class="deployment-name">AIチャットボット Basic</span>
+                                <span class="deployment-count">8社</span>
+                            </div>
+                            <div class="deployment-item">
+                                <span class="deployment-name">データ分析ツール Enterprise</span>
+                                <span class="deployment-count">6社</span>
+                            </div>
+                            <div class="deployment-item">
+                                <span class="deployment-name">その他</span>
+                                <span class="deployment-count">3社</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 商材アイテムのクリック処理
+            const productItems = document.querySelectorAll('.product-item');
+            productItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    productItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 選択された商材の詳細を表示
+                    const productName = this.querySelector('.product-name').textContent;
+                    document.querySelector('.card-title').textContent = productName;
+                    document.querySelector('input[type="text"]').value = productName;
+                });
+            });
+            
+            // 検索機能
+            const searchInput = document.querySelector('.search-input');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                productItems.forEach(item => {
+                    const productName = item.querySelector('.product-name').textContent.toLowerCase();
+                    const productCategory = item.querySelector('.product-category').textContent.toLowerCase();
+                    
+                    if (productName.includes(searchTerm) || productCategory.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+            
+            // カスタム項目追加機能
+            document.querySelector('.btn-add-field').addEventListener('click', function() {
+                const customFields = document.querySelector('.custom-fields');
+                const newField = document.createElement('div');
+                newField.className = 'custom-field-item';
+                newField.innerHTML = `
+                    <input type="text" class="field-name-input" placeholder="項目名">
+                    <input type="text" class="field-value-input" placeholder="値">
+                    <button class="btn-remove">
+                        <span class="material-icons">close</span>
+                    </button>
+                `;
+                
+                // 削除ボタンの機能を追加
+                newField.querySelector('.btn-remove').addEventListener('click', function() {
+                    newField.remove();
+                });
+                
+                // 新しい項目を追加ボタンの前に挿入
+                customFields.insertBefore(newField, this.parentElement);
+            });
+            
+            // 既存の削除ボタン機能
+            document.querySelectorAll('.btn-remove').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.parentElement.remove();
+                });
+            });
+            
+            // フィルター機能
+            document.querySelectorAll('.filter-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    console.log('フィルター変更:', this.value);
+                    // 実際のフィルタリング処理をここに実装
+                });
+            });
+        });
+    </script>
+</body>
+</html>

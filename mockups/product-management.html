@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商材管理 - 顧客管理ツール</title>
+    
+    <!-- Material UI CDN -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.css">
+    
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Material UI -->
+    <script src="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.js"></script>
+    
+    <!-- Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app-header {
+            background: #1976d2;
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .app-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+        }
+        
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .add-product-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .product-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .product-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .product-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .product-item.active {
+            background: #e3f2fd;
+            border-right: 3px solid #1976d2;
+        }
+        
+        .product-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .product-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 11px;
+        }
+        
+        .stat-item {
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        
+        .stat-active { background: #e8f5e8; color: #2e7d2e; }
+        .stat-proposal { background: #fff3e0; color: #e65100; }
+        .stat-considering { background: #e3f2fd; color: #1976d2; }
+        .stat-coming-soon { background: #f3e5f5; color: #7b1fa2; }
+        
+        .main-content {
+            flex: 1;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .content-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .content-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .toggle-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .toggle-btn.active {
+            background: #1976d2;
+            color: white;
+            border-color: #1976d2;
+        }
+        
+        .content-body {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        
+        .product-overview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .overview-card {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .custom-fields {
+            margin-top: 16px;
+        }
+        
+        .custom-field {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+        
+        .add-field-btn {
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px dashed #1976d2;
+            color: #1976d2;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .analytics-card {
+            height: 250px;
+        }
+        
+        .chart-container {
+            height: 180px;
+            position: relative;
+        }
+        
+        .deployment-section {
+            grid-column: 1 / -1;
+        }
+        
+        .deployment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .deployment-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .deployment-filters {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .deployment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        
+        .deployment-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            transition: box-shadow 0.2s;
+        }
+        
+        .deployment-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .company-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .deployment-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+        
+        .status-active { background: #e8f5e8; color: #2e7d2e; }
+        .status-proposal { background: #fff3e0; color: #e65100; }
+        .status-considering { background: #e3f2fd; color: #1976d2; }
+        .status-not-proposed { background: #f5f5f5; color: #666; }
+        
+        .deployment-details {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .renewal-alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #856404;
+        }
+        
+        .action-buttons {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-small {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary-small {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-secondary-small {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .matrix-view {
+            display: none;
+        }
+        
+        .matrix-view.active {
+            display: block;
+        }
+        
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .matrix-table th,
+        .matrix-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .matrix-table th {
+            background: #f8f9fa;
+            font-weight: 500;
+            color: #333;
+            font-size: 13px;
+        }
+        
+        .matrix-table td {
+            font-size: 12px;
+        }
+        
+        .matrix-status {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .product-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .deployment-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="app-header">
+        <div class="app-title">商材管理</div>
+        <div class="user-info">
+            <span>田中 太郎</span>
+            <i class="material-icons">account_circle</i>
+        </div>
+    </header>
+
+    <!-- メインコンテナ -->
+    <div class="main-container">
+        <!-- サイドバー: 商材一覧 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">商材一覧</div>
+                <button class="add-product-btn" onclick="addNewProduct()">
+                    <i class="material-icons" style="font-size: 14px;">add</i>
+                    追加
+                </button>
+            </div>
+            
+            <div class="product-list" id="productList">
+                <!-- 商材リストはJavaScriptで動的生成 -->
+            </div>
+        </div>
+
+        <!-- メインコンテンツ: 商材詳細・導入状況 -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="contentTitle">商材を選択してください</div>
+                <div class="view-toggle">
+                    <button class="toggle-btn active" onclick="switchView('cards')" id="cardsBtn">
+                        <i class="material-icons" style="font-size: 14px; margin-right: 4px;">view_module</i>
+                        カード表示
+                    </button>
+                    <button class="toggle-btn" onclick="switchView('matrix')" id="matrixBtn">
+                        <i class="material-icons" style="font-size: 14px; margin-right: 4px;">table_chart</i>
+                        一覧表示
+                    </button>
+                </div>
+            </div>
+            
+            <div class="content-body" id="contentBody">
+                <div class="empty-state">
+                    <i class="material-icons">inventory_2</i>
+                    <div>左側の商材一覧から商材を選択してください</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // モックデータ
+        const products = [
+            {
+                id: 1,
+                name: '顧客管理システム',
+                category: '基本機能',
+                description: '企業情報管理・Gmail連携・TODO管理を統合した顧客管理ツール',
+                type: 'parent', // 親商材
+                status: 'active', // 開発中
+                chartConfig: {
+                    enabled: true,
+                    title: '機能オプション利用状況',
+                    type: 'doughnut'
+                },
+                options: [
+                    { id: 'basic-crm', name: '基本顧客管理', required: true },
+                    { id: 'gmail-sync', name: 'Gmail連携', required: false },
+                    { id: 'todo-extract', name: 'AI TODO抽出', required: false },
+                    { id: 'custom-fields', name: 'カスタム項目', required: false }
+                ],
+                customFields: {
+                    '導入期間': '3ヶ月',
+                    'サポート': '平日9-18時',
+                    'カスタマイズ': '可能'
+                },
+                deployments: [
+                    {
+                        companyId: 1,
+                        companyName: '株式会社サンプル商事',
+                        status: 'active',
+                        startDate: '2024-01-15',
+                        endDate: '2024-12-31',
+                        renewalDate: '2024-11-30',
+                        担当者: '田中 太郎',
+                        enabledOptions: ['basic-crm', 'gmail-sync', 'todo-extract']
+                    },
+                    {
+                        companyId: 2,
+                        companyName: 'テック株式会社',
+                        status: 'considering',
+                        startDate: null,
+                        endDate: null,
+                        renewalDate: null,
+                        担当者: '佐藤 次郎',
+                        enabledOptions: ['basic-crm']
+                    },
+                    {
+                        companyId: 3,
+                        companyName: '株式会社マーケティングソリューション',
+                        status: 'not-proposed',
+                        startDate: null,
+                        endDate: null,
+                        renewalDate: null,
+                        担当者: '山田 花子',
+                        enabledOptions: []
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: 'メール配信システム',
+                category: 'マーケティング',
+                description: 'HTMLメール作成・配信自動化・開封率分析（別システムとして開発中、将来統合予定）',
+                type: 'parent',
+                status: 'coming-soon', // 開発予定
+                chartConfig: {
+                    enabled: true,
+                    title: 'メール機能オプション構想',
+                    type: 'doughnut'
+                },
+                options: [
+                    { id: 'email-basic', name: '基本メール配信', required: true },
+                    { id: 'email-html', name: 'HTMLメール作成', required: false },
+                    { id: 'email-automation', name: '配信自動化', required: false },
+                    { id: 'email-analytics', name: '開封率・クリック率分析', required: false }
+                ],
+                customFields: {
+                    '開発状況': '別プロジェクトで進行中',
+                    '統合予定': '2024年後半',
+                    'ベータ版': '2024年Q3予定'
+                },
+                deployments: [
+                    {
+                        companyId: 1,
+                        companyName: '株式会社サンプル商事',
+                        status: 'not-proposed',
+                        startDate: null,
+                        endDate: null,
+                        renewalDate: null,
+                        担当者: '田中 太郎',
+                        enabledOptions: []
+                    },
+                    {
+                        companyId: 2,
+                        companyName: 'テック株式会社',
+                        status: 'not-proposed',
+                        startDate: null,
+                        endDate: null,
+                        renewalDate: null,
+                        担当者: '佐藤 次郎',
+                        enabledOptions: []
+                    }
+                ]
+            },
+            {
+                id: 3,
+                name: '分析・レポート機能',
+                category: '将来機能',
+                description: '売上分析・顧客行動分析・カスタムレポート（将来的な機能拡張として検討中）',
+                type: 'parent',
+                status: 'future', // 将来検討
+                chartConfig: {
+                    enabled: true,
+                    title: '分析機能オプション構想',
+                    type: 'doughnut'
+                },
+                options: [
+                    { id: 'analytics-basic', name: '基本分析', required: true },
+                    { id: 'analytics-sales', name: '売上分析', required: false },
+                    { id: 'analytics-behavior', name: '顧客行動分析', required: false },
+                    { id: 'analytics-custom', name: 'カスタムレポート', required: false }
+                ],
+                customFields: {
+                    '開発状況': '構想段階',
+                    '検討開始': '2025年予定',
+                    '優先度': '中〜低'
+                },
+                deployments: [
+                    {
+                        companyId: 1,
+                        companyName: '株式会社サンプル商事',
+                        status: 'not-proposed',
+                        startDate: null,
+                        endDate: null,
+                        renewalDate: null,
+                        担当者: '田中 太郎',
+                        enabledOptions: []
+                    }
+                ]
+            }
+        ];
+
+        let currentProduct = null;
+        let currentView = 'cards';
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProductList();
+        });
+
+        // 商材一覧レンダリング
+        function renderProductList() {
+            const listContainer = document.getElementById('productList');
+            listContainer.innerHTML = '';
+
+            products.forEach(product => {
+                const activeCount = product.deployments.filter(d => d.status === 'active').length;
+                const proposalCount = product.deployments.filter(d => d.status === 'proposal').length;
+                const consideringCount = product.deployments.filter(d => d.status === 'considering').length;
+
+                const item = document.createElement('div');
+                item.className = `product-item ${currentProduct?.id === product.id ? 'active' : ''}`;
+                item.onclick = () => selectProduct(product);
+                
+                const statusBadge = product.status === 'coming-soon' ? 
+                    '<span class="stat-item stat-coming-soon">Coming Soon</span>' :
+                    product.status === 'future' ?
+                    '<span class="stat-item stat-coming-soon">将来構想</span>' : '';
+
+                item.innerHTML = `
+                    <div class="product-name">${product.name} ${statusBadge}</div>
+                    <div class="product-meta">
+                        <span>${product.category}</span>
+                    </div>
+                    <div class="product-stats">
+                        ${product.status === 'active' ? 
+                            `<span class="stat-item stat-active">導入 ${activeCount}</span>
+                             <span class="stat-item stat-proposal">提案 ${proposalCount}</span>
+                             <span class="stat-item stat-considering">検討 ${consideringCount}</span>` :
+                            '<span style="font-size: 11px; color: #999; font-style: italic;">開発予定のため導入実績なし</span>'
+                        }
+                    </div>
+                `;
+                
+                listContainer.appendChild(item);
+            });
+        }
+
+        // 商材選択
+        function selectProduct(product) {
+            currentProduct = product;
+            document.getElementById('contentTitle').textContent = product.name;
+            renderProductDetails(product);
+            renderProductList(); // アクティブ状態更新
+        }
+
+        // 商材詳細レンダリング
+        function renderProductDetails(product) {
+            const contentBody = document.getElementById('contentBody');
+            
+            const activeDeployments = product.deployments.filter(d => d.status === 'active');
+            const proposalDeployments = product.deployments.filter(d => d.status === 'proposal');
+            const consideringDeployments = product.deployments.filter(d => d.status === 'considering');
+            const notProposedDeployments = product.deployments.filter(d => d.status === 'not-proposed');
+
+            const totalRevenue = activeDeployments.length * parseInt(product.price.replace(/[^\d]/g, ''));
+
+            contentBody.innerHTML = `
+                <div class="product-overview">
+                    <!-- 基本情報 -->
+                    <div class="overview-card">
+                        <div class="card-title">
+                            <i class="material-icons">inventory_2</i>
+                            商材基本情報
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">商材名</div>
+                                <div class="info-value">${product.name}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">カテゴリ</div>
+                                <div class="info-value">${product.category}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">説明</div>
+                                <div class="info-value">${product.description}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- カスタム項目 -->
+                        <div class="custom-fields">
+                            <div class="info-label" style="margin-bottom: 12px;">詳細項目</div>
+                            ${Object.entries(product.customFields).map(([key, value]) => 
+                                `<div class="custom-field">
+                                    <span style="font-weight: 500;">${key}</span>
+                                    <span>${value}</span>
+                                </div>`
+                            ).join('')}
+                            <button class="add-field-btn" onclick="addCustomProductField()">
+                                + 項目を追加
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- オプション利用分析 -->
+                    <div class="overview-card analytics-card">
+                        <div class="card-title">
+                            <i class="material-icons">analytics</i>
+                            ${product.chartConfig.enabled ? product.chartConfig.title : '利用状況分析'}
+                        </div>
+                        ${product.chartConfig.enabled ? 
+                            `<div class="chart-container">
+                                <canvas id="deploymentChart" height="180"></canvas>
+                            </div>` :
+                            `<div style="display: flex; align-items: center; justify-content: center; height: 180px; color: #999; font-style: italic;">
+                                このシンプル商材にはオプション分析がありません
+                            </div>`
+                        }
+                    </div>
+                </div>
+
+                <!-- 導入状況詳細 -->
+                <div class="deployment-section">
+                    <div class="deployment-header">
+                        <div class="deployment-title">企業別導入状況</div>
+                        <div class="deployment-filters">
+                            <select class="filter-select" id="statusFilter" onchange="filterDeployments()">
+                                <option value="">全ステータス</option>
+                                <option value="active">導入済み</option>
+                                <option value="proposal">提案中</option>
+                                <option value="considering">検討中</option>
+                                <option value="not-proposed">未提案</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- カード表示 -->
+                    <div class="deployment-grid cards-view" id="cardsView">
+                        ${product.deployments.map(deployment => {
+                            const statusText = {
+                                'active': '導入済み',
+                                'proposal': '提案中',
+                                'considering': '検討中',
+                                'not-proposed': '未提案'
+                            };
+                            
+                            const isRenewalSoon = deployment.renewalDate && 
+                                new Date(deployment.renewalDate) - new Date() < 90 * 24 * 60 * 60 * 1000;
+
+                            return `
+                                <div class="deployment-card" data-status="${deployment.status}">
+                                    <div class="company-name">${deployment.companyName}</div>
+                                    <span class="deployment-status status-${deployment.status}">
+                                        ${statusText[deployment.status]}
+                                    </span>
+                                    <div class="deployment-details">
+                                        <div>担当者: ${deployment.担当者}</div>
+                                        ${deployment.startDate ? `<div>開始日: ${deployment.startDate}</div>` : ''}
+                                        ${deployment.endDate ? `<div>終了日: ${deployment.endDate}</div>` : ''}
+                                        ${deployment.enabledOptions.length > 0 ? 
+                                            `<div style="margin-top: 8px;">
+                                                <div style="font-size: 11px; color: #888; margin-bottom: 4px;">利用オプション:</div>
+                                                ${deployment.enabledOptions.map(optionId => {
+                                                    const option = product.options.find(o => o.id === optionId);
+                                                    return option ? `<span style="background: #e3f2fd; color: #1976d2; padding: 2px 6px; border-radius: 8px; font-size: 10px; margin-right: 4px; margin-bottom: 2px; display: inline-block;">${option.name}</span>` : '';
+                                                }).join('')}
+                                            </div>` : ''
+                                        }
+                                    </div>
+                                    ${isRenewalSoon ? 
+                                        `<div class="renewal-alert">
+                                            ⚠️ 更新期限が近づいています (${deployment.renewalDate})
+                                        </div>` : ''
+                                    }
+                                    <div class="action-buttons">
+                                        ${deployment.status === 'not-proposed' ? 
+                                            `<button class="btn-small btn-primary-small" onclick="proposeProduct(${deployment.companyId})">提案</button>` :
+                                            deployment.status === 'proposal' ?
+                                            `<button class="btn-small btn-primary-small" onclick="updateProposal(${deployment.companyId})">進捗更新</button>` :
+                                            deployment.status === 'considering' ?
+                                            `<button class="btn-small btn-primary-small" onclick="followUpProposal(${deployment.companyId})">フォローアップ</button>` :
+                                            `<button class="btn-small btn-secondary-small" onclick="manageContract(${deployment.companyId})">契約管理</button>`
+                                        }
+                                        <button class="btn-small btn-secondary-small" onclick="viewCompanyDetail(${deployment.companyId})">企業詳細</button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    
+                    <!-- 一覧表示 -->
+                    <div class="matrix-view" id="matrixView">
+                        <table class="matrix-table">
+                            <thead>
+                                <tr>
+                                    <th>企業名</th>
+                                    <th>ステータス</th>
+                                    <th>担当者</th>
+                                    <th>開始日</th>
+                                    <th>更新日</th>
+                                    <th>アクション</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${product.deployments.map(deployment => {
+                                    const statusText = {
+                                        'active': '導入済み',
+                                        'proposal': '提案中',
+                                        'considering': '検討中',
+                                        'not-proposed': '未提案'
+                                    };
+                                    
+                                    return `
+                                        <tr data-status="${deployment.status}">
+                                            <td>${deployment.companyName}</td>
+                                            <td>
+                                                <span class="matrix-status status-${deployment.status}">
+                                                    ${statusText[deployment.status]}
+                                                </span>
+                                            </td>
+                                            <td>${deployment.担当者}</td>
+                                            <td>${deployment.startDate || '-'}</td>
+                                            <td>${deployment.renewalDate || '-'}</td>
+                                            <td>
+                                                <button class="btn-small btn-primary-small" onclick="manageDeployment(${deployment.companyId})">管理</button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            // チャート描画
+            setTimeout(() => {
+                renderDeploymentChart(product);
+            }, 100);
+        }
+
+        // オプション利用状況チャート描画
+        function renderDeploymentChart(product) {
+            const ctx = document.getElementById('deploymentChart');
+            if (!ctx || !product.chartConfig.enabled) return;
+
+            // アクティブな導入企業のオプション利用状況を集計
+            const activeDeployments = product.deployments.filter(d => d.status === 'active');
+            
+            if (activeDeployments.length === 0) {
+                // アクティブな導入がない場合は商品オプションのリストを表示
+                const optionCounts = product.options.map(option => {
+                    return {
+                        name: option.name,
+                        count: 0,
+                        color: option.required ? '#2e7d2e' : '#90caf9'
+                    };
+                });
+
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: optionCounts.map(o => o.name),
+                        datasets: [{
+                            data: optionCounts.map(o => 1), // 均等表示
+                            backgroundColor: optionCounts.map(o => o.color),
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: { size: 11 },
+                                    padding: 10,
+                                    generateLabels: function(chart) {
+                                        return product.options.map((option, index) => ({
+                                            text: `${option.name} (利用企業: 0社)`,
+                                            fillStyle: option.required ? '#2e7d2e' : '#90caf9',
+                                            hidden: false,
+                                            index: index
+                                        }));
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: 利用企業 0社`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+
+            // オプション別の利用企業数を集計
+            const optionCounts = product.options.map(option => {
+                const count = activeDeployments.filter(deployment => 
+                    deployment.enabledOptions.includes(option.id)
+                ).length;
+                return {
+                    name: option.name,
+                    count: count,
+                    color: option.required ? '#2e7d2e' : 
+                           count > activeDeployments.length * 0.7 ? '#4caf50' :
+                           count > activeDeployments.length * 0.3 ? '#ff9800' : '#f44336'
+                };
+            });
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: optionCounts.map(o => o.name),
+                    datasets: [{
+                        data: optionCounts.map(o => Math.max(o.count, 0.1)), // 最小値0.1で表示
+                        backgroundColor: optionCounts.map(o => o.color),
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 11 },
+                                padding: 10,
+                                generateLabels: function(chart) {
+                                    return optionCounts.map((option, index) => ({
+                                        text: `${option.name} (${option.count}社)`,
+                                        fillStyle: option.color,
+                                        hidden: false,
+                                        index: index
+                                    }));
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const option = optionCounts[context.dataIndex];
+                                    const percentage = ((option.count / activeDeployments.length) * 100).toFixed(1);
+                                    return `${context.label}: ${option.count}社 (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 表示切り替え
+        function switchView(view) {
+            currentView = view;
+            
+            // ボタン状態更新
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(view === 'cards' ? 'cardsBtn' : 'matrixBtn').classList.add('active');
+            
+            // ビュー切り替え
+            document.getElementById('cardsView').style.display = view === 'cards' ? 'grid' : 'none';
+            document.getElementById('matrixView').style.display = view === 'matrix' ? 'block' : 'none';
+        }
+
+        // フィルタリング
+        function filterDeployments() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const cards = document.querySelectorAll('.deployment-card');
+            const rows = document.querySelectorAll('.matrix-table tbody tr');
+            
+            cards.forEach(card => {
+                const status = card.getAttribute('data-status');
+                card.style.display = !statusFilter || status === statusFilter ? 'block' : 'none';
+            });
+            
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                row.style.display = !statusFilter || status === statusFilter ? 'table-row' : 'none';
+            });
+        }
+
+        // アクション関数
+        function addNewProduct() {
+            alert('新規商材追加フォームを開きます');
+        }
+
+        function addCustomProductField() {
+            const fieldName = prompt('項目名を入力してください:');
+            if (fieldName && currentProduct) {
+                const fieldValue = prompt(`${fieldName}の値を入力してください:`);
+                if (fieldValue) {
+                    currentProduct.customFields[fieldName] = fieldValue;
+                    renderProductDetails(currentProduct);
+                }
+            }
+        }
+
+        function proposeProduct(companyId) {
+            alert(`企業ID: ${companyId} に対して商材提案を開始します`);
+        }
+
+        function updateProposal(companyId) {
+            alert(`企業ID: ${companyId} の提案進捗を更新します`);
+        }
+
+        function followUpProposal(companyId) {
+            alert(`企業ID: ${companyId} の提案をフォローアップします`);
+        }
+
+        function manageContract(companyId) {
+            alert(`企業ID: ${companyId} の契約を管理します`);
+        }
+
+        function viewCompanyDetail(companyId) {
+            alert(`企業ID: ${companyId} の詳細画面を開きます`);
+        }
+
+        function manageDeployment(companyId) {
+            alert(`企業ID: ${companyId} の導入状況を管理します`);
+        }
+
+        // 初期選択（デモ用）
+        setTimeout(() => {
+            selectProduct(products[0]);
+        }, 500);
+    </script>
+</body>
+</html>

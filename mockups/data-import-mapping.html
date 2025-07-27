@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>データインポート - 顧客管理ツール</title>
+    
+    <!-- Material UI CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/@mui/material@5.14.20/umd/material-ui.development.js"></script>
+    <script src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .breadcrumb {
+            margin-top: 0.5rem;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .stepper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            background: #f5f5f5;
+            padding: 0 1rem;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .step.active .step-circle {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .step.completed .step-circle {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+        }
+        
+        .step.active .step-label {
+            color: #1976d2;
+            font-weight: 500;
+        }
+        
+        .upload-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: #1976d2;
+            background: #f3f8ff;
+        }
+        
+        .upload-area.has-file {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #999;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area.has-file .upload-icon {
+            color: #4caf50;
+        }
+        
+        .file-info {
+            background: #e8f5e8;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .file-details {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .mapping-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .preview-table {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .table-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .mapping-row {
+            display: grid;
+            grid-template-columns: 1fr 50px 1fr 100px;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            align-items: center;
+        }
+        
+        .excel-column {
+            background: #f0f8ff;
+            padding: 0.75rem;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #333;
+        }
+        
+        .mapping-arrow {
+            text-align: center;
+            color: #666;
+        }
+        
+        .system-field {
+            position: relative;
+        }
+        
+        .field-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .field-select.mapped {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .field-select.unmapped {
+            border-color: #ff9800;
+            background: #fff8e1;
+        }
+        
+        .mapping-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        
+        .status-icon {
+            font-size: 18px;
+        }
+        
+        .status-mapped {
+            color: #4caf50;
+        }
+        
+        .status-unmapped {
+            color: #ff9800;
+        }
+        
+        .status-ignored {
+            color: #999;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+        }
+        
+        .mapping-summary {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .auto-detect {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .steps {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .steps::before {
+                display: none;
+            }
+            
+            .mapping-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .mapping-arrow {
+                transform: rotate(90deg);
+            }
+            
+            .main-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>データインポート</h1>
+        <div class="breadcrumb">企業管理 > データインポート > 項目マッピング</div>
+    </header>
+
+    <div class="main-container">
+        <div class="stepper">
+            <div class="steps">
+                <div class="step completed">
+                    <div class="step-circle">✓</div>
+                    <div class="step-label">ファイル選択</div>
+                </div>
+                <div class="step active">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">項目マッピング</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">プレビュー</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">インポート実行</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h2 style="margin-bottom: 1rem; color: #333;">選択されたファイル</h2>
+            <div class="file-info">
+                <div class="file-details">
+                    <span class="material-icons" style="color: #4caf50;">description</span>
+                    <div>
+                        <div style="font-weight: 500;">顧客リスト_2024.xlsx</div>
+                        <div style="font-size: 0.9rem; color: #666;">245 KB • 150行 • 12列</div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary">
+                    <span class="material-icons">change_circle</span>
+                    ファイル変更
+                </button>
+            </div>
+        </div>
+
+        <div class="mapping-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="margin: 0; color: #333;">項目マッピング</h2>
+                <button class="btn btn-secondary" id="auto-detect-btn">
+                    <span class="material-icons">auto_fix_high</span>
+                    自動マッピング
+                </button>
+            </div>
+
+            <div class="auto-detect" id="auto-detect-result" style="display: none;">
+                <span class="material-icons" style="color: #1976d2;">smart_toy</span>
+                <div>
+                    <strong>自動マッピング完了</strong><br>
+                    <span style="font-size: 0.9rem; color: #666;">8項目を自動的にマッピングしました。確認してください。</span>
+                </div>
+            </div>
+
+            <div class="mapping-summary">
+                <div class="summary-item">
+                    <span>マッピング済み項目:</span>
+                    <span style="color: #4caf50; font-weight: 500;">8 / 12</span>
+                </div>
+                <div class="summary-item">
+                    <span>無視される項目:</span>
+                    <span style="color: #999;">4</span>
+                </div>
+                <div class="summary-item">
+                    <span>インポート予定データ数:</span>
+                    <span style="color: #1976d2; font-weight: 500;">150件</span>
+                </div>
+            </div>
+
+            <div class="preview-table">
+                <div class="table-header">
+                    Excelファイル列 ➜ システム項目へのマッピング
+                </div>
+                
+                <div class="mapping-row">
+                    <div class="excel-column">A列: 会社名</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select mapped">
+                            <option value="">マッピング先を選択</option>
+                            <option value="company_name" selected>会社名 (必須)</option>
+                            <option value="contact">連絡先</option>
+                            <option value="address">住所</option>
+                            <option value="industry">業種</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-mapped">check_circle</span>
+                    </div>
+                </div>
+
+                <div class="mapping-row">
+                    <div class="excel-column">B列: 業界</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select mapped">
+                            <option value="">マッピング先を選択</option>
+                            <option value="company_name">会社名 (必須)</option>
+                            <option value="contact">連絡先</option>
+                            <option value="address">住所</option>
+                            <option value="industry" selected>業種</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-mapped">check_circle</span>
+                    </div>
+                </div>
+
+                <div class="mapping-row">
+                    <div class="excel-column">C列: 電話番号</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select mapped">
+                            <option value="">マッピング先を選択</option>
+                            <option value="company_name">会社名 (必須)</option>
+                            <option value="contact" selected>連絡先</option>
+                            <option value="address">住所</option>
+                            <option value="industry">業種</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-mapped">check_circle</span>
+                    </div>
+                </div>
+
+                <div class="mapping-row">
+                    <div class="excel-column">D列: 所在地</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select mapped">
+                            <option value="">マッピング先を選択</option>
+                            <option value="company_name">会社名 (必須)</option>
+                            <option value="contact">連絡先</option>
+                            <option value="address" selected>住所</option>
+                            <option value="industry">業種</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-mapped">check_circle</span>
+                    </div>
+                </div>
+
+                <div class="mapping-row">
+                    <div class="excel-column">E列: 従業員数</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select mapped">
+                            <option value="">マッピング先を選択</option>
+                            <option value="employee_count" selected>従業員数</option>
+                            <option value="custom_field">カスタム項目として追加</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-mapped">check_circle</span>
+                    </div>
+                </div>
+
+                <div class="mapping-row">
+                    <div class="excel-column">F列: 売上規模</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select mapped">
+                            <option value="">マッピング先を選択</option>
+                            <option value="revenue" selected>売上規模 (カスタム項目)</option>
+                            <option value="custom_field">カスタム項目として追加</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-mapped">check_circle</span>
+                    </div>
+                </div>
+
+                <div class="mapping-row">
+                    <div class="excel-column">G列: 担当営業</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select mapped">
+                            <option value="">マッピング先を選択</option>
+                            <option value="assigned_user" selected>担当者</option>
+                            <option value="custom_field">カスタム項目として追加</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-mapped">check_circle</span>
+                    </div>
+                </div>
+
+                <div class="mapping-row">
+                    <div class="excel-column">H列: ステータス</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select mapped">
+                            <option value="">マッピング先を選択</option>
+                            <option value="status" selected>企業ステータス</option>
+                            <option value="custom_field">カスタム項目として追加</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-mapped">check_circle</span>
+                    </div>
+                </div>
+
+                <div class="mapping-row">
+                    <div class="excel-column">I列: 設立年</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select unmapped">
+                            <option value="" selected>マッピング先を選択</option>
+                            <option value="established_year">設立年 (カスタム項目)</option>
+                            <option value="custom_field">カスタム項目として追加</option>
+                            <option value="ignore">この列を無視</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-unmapped">warning</span>
+                    </div>
+                </div>
+
+                <div class="mapping-row">
+                    <div class="excel-column">J列: 備考</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select unmapped">
+                            <option value="" selected>マッピング先を選択</option>
+                            <option value="notes">備考 (カスタム項目)</option>
+                            <option value="custom_field">カスタム項目として追加</option>
+                            <option value="ignore">この列を無視</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-unmapped">warning</span>
+                    </div>
+                </div>
+
+                <div class="mapping-row">
+                    <div class="excel-column">K列: ID (システム用)</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select">
+                            <option value="">マッピング先を選択</option>
+                            <option value="custom_field">カスタム項目として追加</option>
+                            <option value="ignore" selected>この列を無視</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-ignored">block</span>
+                    </div>
+                </div>
+
+                <div class="mapping-row">
+                    <div class="excel-column">L列: 更新日</div>
+                    <div class="mapping-arrow">➜</div>
+                    <div class="system-field">
+                        <select class="field-select">
+                            <option value="">マッピング先を選択</option>
+                            <option value="custom_field">カスタム項目として追加</option>
+                            <option value="ignore" selected>この列を無視</option>
+                        </select>
+                    </div>
+                    <div class="mapping-status">
+                        <span class="material-icons status-icon status-ignored">block</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-secondary">
+                    <span class="material-icons">arrow_back</span>
+                    戻る
+                </button>
+                <button class="btn btn-primary">
+                    プレビュー確認
+                    <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 自動マッピング機能
+            document.getElementById('auto-detect-btn').addEventListener('click', function() {
+                const resultDiv = document.getElementById('auto-detect-result');
+                resultDiv.style.display = 'flex';
+                
+                // 未マッピングの項目を自動マッピング
+                const unmappedSelects = document.querySelectorAll('.field-select.unmapped');
+                unmappedSelects.forEach(select => {
+                    if (select.querySelector('option[value="established_year"]')) {
+                        select.value = 'established_year';
+                        select.className = 'field-select mapped';
+                        const statusIcon = select.closest('.mapping-row').querySelector('.status-icon');
+                        statusIcon.textContent = 'check_circle';
+                        statusIcon.className = 'material-icons status-icon status-mapped';
+                    } else if (select.querySelector('option[value="notes"]')) {
+                        select.value = 'notes';
+                        select.className = 'field-select mapped';
+                        const statusIcon = select.closest('.mapping-row').querySelector('.status-icon');
+                        statusIcon.textContent = 'check_circle';
+                        statusIcon.className = 'material-icons status-icon status-mapped';
+                    }
+                });
+                
+                // サマリーを更新
+                document.querySelector('.summary-item:first-child span:last-child').innerHTML = 
+                    '<span style="color: #4caf50; font-weight: 500;">10 / 12</span>';
+                document.querySelector('.summary-item:nth-child(2) span:last-child').textContent = '2';
+            });
+            
+            // マッピング状態の変更
+            document.querySelectorAll('.field-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    const row = this.closest('.mapping-row');
+                    const statusIcon = row.querySelector('.status-icon');
+                    
+                    if (this.value === '' || this.value === 'ignore') {
+                        this.className = 'field-select';
+                        if (this.value === 'ignore') {
+                            statusIcon.textContent = 'block';
+                            statusIcon.className = 'material-icons status-icon status-ignored';
+                        } else {
+                            statusIcon.textContent = 'warning';
+                            statusIcon.className = 'material-icons status-icon status-unmapped';
+                        }
+                    } else {
+                        this.className = 'field-select mapped';
+                        statusIcon.textContent = 'check_circle';
+                        statusIcon.className = 'material-icons status-icon status-mapped';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

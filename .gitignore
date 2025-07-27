@@ -1,0 +1,38 @@
+# 環境変数ファイル
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# 依存関係ディレクトリ
+node_modules/
+dist/
+build/
+coverage/
+
+# ログファイル
+*.log
+logs/
+
+# OSが生成する一時ファイル
+.DS_Store
+Thumbs.db
+
+# エディタ固有のファイル
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 機密情報を含む可能性のあるファイル
+**/config/secrets.js
+**/credentials.json
+
+# テストとスクリプトフォルダ
+/test/
+/tests/
+/script/
+/scripts/
+/__tests__/
+EOF < /dev/null

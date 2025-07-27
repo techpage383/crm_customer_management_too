@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail設定 - 顧客管理ツール</title>
+    
+    <!-- Material UI CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/@mui/material@5.14.20/umd/material-ui.development.js"></script>
+    <script src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .setup-wizard {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .wizard-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .wizard-title {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+            font-size: 1.5rem;
+        }
+        
+        .wizard-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .status-connected {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+        }
+        
+        .status-disconnected {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+        
+        .status-warning {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            color: #ef6c00;
+        }
+        
+        .status-icon {
+            font-size: 2rem;
+        }
+        
+        .status-text {
+            text-align: center;
+        }
+        
+        .status-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .status-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .oauth-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            margin: 0 0 1.5rem 0;
+            color: #333;
+            font-size: 1.25rem;
+        }
+        
+        .oauth-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1rem;
+        }
+        
+        .oauth-button:hover {
+            background: #3367d6;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+        
+        .oauth-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .google-icon {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .permissions-info {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 4px;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .permissions-title {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.75rem;
+        }
+        
+        .permissions-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .permissions-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .permissions-list li:last-child {
+            margin-bottom: 0;
+        }
+        
+        .sync-settings {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .setting-group {
+            margin-bottom: 2rem;
+        }
+        
+        .setting-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .setting-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .setting-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.75rem;
+        }
+        
+        .setting-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .setting-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .sync-status {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+        
+        .sync-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .sync-item:last-child {
+            border-bottom: none;
+        }
+        
+        .sync-info {
+            flex: 1;
+        }
+        
+        .sync-name {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .sync-detail {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .sync-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #4caf50;
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+        
+        .troubleshooting {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+        
+        .troubleshooting-title {
+            font-weight: 500;
+            color: #ef6c00;
+            margin-bottom: 0.5rem;
+        }
+        
+        .troubleshooting-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .oauth-button {
+                font-size: 1rem;
+                padding: 0.875rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Gmail設定</h1>
+    </header>
+
+    <div class="main-container">
+        <div class="setup-wizard">
+            <div class="wizard-header">
+                <h2 class="wizard-title">Gmail連携設定</h2>
+                <p class="wizard-subtitle">顧客とのメールを自動で同期し、対応履歴を一元管理できます</p>
+            </div>
+
+            <div class="connection-status status-connected">
+                <span class="material-icons status-icon">check_circle</span>
+                <div class="status-text">
+                    <div class="status-title">Gmail連携済み</div>
+                    <div class="status-description">tanaka@sample.com で連携中</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="oauth-section">
+            <h3 class="section-title">Google認証設定</h3>
+            
+            <button class="oauth-button" disabled>
+                <div class="google-icon">
+                    <span style="color: #4285f4; font-weight: bold;">G</span>
+                </div>
+                Googleアカウントと連携済み
+            </button>
+            
+            <div class="permissions-info">
+                <div class="permissions-title">連携で許可されている操作:</div>
+                <ul class="permissions-list">
+                    <li>
+                        <span class="material-icons" style="font-size: 16px; color: #4caf50;">check</span>
+                        メールの読み取り（受信・送信履歴）
+                    </li>
+                    <li>
+                        <span class="material-icons" style="font-size: 16px; color: #4caf50;">check</span>
+                        メールラベルの管理
+                    </li>
+                    <li>
+                        <span class="material-icons" style="font-size: 16px; color: #4caf50;">check</span>
+                        添付ファイルの読み取り
+                    </li>
+                    <li>
+                        <span class="material-icons" style="font-size: 16px; color: #f44336;">close</span>
+                        メールの送信（読み取り専用モード）
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-secondary">
+                    <span class="material-icons">refresh</span>
+                    認証更新
+                </button>
+                <button class="btn btn-danger">
+                    <span class="material-icons">link_off</span>
+                    連携解除
+                </button>
+            </div>
+        </div>
+
+        <div class="sync-settings">
+            <h3 class="section-title">同期設定</h3>
+            
+            <div class="setting-group">
+                <label class="setting-label">同期間隔</label>
+                <div class="setting-description">新着メールをチェックする頻度を設定します</div>
+                <select class="setting-input">
+                    <option value="5">5分毎</option>
+                    <option value="10" selected>10分毎</option>
+                    <option value="15">15分毎</option>
+                    <option value="30">30分毎</option>
+                    <option value="60">1時間毎</option>
+                </select>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">同期対象期間</label>
+                <div class="setting-description">過去どのくらいの期間のメールを同期するか設定します</div>
+                <select class="setting-input">
+                    <option value="30">過去30日</option>
+                    <option value="90" selected>過去3ヶ月</option>
+                    <option value="180">過去6ヶ月</option>
+                    <option value="365">過去1年</option>
+                    <option value="all">全期間</option>
+                </select>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">同期対象フォルダ</label>
+                <div class="setting-description">同期するGmailのフォルダを選択してください</div>
+                <div class="setting-checkbox">
+                    <input type="checkbox" class="checkbox" checked>
+                    <span>受信トレイ</span>
+                </div>
+                <div class="setting-checkbox">
+                    <input type="checkbox" class="checkbox" checked>
+                    <span>送信済みアイテム</span>
+                </div>
+                <div class="setting-checkbox">
+                    <input type="checkbox" class="checkbox">
+                    <span>下書き</span>
+                </div>
+                <div class="setting-checkbox">
+                    <input type="checkbox" class="checkbox">
+                    <span>迷惑メール</span>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">自動企業関連付け</label>
+                <div class="setting-description">メールアドレスのドメインから企業を自動判定します</div>
+                <div class="setting-checkbox">
+                    <input type="checkbox" class="checkbox" checked>
+                    <span>ドメイン自動マッチングを有効にする</span>
+                </div>
+                <div class="setting-checkbox">
+                    <input type="checkbox" class="checkbox" checked>
+                    <span>新規企業を自動作成する</span>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">TODO自動抽出</label>
+                <div class="setting-description">メール内容からTODOを自動で抽出します</div>
+                <div class="setting-checkbox">
+                    <input type="checkbox" class="checkbox" checked>
+                    <span>AI TODO抽出を有効にする</span>
+                </div>
+                <div class="setting-checkbox">
+                    <input type="checkbox" class="checkbox">
+                    <span>抽出結果を自動承認する</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sync-status">
+            <h3 class="section-title">同期状況</h3>
+            
+            <div class="sync-item">
+                <div class="sync-info">
+                    <div class="sync-name">最終同期</div>
+                    <div class="sync-detail">2024年1月27日 14:45 (5分前)</div>
+                </div>
+                <div class="sync-indicator">
+                    <span class="material-icons">sync</span>
+                    正常
+                </div>
+            </div>
+            
+            <div class="sync-item">
+                <div class="sync-info">
+                    <div class="sync-name">同期済みメール数</div>
+                    <div class="sync-detail">総 1,247件 (今日: 15件)</div>
+                </div>
+                <div class="sync-indicator">
+                    <span class="material-icons">mail</span>
+                    最新
+                </div>
+            </div>
+            
+            <div class="sync-item">
+                <div class="sync-info">
+                    <div class="sync-name">企業関連付け</div>
+                    <div class="sync-detail">812件関連付け済み (65%)</div>
+                </div>
+                <div class="sync-indicator">
+                    <span class="material-icons">business</span>
+                    良好
+                </div>
+            </div>
+            
+            <div class="sync-item">
+                <div class="sync-info">
+                    <div class="sync-name">TODO抽出</div>
+                    <div class="sync-detail">今日: 3件抽出、5件確認待ち</div>
+                </div>
+                <div class="sync-indicator">
+                    <span class="material-icons">assignment</span>
+                    要確認
+                </div>
+            </div>
+            
+            <div class="sync-item">
+                <div class="sync-info">
+                    <div class="sync-name">API使用状況</div>
+                    <div class="sync-detail">今日: 245回 / 上限 10,000回</div>
+                </div>
+                <div class="sync-indicator">
+                    <span class="material-icons">api</span>
+                    正常
+                </div>
+            </div>
+            
+            <div class="troubleshooting">
+                <div class="troubleshooting-title">同期で問題が発生した場合</div>
+                <div class="troubleshooting-text">
+                    認証エラーの場合は「認証更新」を、完全に同期をやり直したい場合は連携解除後に再設定してください。
+                    メール数が多い場合は初回同期に時間がかかる場合があります。
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-secondary">
+                    <span class="material-icons">sync</span>
+                    手動同期実行
+                </button>
+                <button class="btn btn-primary">
+                    <span class="material-icons">save</span>
+                    設定保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // チェックボックスの状態管理
+            document.querySelectorAll('.checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    console.log('設定変更:', this.parentElement.textContent.trim(), this.checked);
+                });
+            });
+            
+            // 設定変更の監視
+            document.querySelectorAll('.setting-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    console.log('設定変更:', this.previousElementSibling.textContent, this.value);
+                });
+            });
+            
+            // 手動同期ボタン
+            document.querySelector('.btn-secondary:last-of-type').addEventListener('click', function() {
+                this.disabled = true;
+                this.innerHTML = '<span class="material-icons">hourglass_empty</span>同期中...';
+                
+                // 5秒後に元に戻す（実際のアプリでは同期完了まで）
+                setTimeout(() => {
+                    this.disabled = false;
+                    this.innerHTML = '<span class="material-icons">sync</span>手動同期実行';
+                }, 5000);
+            });
+            
+            // 連携解除確認
+            document.querySelector('.btn-danger').addEventListener('click', function() {
+                if (confirm('Gmail連携を解除しますか？これまでの同期データは保持されますが、新規同期は停止されます。')) {
+                    alert('連携解除処理を開始します。');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

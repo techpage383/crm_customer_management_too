@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ユーザー管理 - 顧客管理ツール</title>
+    
+    <!-- Material UI CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/@mui/material@5.14.20/umd/material-ui.development.js"></script>
+    <script src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .toolbar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .filter-select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            min-width: 150px;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #45a049;
+        }
+        
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #f57c00;
+        }
+        
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        .users-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #333;
+        }
+        
+        .table-content {
+            overflow-x: auto;
+        }
+        
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .user-table th {
+            background: #f8f9fa;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 1px solid #e0e0e0;
+            white-space: nowrap;
+        }
+        
+        .user-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: middle;
+        }
+        
+        .user-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e3f2fd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1976d2;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        
+        .user-details {
+            min-width: 0;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .user-email {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .role-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .role-admin {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .role-user {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .role-manager {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .status-active {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .status-inactive {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .last-login {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-icon {
+            padding: 0.5rem;
+            background: #f5f5f5;
+            color: #666;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover {
+            background: #e0e0e0;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .card-title {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #333;
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #1976d2;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .permission-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .permission-item:last-child {
+            border-bottom: none;
+        }
+        
+        .permission-name {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .permission-toggle {
+            position: relative;
+            width: 40px;
+            height: 20px;
+            background: #ccc;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .permission-toggle.active {
+            background: #4caf50;
+        }
+        
+        .permission-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        
+        .permission-toggle.active::after {
+            transform: translateX(20px);
+        }
+        
+        .activity-item {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .activity-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e3f2fd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1976d2;
+            flex-shrink: 0;
+        }
+        
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .activity-text {
+            font-size: 0.9rem;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-input, .filter-select {
+                min-width: unset;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-content {
+                overflow-x: scroll;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>ユーザー管理</h1>
+    </header>
+
+    <div class="main-container">
+        <div class="toolbar">
+            <input type="text" class="search-input" placeholder="ユーザー名・メールアドレスで検索...">
+            <select class="filter-select">
+                <option value="">役割</option>
+                <option value="admin">管理者</option>
+                <option value="manager">マネージャー</option>
+                <option value="user">一般ユーザー</option>
+            </select>
+            <select class="filter-select">
+                <option value="">ステータス</option>
+                <option value="active">アクティブ</option>
+                <option value="inactive">非アクティブ</option>
+            </select>
+            <button class="btn btn-primary">
+                <span class="material-icons">search</span>
+                検索
+            </button>
+            <button class="btn btn-success">
+                <span class="material-icons">person_add</span>
+                新規ユーザー追加
+            </button>
+        </div>
+
+        <div class="content-grid">
+            <div class="users-table">
+                <div class="table-header">
+                    <h2 class="table-title">ユーザー一覧 (6名)</h2>
+                    <button class="btn btn-primary">
+                        <span class="material-icons">download</span>
+                        CSV出力
+                    </button>
+                </div>
+                
+                <div class="table-content">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>ユーザー</th>
+                                <th>役割</th>
+                                <th>ステータス</th>
+                                <th>最終ログイン</th>
+                                <th>Gmail連携</th>
+                                <th>アクション</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">田</div>
+                                        <div class="user-details">
+                                            <div class="user-name">田中 太郎</div>
+                                            <div class="user-email">tanaka@sample.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="role-badge role-admin">管理者</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-active">アクティブ</span>
+                                </td>
+                                <td class="last-login">2024/01/27 14:30</td>
+                                <td>
+                                    <span class="material-icons" style="color: #4caf50;">check_circle</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" title="編集">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="btn-icon" title="権限設定">
+                                            <span class="material-icons">security</span>
+                                        </button>
+                                        <button class="btn-icon" title="ログ確認">
+                                            <span class="material-icons">history</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">佐</div>
+                                        <div class="user-details">
+                                            <div class="user-name">佐藤 花子</div>
+                                            <div class="user-email">sato@sample.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="role-badge role-manager">マネージャー</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-active">アクティブ</span>
+                                </td>
+                                <td class="last-login">2024/01/27 11:15</td>
+                                <td>
+                                    <span class="material-icons" style="color: #4caf50;">check_circle</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" title="編集">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="btn-icon" title="権限設定">
+                                            <span class="material-icons">security</span>
+                                        </button>
+                                        <button class="btn-icon" title="ログ確認">
+                                            <span class="material-icons">history</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">鈴</div>
+                                        <div class="user-details">
+                                            <div class="user-name">鈴木 次郎</div>
+                                            <div class="user-email">suzuki@sample.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="role-badge role-user">一般ユーザー</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-active">アクティブ</span>
+                                </td>
+                                <td class="last-login">2024/01/26 17:45</td>
+                                <td>
+                                    <span class="material-icons" style="color: #4caf50;">check_circle</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" title="編集">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="btn-icon" title="権限設定">
+                                            <span class="material-icons">security</span>
+                                        </button>
+                                        <button class="btn-icon" title="ログ確認">
+                                            <span class="material-icons">history</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">山</div>
+                                        <div class="user-details">
+                                            <div class="user-name">山田 三郎</div>
+                                            <div class="user-email">yamada@sample.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="role-badge role-user">一般ユーザー</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-active">アクティブ</span>
+                                </td>
+                                <td class="last-login">2024/01/25 09:20</td>
+                                <td>
+                                    <span class="material-icons" style="color: #ff9800;">warning</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" title="編集">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="btn-icon" title="権限設定">
+                                            <span class="material-icons">security</span>
+                                        </button>
+                                        <button class="btn-icon" title="Gmail設定">
+                                            <span class="material-icons">mail</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">高</div>
+                                        <div class="user-details">
+                                            <div class="user-name">高橋 美咲</div>
+                                            <div class="user-email">takahashi@sample.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="role-badge role-user">一般ユーザー</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-inactive">非アクティブ</span>
+                                </td>
+                                <td class="last-login">2024/01/15 16:00</td>
+                                <td>
+                                    <span class="material-icons" style="color: #ccc;">remove_circle</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" title="編集">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="btn-icon" title="アクティベート">
+                                            <span class="material-icons">play_arrow</span>
+                                        </button>
+                                        <button class="btn-icon" title="削除">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">中</div>
+                                        <div class="user-details">
+                                            <div class="user-name">中村 健一</div>
+                                            <div class="user-email">nakamura@sample.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="role-badge role-user">一般ユーザー</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-active">アクティブ</span>
+                                </td>
+                                <td class="last-login">2024/01/24 13:45</td>
+                                <td>
+                                    <span class="material-icons" style="color: #4caf50;">check_circle</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" title="編集">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="btn-icon" title="権限設定">
+                                            <span class="material-icons">security</span>
+                                        </button>
+                                        <button class="btn-icon" title="ログ確認">
+                                            <span class="material-icons">history</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">ユーザー統計</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value">6</div>
+                                <div class="stat-label">総ユーザー数</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">5</div>
+                                <div class="stat-label">アクティブ</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">5</div>
+                                <div class="stat-label">Gmail連携済み</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">1</div>
+                                <div class="stat-label">管理者</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">権限設定</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="permission-item">
+                            <span class="permission-name">企業管理</span>
+                            <div class="permission-toggle active"></div>
+                        </div>
+                        <div class="permission-item">
+                            <span class="permission-name">契約管理</span>
+                            <div class="permission-toggle active"></div>
+                        </div>
+                        <div class="permission-item">
+                            <span class="permission-name">データインポート</span>
+                            <div class="permission-toggle"></div>
+                        </div>
+                        <div class="permission-item">
+                            <span class="permission-name">ユーザー管理</span>
+                            <div class="permission-toggle"></div>
+                        </div>
+                        <div class="permission-item">
+                            <span class="permission-name">システム設定</span>
+                            <div class="permission-toggle"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">最近のアクティビティ</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <span class="material-icons">login</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">田中がログインしました</div>
+                                <div class="activity-time">2時間前</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <span class="material-icons">person_add</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">中村のアカウントが作成されました</div>
+                                <div class="activity-time">3日前</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <span class="material-icons">security</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">佐藤の権限が更新されました</div>
+                                <div class="activity-time">1週間前</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <span class="material-icons">block</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">高橋のアカウントが無効化されました</div>
+                                <div class="activity-time">2週間前</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 権限トグル機能
+            document.querySelectorAll('.permission-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                });
+            });
+            
+            // 検索機能
+            const searchInput = document.querySelector('.search-input');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('.user-table tbody tr');
+                
+                rows.forEach(row => {
+                    const userName = row.querySelector('.user-name').textContent.toLowerCase();
+                    const userEmail = row.querySelector('.user-email').textContent.toLowerCase();
+                    
+                    if (userName.includes(searchTerm) || userEmail.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+            
+            // フィルター機能
+            const roleFilter = document.querySelector('.filter-select:first-of-type');
+            roleFilter.addEventListener('change', function() {
+                const selectedRole = this.value;
+                const rows = document.querySelectorAll('.user-table tbody tr');
+                
+                rows.forEach(row => {
+                    if (!selectedRole) {
+                        row.style.display = '';
+                        return;
+                    }
+                    
+                    const roleBadge = row.querySelector('.role-badge');
+                    const roleText = roleBadge.textContent;
+                    
+                    if ((selectedRole === 'admin' && roleText === '管理者') ||
+                        (selectedRole === 'manager' && roleText === 'マネージャー') ||
+                        (selectedRole === 'user' && roleText === '一般ユーザー')) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

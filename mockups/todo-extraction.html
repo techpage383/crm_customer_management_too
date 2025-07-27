@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO抽出確認 - 顧客管理ツール</title>
+    
+    <!-- Material UI CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/@mui/material@5.14.20/umd/material-ui.development.js"></script>
+    <script src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .toolbar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            min-width: 150px;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #45a049;
+        }
+        
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #f57c00;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        .todo-list {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .list-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .todo-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .todo-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .todo-item.selected {
+            background-color: #e3f2fd;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .todo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .todo-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .status-pending {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .status-confirmed {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .status-rejected {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .status-modified {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .todo-content {
+            margin-bottom: 1rem;
+        }
+        
+        .todo-text {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 4px;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .todo-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .meta-item {
+            font-size: 0.9rem;
+        }
+        
+        .meta-label {
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+        
+        .meta-value {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .confidence-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .confidence-label {
+            font-size: 0.9rem;
+            color: #666;
+            min-width: 80px;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .confidence-high {
+            background: #4caf50;
+        }
+        
+        .confidence-medium {
+            background: #ff9800;
+        }
+        
+        .confidence-low {
+            background: #f44336;
+        }
+        
+        .confidence-value {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #333;
+            min-width: 40px;
+        }
+        
+        .todo-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-icon {
+            padding: 0.5rem;
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .btn-icon:hover {
+            background: #e0e0e0;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .card-title {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #333;
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .email-preview {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .email-subject {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .email-from {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.75rem;
+        }
+        
+        .email-content {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .highlighted {
+            background: #ffeb3b;
+            padding: 0 0.25rem;
+            border-radius: 2px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #1976d2;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .bulk-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-select {
+                min-width: unset;
+            }
+            
+            .todo-meta {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .bulk-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>TODO抽出確認</h1>
+    </header>
+
+    <div class="main-container">
+        <div class="toolbar">
+            <select class="filter-select">
+                <option value="">ステータス</option>
+                <option value="pending">確認待ち</option>
+                <option value="confirmed">承認済み</option>
+                <option value="rejected">却下</option>
+                <option value="modified">編集済み</option>
+            </select>
+            <select class="filter-select">
+                <option value="">信頼度</option>
+                <option value="high">高 (80%以上)</option>
+                <option value="medium">中 (50-79%)</option>
+                <option value="low">低 (50%未満)</option>
+            </select>
+            <select class="filter-select">
+                <option value="">企業</option>
+                <option value="sample">サンプル株式会社</option>
+                <option value="test">テスト商事</option>
+                <option value="demo">デモ工業</option>
+            </select>
+            <button class="btn btn-success">
+                <span class="material-icons">check</span>
+                一括承認
+            </button>
+            <button class="btn btn-warning">
+                <span class="material-icons">refresh</span>
+                再抽出実行
+            </button>
+        </div>
+
+        <div class="content-grid">
+            <div class="todo-list">
+                <div class="list-header">
+                    <h2 style="margin: 0; font-size: 1.25rem; color: #333;">抽出されたTODO (8件)</h2>
+                    <span style="font-size: 0.9rem; color: #666;">確認待ち: 5件</span>
+                </div>
+                
+                <div class="todo-item selected">
+                    <div class="todo-header">
+                        <div class="todo-status status-pending">確認待ち</div>
+                        <span style="font-size: 0.9rem; color: #666;">2時間前</span>
+                    </div>
+                    
+                    <div class="todo-content">
+                        <div class="todo-text">
+                            来週の火曜日（1/30）までに提案書を作成して送付する
+                        </div>
+                        
+                        <div class="confidence-bar">
+                            <span class="confidence-label">信頼度:</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill confidence-high" style="width: 85%;"></div>
+                            </div>
+                            <span class="confidence-value">85%</span>
+                        </div>
+                        
+                        <div class="todo-meta">
+                            <div class="meta-item">
+                                <div class="meta-label">企業</div>
+                                <div class="meta-value">サンプル株式会社</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">期限</div>
+                                <div class="meta-value">2024/01/30</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">優先度</div>
+                                <div class="meta-value">高</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">抽出元</div>
+                                <div class="meta-value">メール</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="todo-actions">
+                        <button class="btn btn-success btn-sm">
+                            <span class="material-icons">check</span>
+                            承認
+                        </button>
+                        <button class="btn btn-primary btn-sm">
+                            <span class="material-icons">edit</span>
+                            編集
+                        </button>
+                        <button class="btn btn-warning btn-sm">
+                            <span class="material-icons">close</span>
+                            却下
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="todo-item">
+                    <div class="todo-header">
+                        <div class="todo-status status-pending">確認待ち</div>
+                        <span style="font-size: 0.9rem; color: #666;">3時間前</span>
+                    </div>
+                    
+                    <div class="todo-content">
+                        <div class="todo-text">
+                            システムの運用開始日について営業部と調整する
+                        </div>
+                        
+                        <div class="confidence-bar">
+                            <span class="confidence-label">信頼度:</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill confidence-medium" style="width: 72%;"></div>
+                            </div>
+                            <span class="confidence-value">72%</span>
+                        </div>
+                        
+                        <div class="todo-meta">
+                            <div class="meta-item">
+                                <div class="meta-label">企業</div>
+                                <div class="meta-value">テスト商事株式会社</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">期限</div>
+                                <div class="meta-value">未指定</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">優先度</div>
+                                <div class="meta-value">中</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">抽出元</div>
+                                <div class="meta-value">メール</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="todo-actions">
+                        <button class="btn btn-success btn-sm">
+                            <span class="material-icons">check</span>
+                            承認
+                        </button>
+                        <button class="btn btn-primary btn-sm">
+                            <span class="material-icons">edit</span>
+                            編集
+                        </button>
+                        <button class="btn btn-warning btn-sm">
+                            <span class="material-icons">close</span>
+                            却下
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="todo-item">
+                    <div class="todo-header">
+                        <div class="todo-status status-confirmed">承認済み</div>
+                        <span style="font-size: 0.9rem; color: #666;">昨日</span>
+                    </div>
+                    
+                    <div class="todo-content">
+                        <div class="todo-text">
+                            契約書のレビューを法務部に依頼する
+                        </div>
+                        
+                        <div class="confidence-bar">
+                            <span class="confidence-label">信頼度:</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill confidence-high" style="width: 91%;"></div>
+                            </div>
+                            <span class="confidence-value">91%</span>
+                        </div>
+                        
+                        <div class="todo-meta">
+                            <div class="meta-item">
+                                <div class="meta-label">企業</div>
+                                <div class="meta-value">デモ工業株式会社</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">期限</div>
+                                <div class="meta-value">2024/02/05</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">優先度</div>
+                                <div class="meta-value">高</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">担当者</div>
+                                <div class="meta-value">田中</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="todo-item">
+                    <div class="todo-header">
+                        <div class="todo-status status-pending">確認待ち</div>
+                        <span style="font-size: 0.9rem; color: #666;">5時間前</span>
+                    </div>
+                    
+                    <div class="todo-content">
+                        <div class="todo-text">
+                            月次レポートの作成フォーマットを検討する
+                        </div>
+                        
+                        <div class="confidence-bar">
+                            <span class="confidence-label">信頼度:</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill confidence-low" style="width: 45%;"></div>
+                            </div>
+                            <span class="confidence-value">45%</span>
+                        </div>
+                        
+                        <div class="todo-meta">
+                            <div class="meta-item">
+                                <div class="meta-label">企業</div>
+                                <div class="meta-value">ABC商事株式会社</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">期限</div>
+                                <div class="meta-value">未指定</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">優先度</div>
+                                <div class="meta-value">低</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">抽出元</div>
+                                <div class="meta-value">メール</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="todo-actions">
+                        <button class="btn btn-success btn-sm">
+                            <span class="material-icons">check</span>
+                            承認
+                        </button>
+                        <button class="btn btn-primary btn-sm">
+                            <span class="material-icons">edit</span>
+                            編集
+                        </button>
+                        <button class="btn btn-warning btn-sm">
+                            <span class="material-icons">close</span>
+                            却下
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="todo-item">
+                    <div class="todo-header">
+                        <div class="todo-status status-rejected">却下</div>
+                        <span style="font-size: 0.9rem; color: #666;">2日前</span>
+                    </div>
+                    
+                    <div class="todo-content">
+                        <div class="todo-text">
+                            明日の会議資料を準備する必要があります
+                        </div>
+                        
+                        <div class="confidence-bar">
+                            <span class="confidence-label">信頼度:</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill confidence-medium" style="width: 65%;"></div>
+                            </div>
+                            <span class="confidence-value">65%</span>
+                        </div>
+                        
+                        <div class="todo-meta">
+                            <div class="meta-item">
+                                <div class="meta-label">企業</div>
+                                <div class="meta-value">サンプル株式会社</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">却下理由</div>
+                                <div class="meta-value">期限切れ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">抽出元メール</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="email-preview">
+                            <div class="email-subject">Re: 来週の提案書について</div>
+                            <div class="email-from">山田太郎 &lt;yamada@sample.com&gt;</div>
+                            <div class="email-content">
+                                お疲れ様です。<br><br>
+                                先日お話しいただいた件ですが、<span class="highlighted">来週の火曜日（1/30）までに提案書を作成して送付</span>していただけますでしょうか。<br><br>
+                                内容については先日の打ち合わせ内容を踏まえて作成いただければと思います。<br><br>
+                                何かご質問等ございましたらお気軽にお声がけください。<br><br>
+                                よろしくお願いいたします。
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" style="width: 100%;">
+                            <span class="material-icons">mail</span>
+                            メール全文を確認
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">抽出統計</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value">8</div>
+                                <div class="stat-label">今日の抽出</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">5</div>
+                                <div class="stat-label">確認待ち</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">2</div>
+                                <div class="stat-label">承認済み</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">73%</div>
+                                <div class="stat-label">平均信頼度</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">一括操作</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="bulk-actions">
+                            <button class="btn btn-success" style="width: 100%;">
+                                <span class="material-icons">check_circle</span>
+                                信頼度80%以上を一括承認
+                            </button>
+                            <button class="btn btn-warning" style="width: 100%;">
+                                <span class="material-icons">cancel</span>
+                                信頼度50%未満を一括却下
+                            </button>
+                            <button class="btn btn-primary" style="width: 100%;">
+                                <span class="material-icons">assignment</span>
+                                承認済みをTODO一覧へ追加
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // TODOアイテムの選択
+            const todoItems = document.querySelectorAll('.todo-item');
+            todoItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    todoItems.forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+            
+            // 個別操作ボタン
+            document.querySelectorAll('.todo-actions .btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const action = this.textContent.trim();
+                    const todoText = this.closest('.todo-item').querySelector('.todo-text').textContent.trim();
+                    
+                    if (action.includes('承認')) {
+                        this.closest('.todo-item').querySelector('.todo-status').className = 'todo-status status-confirmed';
+                        this.closest('.todo-item').querySelector('.todo-status').textContent = '承認済み';
+                    } else if (action.includes('却下')) {
+                        this.closest('.todo-item').querySelector('.todo-status').className = 'todo-status status-rejected';
+                        this.closest('.todo-item').querySelector('.todo-status').textContent = '却下';
+                    }
+                    
+                    console.log(`${action}: ${todoText}`);
+                });
+            });
+            
+            // フィルター機能
+            document.querySelectorAll('.filter-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    console.log('フィルター変更:', this.value);
+                    // 実際のフィルタリング処理をここに実装
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{
+  "name": "customer-management-backend",
+  "version": "1.0.0",
+  "description": "Customer Management Tool Backend with Gmail Integration",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint src/**/*.ts",
+    "typecheck": "tsc --noEmit",
+    "db:setup": "psql $DATABASE_URL -f database/schema.sql",
+    "db:reset": "psql $DATABASE_URL -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;' && npm run db:setup"
+  },
+  "keywords": [
+    "customer",
+    "gmail",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@googleapis/gmail": "^14.0.1",
+    "@types/cookie-parser": "^1.4.9",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^4.19.2",
+    "googleapis": "^154.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/google.maps": "^3.58.1",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.1.0",
+    "@types/pg": "^8.15.4",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^9.32.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

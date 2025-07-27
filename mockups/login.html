@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>顧客管理ツール - ログイン</title>
+    
+    <!-- Material UI CDN -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.css">
+    
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Material UI -->
+    <script src="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 48px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .logo {
+            margin-bottom: 32px;
+        }
+        
+        .logo h1 {
+            color: #1976d2;
+            font-size: 28px;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .logo p {
+            color: #666;
+            margin: 8px 0 0 0;
+            font-size: 14px;
+        }
+        
+        .auth-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .google-btn:hover {
+            background: #357ae8;
+        }
+        
+        .google-btn svg {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+        
+        .divider span {
+            padding: 0 16px;
+        }
+        
+        .traditional-login {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .form-group {
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #1976d2;
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+        }
+        
+        .login-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .login-btn:hover {
+            background: #1565c0;
+        }
+        
+        .footer-links {
+            margin-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        
+        .footer-links a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .security-notice {
+            margin-top: 24px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .mfa-prompt {
+            display: none;
+            margin-top: 16px;
+            padding: 16px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .mfa-code {
+            margin-top: 12px;
+        }
+        
+        .mfa-code input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            letter-spacing: 4px;
+            box-sizing: border-box;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 32px 24px;
+                margin: 16px;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- ロゴ・タイトル -->
+        <div class="logo">
+            <h1>顧客管理ツール</h1>
+            <p>効率的な顧客関係管理</p>
+        </div>
+        
+        <!-- 認証方法 -->
+        <div class="auth-methods">
+            <!-- メイン認証: Google OAuth -->
+            <button class="google-btn" onclick="handleGoogleLogin()">
+                <svg viewBox="0 0 24 24">
+                    <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Googleアカウントでログイン
+            </button>
+            
+            <!-- 区切り線 -->
+            <div class="divider">
+                <span>または</span>
+            </div>
+            
+            <!-- 従来ログイン（最小化） -->
+            <div class="traditional-login">
+                <div class="form-group">
+                    <label for="email">メールアドレス</label>
+                    <input type="email" id="email" placeholder="例: user@company.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">パスワード</label>
+                    <input type="password" id="password" placeholder="パスワードを入力">
+                </div>
+                
+                <button class="login-btn" onclick="handleTraditionalLogin()">
+                    ログイン
+                </button>
+            </div>
+        </div>
+        
+        <!-- 多要素認証プロンプト（必要時のみ表示） -->
+        <div class="mfa-prompt" id="mfaPrompt">
+            <strong>セキュリティ確認</strong>
+            <p>認証アプリの6桁のコードを入力してください</p>
+            <div class="mfa-code">
+                <input type="text" id="mfaCode" placeholder="000000" maxlength="6">
+            </div>
+            <button class="login-btn" onclick="handleMFAVerification()" style="margin-top: 12px; width: 100%;">
+                確認
+            </button>
+        </div>
+        
+        <!-- フッターリンク -->
+        <div class="footer-links">
+            <a href="#" onclick="handleForgotPassword()">パスワードを忘れた方</a>
+            <a href="#" onclick="handleRegister()">新規ユーザー登録</a>
+        </div>
+        
+        <!-- セキュリティ注意事項 -->
+        <div class="security-notice">
+            <strong>🔒 セキュリティ:</strong> このシステムは多層セキュリティで保護されています。不正アクセスは自動検知・ブロックされます。
+        </div>
+    </div>
+
+    <script>
+        // モックデータ・状態管理
+        let currentUser = null;
+        let mfaRequired = false;
+        let loginAttempts = 0;
+
+        // Google OAuth ログイン
+        function handleGoogleLogin() {
+            // 実際の実装では Google OAuth2 フローを実行
+            showLoading('Googleアカウント認証中...');
+            
+            setTimeout(() => {
+                // モック認証成功
+                currentUser = {
+                    id: 'user_001',
+                    email: 'user@company.com',
+                    name: '田中 太郎',
+                    role: 'manager',
+                    gmailConnected: true
+                };
+                
+                hideLoading();
+                showSuccess('ログイン成功！ダッシュボードへリダイレクトします...');
+                
+                setTimeout(() => {
+                    // 実際の実装では dashboard.html へリダイレクト
+                    alert('ダッシュボードページへ移動します');
+                }, 1500);
+            }, 2000);
+        }
+
+        // 従来ログイン
+        function handleTraditionalLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showError('メールアドレスとパスワードを入力してください');
+                return;
+            }
+            
+            loginAttempts++;
+            showLoading('認証中...');
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                // 多要素認証が必要な場合
+                if (loginAttempts === 1) {
+                    mfaRequired = true;
+                    document.getElementById('mfaPrompt').style.display = 'block';
+                    showInfo('セキュリティのため、多要素認証が必要です');
+                    return;
+                }
+                
+                // ログイン成功
+                currentUser = {
+                    id: 'user_002',
+                    email: email,
+                    name: '山田 花子',
+                    role: 'user',
+                    gmailConnected: false
+                };
+                
+                showSuccess('ログイン成功！');
+                setTimeout(() => {
+                    alert('ダッシュボードページへ移動します');
+                }, 1500);
+            }, 1500);
+        }
+
+        // 多要素認証確認
+        function handleMFAVerification() {
+            const mfaCode = document.getElementById('mfaCode').value;
+            
+            if (!mfaCode || mfaCode.length !== 6) {
+                showError('6桁のコードを入力してください');
+                return;
+            }
+            
+            showLoading('認証中...');
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                if (mfaCode === '123456') {
+                    showSuccess('多要素認証成功！ログインしています...');
+                    document.getElementById('mfaPrompt').style.display = 'none';
+                    
+                    setTimeout(() => {
+                        alert('ダッシュボードページへ移動します');
+                    }, 1500);
+                } else {
+                    showError('認証コードが正しくありません');
+                }
+            }, 1000);
+        }
+
+        // パスワードリセット
+        function handleForgotPassword() {
+            const email = prompt('パスワードリセット用のメールアドレスを入力してください:');
+            if (email) {
+                showInfo(`${email} にリセット手順を送信しました`);
+            }
+        }
+
+        // 新規登録
+        function handleRegister() {
+            alert('新規ユーザー登録は管理者にお問い合わせください');
+        }
+
+        // ユーティリティ関数
+        function showLoading(message) {
+            // 簡易ローディング表示
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loading';
+            loadingDiv.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                font-size: 18px;
+                z-index: 1000;
+            `;
+            loadingDiv.innerHTML = `<div>${message}</div>`;
+            document.body.appendChild(loadingDiv);
+        }
+
+        function hideLoading() {
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.remove();
+            }
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 1001;
+                background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
+            `;
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        function showSuccess(message) { showMessage(message, 'success'); }
+        function showError(message) { showMessage(message, 'error'); }
+        function showInfo(message) { showMessage(message, 'info'); }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // フォーカス設定
+            document.getElementById('email').focus();
+            
+            // エンターキー対応
+            document.getElementById('password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleTraditionalLogin();
+                }
+            });
+            
+            document.getElementById('mfaCode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleMFAVerification();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

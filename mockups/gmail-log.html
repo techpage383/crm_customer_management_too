@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail連携・対応ログ - 顧客管理ツール</title>
+    
+    <!-- Material UI CDN -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.css">
+    
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Material UI -->
+    <script src="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app-header {
+            background: #1976d2;
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .app-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+        
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4caf50;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+        }
+        
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-section {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+        
+        .filter-tab {
+            flex: 1;
+            padding: 8px 12px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-tab.active {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .company-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .company-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+        
+        .company-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .company-item.active {
+            background: #e3f2fd;
+            border-right: 3px solid #1976d2;
+        }
+        
+        .company-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .company-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .mail-stats {
+            display: flex;
+            gap: 8px;
+            font-size: 10px;
+        }
+        
+        .stat-badge {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .stat-unread { background: #ffebee; color: #c62828; }
+        .stat-important { background: #fff3e0; color: #ef6c00; }
+        .stat-todo { background: #e8f5e8; color: #2e7d32; }
+        
+        .unread-indicator {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #1976d2;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .content-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .content-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .mail-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .content-body {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mail-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 24px;
+        }
+        
+        .mail-thread {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        
+        .thread-header {
+            background: #fafafa;
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .thread-header:hover {
+            background: #f0f0f0;
+        }
+        
+        .thread-subject {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .thread-meta {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            gap: 16px;
+        }
+        
+        .thread-indicators {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .indicator-unread { background: #1976d2; color: white; }
+        .indicator-important { background: #ff9800; color: white; }
+        .indicator-todo { background: #4caf50; color: white; }
+        .indicator-attachment { background: #9c27b0; color: white; }
+        
+        .mail-content {
+            display: none;
+            padding: 20px;
+            background: white;
+        }
+        
+        .mail-content.expanded {
+            display: block;
+        }
+        
+        .mail-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 16px 0;
+        }
+        
+        .mail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .mail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .mail-from {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .mail-date {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .mail-body {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #fafafa;
+            padding: 12px;
+            border-radius: 6px;
+        }
+        
+        .mail-attachments {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .attachment {
+            background: #e3f2fd;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #1976d2;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .mail-tags {
+            margin-top: 8px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .mail-tag {
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .tag-important { background: #fff3e0; color: #ef6c00; }
+        .tag-todo { background: #e8f5e8; color: #2e7d32; }
+        .tag-follow-up { background: #e3f2fd; color: #1976d2; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 16px;
+        }
+        
+        .quick-filters {
+            padding: 12px 24px;
+            background: #fafafa;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .quick-filter {
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-filter.active {
+            background: #1976d2;
+            color: white;
+            border-color: #1976d2;
+        }
+        
+        .gmail-sync-info {
+            padding: 12px 20px;
+            background: #e8f5e8;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 12px;
+            color: #2e7d32;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .mail-header {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="app-header">
+        <div class="app-title">Gmail連携・対応ログ</div>
+        <div class="sync-status">
+            <div class="sync-indicator"></div>
+            <span>Gmail同期中...</span>
+        </div>
+        <div class="user-info">
+            <span>田中 太郎 (tanaka@company.com)</span>
+            <i class="material-icons">account_circle</i>
+        </div>
+    </header>
+
+    <!-- Gmail同期情報 -->
+    <div class="gmail-sync-info">
+        <i class="material-icons" style="font-size: 16px;">check_circle</i>
+        <span>最終同期: 2024年1月27日 15:30 | 新着メール: 3件 | 同期対象アカウント: tanaka@company.com</span>
+    </div>
+
+    <!-- メインコンテナ -->
+    <div class="main-container">
+        <!-- サイドバー: 企業一覧・検索 -->
+        <div class="sidebar">
+            <!-- 検索・フィルター -->
+            <div class="search-section">
+                <input type="text" class="search-box" placeholder="企業名・メール内容で検索..." id="searchInput">
+                
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterMails('all')">すべて</button>
+                    <button class="filter-tab" onclick="filterMails('unread')">未読</button>
+                    <button class="filter-tab" onclick="filterMails('important')">重要</button>
+                    <button class="filter-tab" onclick="filterMails('todo')">TODO</button>
+                </div>
+            </div>
+            
+            <!-- 企業一覧 -->
+            <div class="company-list" id="companyList">
+                <!-- 企業リストはJavaScriptで動的生成 -->
+            </div>
+        </div>
+
+        <!-- メインコンテンツ: メール履歴 -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="contentTitle">企業を選択してください</div>
+                <div class="mail-actions">
+                    <button class="btn btn-secondary" onclick="syncGmail()">
+                        <i class="material-icons" style="font-size: 16px;">sync</i>
+                        手動同期
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportMails()">
+                        <i class="material-icons" style="font-size: 16px;">download</i>
+                        エクスポート
+                    </button>
+                    <button class="btn btn-primary" onclick="composeMail()">
+                        <i class="material-icons" style="font-size: 16px;">edit</i>
+                        新規メール
+                    </button>
+                </div>
+            </div>
+            
+            <!-- クイックフィルター -->
+            <div class="quick-filters">
+                <span style="font-size: 12px; color: #666;">表示:</span>
+                <button class="quick-filter active" onclick="quickFilter('all')">すべて</button>
+                <button class="quick-filter" onclick="quickFilter('today')">今日</button>
+                <button class="quick-filter" onclick="quickFilter('week')">1週間</button>
+                <button class="quick-filter" onclick="quickFilter('month')">1ヶ月</button>
+                <button class="quick-filter" onclick="quickFilter('attachments')">添付ファイル有</button>
+            </div>
+            
+            <div class="content-body" id="contentBody">
+                <div class="empty-state">
+                    <i class="material-icons">email</i>
+                    <div>左側の企業一覧から企業を選択してメール履歴を表示</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // モックデータ
+        const companies = [
+            {
+                id: 1,
+                name: '株式会社サンプル商事',
+                emails: ['info@sample-corp.jp', 'tanaka@sample-corp.jp'],
+                担当者: '田中 太郎',
+                unreadCount: 2,
+                importantCount: 1,
+                todoCount: 1,
+                lastMailDate: '2024-01-27',
+                mailThreads: [
+                    {
+                        id: 'thread-1',
+                        subject: 'au法人契約の更新について',
+                        participants: ['info@sample-corp.jp', 'tanaka@company.com'],
+                        unread: true,
+                        important: true,
+                        hasTodo: true,
+                        hasAttachment: false,
+                        mailCount: 3,
+                        lastDate: '2024-01-27 14:30',
+                        mails: [
+                            {
+                                id: 'mail-1',
+                                from: 'info@sample-corp.jp',
+                                to: 'tanaka@company.com',
+                                date: '2024-01-25 10:00',
+                                subject: 'au法人契約の更新について',
+                                body: 'いつもお世話になっております。来月で現在のau法人契約が満了となりますが、更新手続きについてご相談があります。\n\n現在のプラン:\n- 5G使い放題プラン\n- 通話し放題オプション\n- 20回線\n\n更新に際して、プラン見直しの提案があれば教えてください。',
+                                attachments: [],
+                                tags: ['重要', 'au契約', '更新'],
+                                unread: false
+                            },
+                            {
+                                id: 'mail-2',
+                                from: 'tanaka@company.com',
+                                to: 'info@sample-corp.jp',
+                                date: '2024-01-26 15:30',
+                                subject: 'Re: au法人契約の更新について',
+                                body: 'お疲れ様です。田中です。\n\nご連絡ありがとうございます。現在のご利用状況を確認させていただき、最適なプランをご提案いたします。\n\n確認事項:\n1. 月間データ使用量の実績\n2. 通話使用状況\n3. 新規回線の追加予定\n\n来週の火曜日にお伺いして詳細をお打ち合わせさせていただければと思います。いかがでしょうか？',
+                                attachments: [
+                                    { name: 'au法人プラン2024.pdf', size: '2.3MB' }
+                                ],
+                                tags: ['提案', 'フォローアップ'],
+                                unread: false
+                            },
+                            {
+                                id: 'mail-3',
+                                from: 'info@sample-corp.jp',
+                                to: 'tanaka@company.com',
+                                date: '2024-01-27 14:30',
+                                subject: 'Re: au法人契約の更新について',
+                                body: 'お疲れ様です。\n\n来週火曜日のお打ち合わせの件、14:00〜16:00でお願いできますでしょうか？\n\n会議室Aをご用意いたします。\n\nよろしくお願いいたします。',
+                                attachments: [],
+                                tags: ['TODO', '会議予定'],
+                                unread: true
+                            }
+                        ]
+                    },
+                    {
+                        id: 'thread-2',
+                        subject: '新規回線追加のお見積り依頼',
+                        participants: ['procurement@sample-corp.jp', 'tanaka@company.com'],
+                        unread: false,
+                        important: false,
+                        hasTodo: false,
+                        hasAttachment: true,
+                        mailCount: 2,
+                        lastDate: '2024-01-24 16:45',
+                        mails: [
+                            {
+                                id: 'mail-4',
+                                from: 'procurement@sample-corp.jp',
+                                to: 'tanaka@company.com',
+                                date: '2024-01-24 10:00',
+                                subject: '新規回線追加のお見積り依頼',
+                                body: '調達部の山田です。\n\n営業部門の拡張に伴い、au法人回線を10回線追加したく、お見積りをお願いいたします。\n\n希望条件:\n- データ容量: 20GB以上\n- 通話: かけ放題\n- 開始希望日: 2024年3月1日\n\nご確認よろしくお願いいたします。',
+                                attachments: [
+                                    { name: '新規社員リスト.xlsx', size: '45KB' }
+                                ],
+                                tags: ['見積り', '新規'],
+                                unread: false
+                            },
+                            {
+                                id: 'mail-5',
+                                from: 'tanaka@company.com',
+                                to: 'procurement@sample-corp.jp',
+                                date: '2024-01-24 16:45',
+                                subject: 'Re: 新規回線追加のお見積り依頼',
+                                body: 'お疲れ様です。田中です。\n\n新規回線のお見積り依頼ありがとうございます。\n\n添付のお見積書をご確認ください。法人割引も適用しております。\n\nご不明点がございましたらお気軽にお声がけください。',
+                                attachments: [
+                                    { name: 'au法人回線見積書_20240124.pdf', size: '1.2MB' }
+                                ],
+                                tags: ['見積り送付', '完了'],
+                                unread: false
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: 'テック株式会社',
+                emails: ['contact@tech-corp.jp'],
+                担当者: '佐藤 次郎',
+                unreadCount: 1,
+                importantCount: 0,
+                todoCount: 0,
+                lastMailDate: '2024-01-26',
+                mailThreads: [
+                    {
+                        id: 'thread-3',
+                        subject: 'au 5Gプランのご案内',
+                        participants: ['contact@tech-corp.jp', 'sato@company.com'],
+                        unread: true,
+                        important: false,
+                        hasTodo: false,
+                        hasAttachment: false,
+                        mailCount: 1,
+                        lastDate: '2024-01-26 11:20',
+                        mails: [
+                            {
+                                id: 'mail-6',
+                                from: 'sato@company.com',
+                                to: 'contact@tech-corp.jp',
+                                date: '2024-01-26 11:20',
+                                subject: 'au 5Gプランのご案内',
+                                body: 'いつもお世話になっております。佐藤です。\n\n新しいau 5Gプランのご案内をさせていただきます。\n\n現在ご利用中のプランと比較して、以下のメリットがございます:\n- データ容量20%増量\n- 月額料金5%削減\n- 5G対応エリア拡大\n\nご検討いただければ幸いです。',
+                                attachments: [],
+                                tags: ['提案', '5G'],
+                                unread: true
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 3,
+                name: '株式会社マーケティングソリューション',
+                emails: ['info@marketing-sol.jp'],
+                担当者: '山田 花子',
+                unreadCount: 0,
+                importantCount: 0,
+                todoCount: 0,
+                lastMailDate: '2024-01-20',
+                mailThreads: [
+                    {
+                        id: 'thread-4',
+                        subject: '定期メンテナンスのお知らせ',
+                        participants: ['info@marketing-sol.jp', 'yamada@company.com'],
+                        unread: false,
+                        important: false,
+                        hasTodo: false,
+                        hasAttachment: false,
+                        mailCount: 1,
+                        lastDate: '2024-01-20 09:00',
+                        mails: [
+                            {
+                                id: 'mail-7',
+                                from: 'yamada@company.com',
+                                to: 'info@marketing-sol.jp',
+                                date: '2024-01-20 09:00',
+                                subject: '定期メンテナンスのお知らせ',
+                                body: 'いつもお世話になっております。山田です。\n\n来月のauネットワーク定期メンテナンスについてお知らせいたします。\n\n日時: 2024年2月15日 2:00-6:00\n影響: 音声通話・データ通信が一時的に利用できない場合があります\n\nご不便をおかけいたしますが、ご理解のほどよろしくお願いいたします。',
+                                attachments: [],
+                                tags: ['メンテナンス', '告知'],
+                                unread: false
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        let currentCompany = null;
+        let currentFilter = 'all';
+        let currentQuickFilter = 'all';
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCompanyList();
+            setupEventListeners();
+        });
+
+        // 企業一覧レンダリング
+        function renderCompanyList() {
+            const listContainer = document.getElementById('companyList');
+            listContainer.innerHTML = '';
+
+            const filteredCompanies = companies.filter(company => {
+                if (currentFilter === 'unread') return company.unreadCount > 0;
+                if (currentFilter === 'important') return company.importantCount > 0;
+                if (currentFilter === 'todo') return company.todoCount > 0;
+                return true;
+            });
+
+            filteredCompanies.forEach(company => {
+                const item = document.createElement('div');
+                item.className = `company-item ${currentCompany?.id === company.id ? 'active' : ''}`;
+                item.onclick = () => selectCompany(company);
+                
+                item.innerHTML = `
+                    ${company.unreadCount > 0 ? '<div class="unread-indicator"></div>' : ''}
+                    <div class="company-name">${company.name}</div>
+                    <div class="company-meta">
+                        <span>${company.担当者}</span>
+                        <span>${company.lastMailDate}</span>
+                    </div>
+                    <div class="mail-stats">
+                        ${company.unreadCount > 0 ? `<span class="stat-badge stat-unread">${company.unreadCount}未読</span>` : ''}
+                        ${company.importantCount > 0 ? `<span class="stat-badge stat-important">${company.importantCount}重要</span>` : ''}
+                        ${company.todoCount > 0 ? `<span class="stat-badge stat-todo">${company.todoCount}TODO</span>` : ''}
+                    </div>
+                `;
+                
+                listContainer.appendChild(item);
+            });
+        }
+
+        // 企業選択
+        function selectCompany(company) {
+            currentCompany = company;
+            document.getElementById('contentTitle').textContent = `${company.name} との対応履歴`;
+            renderMailThreads(company);
+            renderCompanyList(); // アクティブ状態更新
+        }
+
+        // メールスレッドレンダリング
+        function renderMailThreads(company) {
+            const contentBody = document.getElementById('contentBody');
+            
+            let threads = company.mailThreads;
+            
+            // クイックフィルター適用
+            if (currentQuickFilter === 'today') {
+                const today = new Date().toISOString().split('T')[0];
+                threads = threads.filter(thread => thread.lastDate.includes(today));
+            } else if (currentQuickFilter === 'week') {
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                threads = threads.filter(thread => new Date(thread.lastDate) >= weekAgo);
+            } else if (currentQuickFilter === 'month') {
+                const monthAgo = new Date();
+                monthAgo.setMonth(monthAgo.getMonth() - 1);
+                threads = threads.filter(thread => new Date(thread.lastDate) >= monthAgo);
+            } else if (currentQuickFilter === 'attachments') {
+                threads = threads.filter(thread => thread.hasAttachment);
+            }
+
+            contentBody.innerHTML = `
+                <div class="mail-list">
+                    ${threads.map(thread => `
+                        <div class="mail-thread">
+                            <div class="thread-header" onclick="toggleThread('${thread.id}')">
+                                <div>
+                                    <div class="thread-subject">${thread.subject}</div>
+                                    <div class="thread-meta">
+                                        <span>${thread.mailCount}件のメール</span>
+                                        <span>${thread.participants.join(', ')}</span>
+                                        <span>${thread.lastDate}</span>
+                                    </div>
+                                </div>
+                                <div class="thread-indicators">
+                                    ${thread.unread ? '<div class="indicator indicator-unread">未</div>' : ''}
+                                    ${thread.important ? '<div class="indicator indicator-important">重</div>' : ''}
+                                    ${thread.hasTodo ? '<div class="indicator indicator-todo">T</div>' : ''}
+                                    ${thread.hasAttachment ? '<div class="indicator indicator-attachment">📎</div>' : ''}
+                                </div>
+                            </div>
+                            <div class="mail-content" id="content-${thread.id}">
+                                ${thread.mails.map(mail => `
+                                    <div class="mail-item ${mail.unread ? 'unread' : ''}">
+                                        <div class="mail-header">
+                                            <div class="mail-from">${mail.from}</div>
+                                            <div class="mail-date">${mail.date}</div>
+                                        </div>
+                                        <div class="mail-body">${mail.body.replace(/\n/g, '<br>')}</div>
+                                        ${mail.attachments.length > 0 ? `
+                                            <div class="mail-attachments">
+                                                ${mail.attachments.map(att => `
+                                                    <div class="attachment">
+                                                        <i class="material-icons" style="font-size: 12px;">attach_file</i>
+                                                        ${att.name} (${att.size})
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : ''}
+                                        <div class="mail-tags">
+                                            ${mail.tags.map(tag => {
+                                                const tagClass = tag === '重要' ? 'tag-important' : 
+                                                                tag === 'TODO' ? 'tag-todo' : 
+                                                                tag === 'フォローアップ' ? 'tag-follow-up' : '';
+                                                return `<span class="mail-tag ${tagClass}">${tag}</span>`;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // スレッド展開/折りたたみ
+        function toggleThread(threadId) {
+            const content = document.getElementById(`content-${threadId}`);
+            content.classList.toggle('expanded');
+        }
+
+        // メールフィルター
+        function filterMails(filter) {
+            currentFilter = filter;
+            
+            // アクティブタブ更新
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderCompanyList();
+        }
+
+        // クイックフィルター
+        function quickFilter(filter) {
+            currentQuickFilter = filter;
+            
+            // アクティブフィルター更新
+            document.querySelectorAll('.quick-filter').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (currentCompany) {
+                renderMailThreads(currentCompany);
+            }
+        }
+
+        // イベントリスナー設定
+        function setupEventListeners() {
+            // 検索
+            document.getElementById('searchInput').addEventListener('input', function() {
+                // 実装時は検索機能を追加
+                console.log('検索:', this.value);
+            });
+        }
+
+        // アクション関数
+        function syncGmail() {
+            alert('Gmail手動同期を開始します');
+        }
+
+        function exportMails() {
+            alert('メール履歴をエクスポートします');
+        }
+
+        function composeMail() {
+            alert('新規メール作成画面を開きます');
+        }
+
+        // 初期選択（デモ用）
+        setTimeout(() => {
+            selectCompany(companies[0]);
+        }, 500);
+    </script>
+</body>
+</html>
