@@ -1,0 +1,139 @@
+/**
+ * 認証フローの統合テスト
+ * P-001 ログインページの動作確認
+ */
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { BrowserRouter } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import LoginPage from '../../pages/public/LoginPage';
+
+const theme = createTheme();
+
+const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <BrowserRouter>
+    <ThemeProvider theme={theme}>
+      {children}
+    </ThemeProvider>
+  </BrowserRouter>
+);
+
+describe('認証フロー統合テスト', () => {
+  beforeEach(() => {
+    // モック環境設定
+    process.env.NODE_ENV = 'development';
+  });
+
+  test('ログインページが正常に表示される', () => {
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>
+    );
+
+    // ページタイトル確認
+    expect(screen.getByText('顧客管理システム')).toBeInTheDocument();
+    expect(screen.getByText('ログイン')).toBeInTheDocument();
+
+    // フォーム要素確認
+    expect(screen.getByPlaceholderText('メールアドレス')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('パスワード')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /ログイン/i })).toBeInTheDocument();
+  });
+
+  test('モック環境でのテスト用ログインボタンが表示される', () => {
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>
+    );
+
+    // モック環境のみ表示
+    expect(screen.getByText('[MOCK] ログインページ - モックデータで完全動作中')).toBeInTheDocument();
+    expect(screen.getByText('一般ユーザー')).toBeInTheDocument();
+    expect(screen.getByText('管理者')).toBeInTheDocument();
+  });
+
+  test('一般ユーザーログインテスト', async () => {
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>
+    );
+
+    // テスト用ログインボタンクリック
+    const userLoginButton = screen.getByText('一般ユーザー');
+    fireEvent.click(userLoginButton);
+
+    // ログイン処理完了を待機
+    await waitFor(() => {
+      expect(screen.queryByText('ログイン中...')).not.toBeInTheDocument();
+    }, { timeout: 3000 });
+  });
+
+  test('管理者ログインテスト', async () => {
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>
+    );
+
+    // テスト用ログインボタンクリック  
+    const adminLoginButton = screen.getByText('管理者');
+    fireEvent.click(adminLoginButton);
+
+    // ログイン処理完了を待機
+    await waitFor(() => {
+      expect(screen.queryByText('ログイン中...')).not.toBeInTheDocument();
+    }, { timeout: 3000 });
+  });
+
+  test('手動ログインフォームの入力と送信', async () => {
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>
+    );
+
+    // フォーム入力
+    const emailInput = screen.getByPlaceholderText('メールアドレス');
+    const passwordInput = screen.getByPlaceholderText('パスワード');
+    const loginButton = screen.getByRole('button', { name: /ログイン/i });
+
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+    // ログインボタンクリック
+    fireEvent.click(loginButton);
+
+    // ローディング状態確認
+    await waitFor(() => {
+      expect(screen.getByText('ログイン中...')).toBeInTheDocument();
+    });
+  });
+
+  test('無効な認証情報でのエラーハンドリング', async () => {
+    render(
+      <TestWrapper>
+        <LoginPage />
+      </TestWrapper>
+    );
+
+    const emailInput = screen.getByPlaceholderText('メールアドレス');
+    const passwordInput = screen.getByPlaceholderText('パスワード');
+    const loginButton = screen.getByRole('button', { name: /ログイン/i });
+
+    // 無効な認証情報入力
+    fireEvent.change(emailInput, { target: { value: 'invalid@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'wrongpassword' } });
+
+    fireEvent.click(loginButton);
+
+    // エラーメッセージ表示確認
+    await waitFor(() => {
+      const errorMessages = screen.queryAllByText(/認証に失敗|ログインに失敗|エラー/i);
+      expect(errorMessages.length).toBeGreaterThan(0);
+    }, { timeout: 3000 });
+  });
+});

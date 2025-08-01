@@ -1,0 +1,91 @@
+import { User, UserRole, GmailSyncStatus } from '../../../types';
+
+// @MOCK_DATA: ユーザーマスタデータ
+export const MOCK_USERS: User[] = [
+  {
+    id: '1',
+    email: 'admin@example.com',
+    username: 'admin',
+    fullName: '管理者 太郎',
+    role: UserRole.COMPANY_LEADER,
+    isActive: true,
+    department: '経営企画部',
+    phoneNumber: '090-1234-5678',
+    gmailPersonalConnected: true,
+    gmailSyncStatus: GmailSyncStatus.CONNECTED,
+    lastLoginAt: new Date('2024-01-20T09:00:00Z'),
+    createdAt: new Date('2023-12-01T00:00:00Z'),
+    updatedAt: new Date('2024-01-20T09:00:00Z'),
+  },
+  {
+    id: '2',
+    email: 'manager@example.com',
+    username: 'manager',
+    fullName: '課長 花子',
+    role: UserRole.MANAGER,
+    isActive: true,
+    department: '営業部',
+    phoneNumber: '090-2345-6789',
+    gmailPersonalConnected: true,
+    gmailSyncStatus: GmailSyncStatus.CONNECTED,
+    lastLoginAt: new Date('2024-01-20T08:30:00Z'),
+    createdAt: new Date('2023-12-15T00:00:00Z'),
+    updatedAt: new Date('2024-01-20T08:30:00Z'),
+  },
+  {
+    id: '3',
+    email: 'leader@example.com',
+    username: 'leader',
+    fullName: 'チームリーダー 次郎',
+    role: UserRole.TEAM_LEADER,
+    isActive: true,
+    department: '営業部',
+    phoneNumber: '090-3456-7890',
+    gmailPersonalConnected: false,
+    gmailSyncStatus: GmailSyncStatus.DISCONNECTED,
+    lastLoginAt: new Date('2024-01-19T17:45:00Z'),
+    createdAt: new Date('2024-01-05T00:00:00Z'),
+    updatedAt: new Date('2024-01-19T17:45:00Z'),
+  },
+  {
+    id: '4',
+    email: 'user@example.com',
+    username: 'user',
+    fullName: '一般社員 三郎',
+    role: UserRole.USER,
+    isActive: true,
+    department: '営業部',
+    phoneNumber: '090-4567-8901',
+    gmailPersonalConnected: true,
+    gmailSyncStatus: GmailSyncStatus.SYNCING,
+    lastLoginAt: new Date('2024-01-20T08:00:00Z'),
+    createdAt: new Date('2024-01-10T00:00:00Z'),
+    updatedAt: new Date('2024-01-20T08:00:00Z'),
+  },
+  {
+    id: '5',
+    email: 'inactive@example.com',
+    username: 'inactive',
+    fullName: '退職予定 四郎',
+    role: UserRole.USER,
+    isActive: false,
+    department: '総務部',
+    phoneNumber: '090-5678-9012',
+    gmailPersonalConnected: false,
+    gmailSyncStatus: GmailSyncStatus.DISCONNECTED,
+    lastLoginAt: new Date('2024-01-10T16:00:00Z'),
+    createdAt: new Date('2023-11-20T00:00:00Z'),
+    updatedAt: new Date('2024-01-15T00:00:00Z'),
+  },
+];
+
+// テスト用ログイン情報
+export const MOCK_LOGIN_CREDENTIALS = [
+  { email: 'admin@example.com', password: 'password123', user: MOCK_USERS[0] },
+  { email: 'manager@example.com', password: 'password123', user: MOCK_USERS[1] },
+  { email: 'leader@example.com', password: 'password123', user: MOCK_USERS[2] },
+  { email: 'user@example.com', password: 'password123', user: MOCK_USERS[3] },
+];
+
+// 現在のログインユーザー (開発用)
+export const MOCK_CURRENT_USER = MOCK_USERS[0]; // デフォルトは管理者

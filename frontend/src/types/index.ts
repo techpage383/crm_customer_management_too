@@ -48,6 +48,17 @@ export interface ApiResponse<T> {
   meta?: PaginationMeta | Record<string, any>;
 }
 
+// ページネーション用レスポンス
+export interface PaginatedResponse<T> {
+  data: T[];
+  totalCount: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export type PaginatedApiResponse<T> = ApiResponse<PaginatedResponse<T>>;
+
 // ========== 認証・ユーザー関連 ==========
 export enum UserRole {
   COMPANY_LEADER = 'company_leader',  // 最上位権限（旧ADMIN相当）
@@ -194,9 +205,16 @@ export interface UserStatusUpdateRequest {
 
 // ========== 企業（顧客）関連 ==========
 export enum CompanyStatus {
+  LEAD = 'lead',              // リード
   PROSPECT = 'prospect',       // 見込み客
-  ACTIVE = 'active',          // 既存顧客
+  ACTIVE_CUSTOMER = 'active_customer',  // 既存顧客
   INACTIVE = 'inactive'       // 休眠
+}
+
+export enum CompanySize {
+  LARGE = 'large',           // 大企業
+  MEDIUM = 'medium',         // 中企業
+  SMALL = 'small'            // 小企業
 }
 
 export enum IndustryType {
@@ -213,20 +231,28 @@ export enum IndustryType {
 export interface CompanyBase {
   name: string;
   nameKana?: string;
-  industry?: IndustryType;
+  industry: string;
   status: CompanyStatus;
+  size: CompanySize;
   employeeCount?: number;
   capital?: number;
-  establishedDate?: Date;
-  fiscalYearEnd?: string;
+  establishedYear?: number;
+  description?: string;
   website?: string;
   phone?: string;
   fax?: string;
-  address?: string;
-  postalCode?: string;
-  majorClients?: string[];
-  notes?: string;
-  primaryAssigneeId?: ID;           // 主担当者（権限を持つ）
+  address?: {
+    prefecture: string;
+    city: string;
+    address1: string;
+    address2?: string;
+    postalCode: string;
+  };
+  tags?: string[];
+  customFields?: Record<string, any>;
+  lastContactAt?: Date;
+  nextFollowUpAt?: Date;
+  primaryAssigneeId: ID;           // 主担当者（権限を持つ）
   secondaryAssigneeIds?: ID[];      // 副担当者（閲覧のみ）
 }
 
@@ -246,17 +272,52 @@ export interface Company extends CompanyBase, Timestamps {
   deployments?: Deployment[];
 }
 
+// 企業検索リクエスト
+export interface CompanySearchRequest extends PaginationParams {
+  query?: string;
+  status?: CompanyStatus[];
+  size?: CompanySize[];
+  industry?: string[];
+  assigneeId?: string[];
+}
+
+// 企業検索レスポンス
+export interface CompanySearchResponse {
+  companies: Company[];
+  totalCount: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 // ========== 連絡先関連 ==========
+export enum ContactType {
+  DECISION_MAKER = 'decision_maker',    // 決裁者
+  TECHNICAL = 'technical',              // 技術担当
+  WINDOW = 'window',                    // 窓口担当
+  OTHER = 'other'                       // その他
+}
+
+export enum ContactRelationshipLevel {
+  CLOSE = 'close',                      // 良好
+  GOOD = 'good',                        // 普通
+  NEUTRAL = 'neutral',                  // 中立
+  DIFFICULT = 'difficult'               // 困難
+}
+
 export interface ContactBase {
   companyId: ID;
-  name: string;
-  nameKana?: string;
-  title?: string;
+  fullName: string;
+  fullNameKana?: string;
+  type: ContactType;
   department?: string;
+  position?: string;
   email?: string;
   phone?: string;
   mobile?: string;
-  isPrimary?: boolean;
+  relationshipLevel: ContactRelationshipLevel;
+  isDecisionMaker: boolean;
+  lastContactAt?: Date;
   notes?: string;
 }
 
@@ -295,6 +356,22 @@ export interface EmailThreadCreate extends EmailThreadBase {
 }
 
 export interface EmailThreadUpdate extends Partial<EmailThreadBase> {}
+
+// P-003 Gmailログページ用高度検索パラメータ
+export interface EmailThreadSearchParams {
+  companyId?: ID;
+  isRead?: boolean;
+  dateFrom?: Date;
+  dateTo?: Date;
+  sender?: string;
+  subject?: string;
+  hasAttachments?: boolean;
+  labels?: string[];
+  page?: number;
+  limit?: number;
+  sortBy?: 'receivedAt' | 'subject' | 'sender' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
 
 export interface EmailThread extends EmailThreadBase, Timestamps {
   id: ID;
@@ -343,12 +420,33 @@ export interface EmailAttachment {
   url?: string;
 }
 
+// 共有Gmail アカウント
+export interface SharedGmailAccount {
+  id: string;
+  email: string;
+  displayName: string;
+  isActive: boolean;
+  allowedRoles: UserRole[];
+  accessToken?: string;
+  refreshToken?: string;
+  lastSyncAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // ========== TODO関連 ==========
 export enum TodoStatus {
   PENDING = 'pending',
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
+  // ワークフロー対応の拡張ステータス
+  APPROVAL_WAITING = 'approval_waiting',       // 承認待ち
+  APPROVED = 'approved',                       // 承認済み
+  CLIENT_REVIEW = 'client_review',             // 顧客確認中
+  FEEDBACK_PENDING = 'feedback_pending',       // フィードバック対応中
+  WAITING = 'waiting',                         // 待機中（その他）
+  CUSTOM = 'custom'                           // カスタムステータス
 }
 
 export enum TodoPriority {
@@ -363,6 +461,24 @@ export enum TodoSource {
   EMAIL_FOLLOW_UP = 'email_follow_up',
   EMAIL_FORWARDED = 'email_forwarded',    // 内部タスク用メール転送
   INTERNAL_REQUEST = 'internal_request'    // 社内依頼
+}
+
+// TODO検索リクエスト
+export interface TodoSearchRequest extends PaginationParams {
+  query?: string;
+  status?: TodoStatus[];
+  priority?: TodoPriority[];
+  assigneeId?: string[];
+  companyId?: string;
+  source?: TodoSource[];
+  isInternal?: boolean;
+  dueDateFrom?: Date;
+  dueDateTo?: Date;
+  completedDateFrom?: Date;
+  completedDateTo?: Date;
+  tags?: string[];
+  workflowId?: string;
+  customStatus?: string;
 }
 
 export interface TodoBase {
@@ -391,6 +507,17 @@ export interface TodoBase {
   tags?: string[];
   estimatedHours?: number;
   actualHours?: number;
+  // ワークフロー関連フィールド
+  workflowId?: string;                     // 使用ワークフロー
+  customStatus?: string;                   // カスタムステータス名
+  effortTemplateId?: string;               // 使用工数テンプレート
+  statusHistory?: {
+    fromStatus: TodoStatus;
+    toStatus: TodoStatus;
+    changedAt: Date;
+    changedBy: ID;
+    reason?: string;
+  }[];
 }
 
 export interface TodoCreate extends TodoBase {}
@@ -471,6 +598,7 @@ export interface Deployment extends DeploymentBase, Timestamps {
 // ========== 契約関連 ==========
 export enum ContractStatus {
   DRAFT = 'draft',
+  PENDING = 'pending',
   ACTIVE = 'active',
   EXPIRED = 'expired',
   RENEWED = 'renewed',
@@ -710,6 +838,292 @@ export interface ImportJob {
   createdAt: Date;
 }
 
+// ========== ワークフロー管理関連 ==========
+export enum WorkflowType {
+  STANDARD = 'standard',                    // 標準ワークフロー
+  APPROVAL_PROCESS = 'approval_process',    // 承認プロセス対応
+  CLIENT_COMMUNICATION = 'client_communication', // クライアント対応
+  CUSTOM = 'custom'                         // カスタムワークフロー
+}
+
+// ワークフロー権限定義
+export enum WorkflowPermission {
+  CREATE_PERSONAL_WORKFLOW = 'create_personal_workflow',
+  CREATE_TEAM_WORKFLOW = 'create_team_workflow',
+  CREATE_COMPANY_WORKFLOW = 'create_company_workflow',
+  EDIT_PERSONAL_WORKFLOW = 'edit_personal_workflow',
+  EDIT_TEAM_WORKFLOW = 'edit_team_workflow',
+  EDIT_COMPANY_WORKFLOW = 'edit_company_workflow',
+  DELETE_PERSONAL_WORKFLOW = 'delete_personal_workflow',
+  DELETE_TEAM_WORKFLOW = 'delete_team_workflow',
+  DELETE_COMPANY_WORKFLOW = 'delete_company_workflow',
+  APPROVE_STATUS_TRANSITION = 'approve_status_transition',
+  CREATE_CUSTOM_STATUS = 'create_custom_status',
+  MANAGE_EFFORT_TEMPLATES = 'manage_effort_templates',
+  VIEW_TEAM_WORKFLOWS = 'view_team_workflows',
+  VIEW_COMPANY_WORKFLOWS = 'view_company_workflows',
+  EMERGENCY_OVERRIDE = 'emergency_override'
+}
+
+// ワークフローアクセス制御
+export interface WorkflowAccessControl {
+  scope: 'PERSONAL' | 'TEAM' | 'DEPARTMENT' | 'COMPANY';
+  allowedRoles: UserRole[];
+  allowedUsers?: ID[];
+  allowedDepartments?: string[];
+  inheritanceLevel: 'NONE' | 'TEAM' | 'DEPARTMENT' | 'COMPANY';
+  isPublic: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  canApprove: boolean;
+}
+
+// 承認フロー定義
+export enum ApprovalStatus {
+  PENDING = 'pending',
+  PARTIAL = 'partial',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  TIMEOUT = 'timeout'
+}
+
+export interface ApprovalStep {
+  stepOrder: number;
+  requiredRole: UserRole;
+  assignedUsers?: ID[];
+  approvedBy?: ID;
+  approvedAt?: Date;
+  rejectedBy?: ID;
+  rejectedAt?: Date;
+  comments?: string;
+  timeoutHours?: number;
+}
+
+export interface WorkflowApprovalFlow {
+  id: ID;
+  workflowId: ID;
+  todoId?: ID;
+  approvalType: 'STATUS_TRANSITION' | 'WORKFLOW_CHANGE' | 'TEMPLATE_UPDATE' | 'CUSTOM_STATUS_CREATE';
+  requiredApprovers: UserRole[];
+  currentApprovers: ID[];
+  approvalStatus: ApprovalStatus;
+  approvalSteps: ApprovalStep[];
+  requestedBy: ID;
+  requestedAt: Date;
+  completedAt?: Date;
+  reason?: string;
+  metadata?: Record<string, any>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ワークフロー操作ログ
+export enum WorkflowLogLevel {
+  INFO = 'info',
+  AUDIT = 'audit',
+  ERROR = 'error',
+  SECURITY = 'security'
+}
+
+export interface WorkflowOperationLog {
+  id: ID;
+  userId: ID;
+  companyId: ID;
+  operation: string;
+  resourceType: 'WORKFLOW' | 'STATUS' | 'TEMPLATE' | 'APPROVAL';
+  resourceId: ID;
+  logLevel: WorkflowLogLevel;
+  details: Record<string, any>;
+  ipAddress?: string;
+  userAgent?: string;
+  timestamp: Date;
+  retentionDays: number;
+}
+
+export interface WorkflowColumn {
+  id: string;
+  name: string;
+  statusValue: TodoStatus;
+  color: string;                           // 背景色
+  textColor: string;                       // テキスト色
+  icon?: string;                          // Material Design アイコン名
+  order: number;                          // 表示順序
+  isDefault?: boolean;                    // デフォルトカラムかどうか
+  description?: string;                   // カラムの説明
+}
+
+export interface WorkflowTemplate {
+  id: string;
+  companyId: ID;                          // 企業分離の要
+  name: string;
+  type: WorkflowType;
+  description?: string;
+  columns: WorkflowColumn[];
+  isActive: boolean;
+  isSystemDefault?: boolean;              // システムデフォルトテンプレート
+  accessControl: WorkflowAccessControl;   // アクセス制御設定
+  approvalFlowId?: ID;                   // 承認フロー参照
+  createdBy?: ID;
+  updatedBy?: ID;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface EffortTemplate {
+  id: string;
+  companyId: ID;                          // 企業分離の要
+  name: string;
+  category: string;                       // 業務カテゴリ（開発、営業、サポート等）
+  estimatedHours: number;
+  description?: string;
+  statusApplicable: TodoStatus[];         // 適用可能なステータス
+  tags?: string[];
+  isActive: boolean;
+  accessControl: WorkflowAccessControl;   // アクセス制御設定
+  createdBy?: ID;
+  updatedBy?: ID;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface WorkflowSettings {
+  id: string;
+  userId?: ID;                            // ユーザー固有設定（null=全体設定）
+  companyId?: ID;                         // 企業固有設定（null=全体設定）
+  projectId?: ID;                         // プロジェクト固有設定（null=全体設定）
+  activeWorkflowId: string;               // 現在のアクティブワークフロー
+  customColumns?: WorkflowColumn[];       // カスタムカラム定義
+  effortTemplates?: EffortTemplate[];     // 工数テンプレート
+  settings: {
+    autoTransition?: boolean;             // 自動ステータス遷移
+    notificationEnabled?: boolean;        // 通知有効
+    allowCustomStatus?: boolean;          // カスタムステータス許可
+    defaultEffortTemplate?: string;       // デフォルト工数テンプレート
+  };
+  privacySettings?: {                     // プライバシー設定
+    sharePersonalTemplates: boolean;
+    allowWorkflowSuggestions: boolean;
+    visibleToTeam: boolean;
+  };
+  permissions: WorkflowPermission[];      // ユーザー権限
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ユーザーワークフロー設定（プライバシー保護版）
+export interface UserWorkflowSettings {
+  userId: ID;
+  companyId: ID;
+  personalWorkflows: WorkflowTemplate[];  // 完全プライベート
+  sharedWorkflows: ID[];                  // 共有ワークフローへの参照のみ
+  customStatuses: WorkflowStatus[];
+  effortTemplates: EffortTemplate[];      // 個人工数テンプレート
+  privacySettings: {
+    sharePersonalTemplates: boolean;
+    allowWorkflowSuggestions: boolean;
+    visibleToTeam: boolean;
+  };
+  permissions: WorkflowPermission[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ワークフローステータス（カスタムステータス用）
+export interface WorkflowStatus {
+  id: string;
+  companyId: ID;
+  name: string;
+  value: string;                          // システム内部値
+  displayName: string;                    // 表示名
+  description?: string;
+  color: string;
+  textColor: string;
+  icon?: string;
+  isCustom: boolean;
+  scope: 'PERSONAL' | 'TEAM' | 'COMPANY';
+  createdBy: ID;
+  accessControl: WorkflowAccessControl;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface WorkflowTransition {
+  id: string;
+  workflowId: string;
+  fromStatus: TodoStatus;
+  toStatus: TodoStatus;
+  name: string;                          // 遷移名（例：「承認」「差し戻し」）
+  description?: string;
+  requiresApproval?: boolean;
+  approverRoles?: UserRole[];
+  conditions?: {
+    requiredFields?: string[];           // 必須フィールド
+    customValidation?: string;           // カスタム検証ルール
+  };
+  isAutomatic?: boolean;                 // 自動遷移かどうか
+  automationTrigger?: string;            // 自動遷移のトリガー条件
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ワークフロー適用リクエスト
+export interface WorkflowApplyRequest {
+  todoId: string;
+  fromStatus: TodoStatus;
+  toStatus: TodoStatus;
+  reason?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface WorkflowApplyResponse {
+  success: boolean;
+  todoId: string;
+  fromStatus: TodoStatus;
+  toStatus: TodoStatus;
+  appliedAt: Date;
+  appliedBy: ID;
+  reason?: string;
+}
+
+// ========== システムダッシュボード関連 ==========
+export interface SystemStats {
+  totalUsers: number;
+  activeUsers: number;
+  totalCompanies: number;
+  totalTodos: number;
+  completedTodos: number;
+  gmailConnections: number;
+  systemUptime: number; // パーセンテージ
+  apiResponseTime: number; // ミリ秒
+  databaseSize: number; // MB
+  lastBackup: Date;
+}
+
+export enum SystemAlertType {
+  INFO = 'INFO',
+  WARNING = 'WARNING',
+  ERROR = 'ERROR',
+  SUCCESS = 'SUCCESS'
+}
+
+export interface SystemAlert {
+  id: ID;
+  type: SystemAlertType;
+  title: string;
+  message: string;
+  timestamp: Date;
+  isRead: boolean;
+  actionRequired: boolean;
+}
+
+export interface SystemPerformance {
+  timestamp: Date;
+  cpuUsage: number; // パーセンテージ
+  memoryUsage: number; // パーセンテージ
+  activeConnections: number;
+  apiResponseTime: number; // ミリ秒
+}
+
 // ========== APIパス定義 ==========
 export const API_PATHS = {
   // 認証関連
@@ -768,12 +1182,15 @@ export const API_PATHS = {
   GMAIL: {
     THREADS: '/api/gmail/threads',
     THREAD_DETAIL: (threadId: string) => `/api/gmail/threads/${threadId}`,
+    THREAD_SEARCH: '/api/gmail/threads/search',  // P-003用: 高度検索
     MESSAGES: '/api/gmail/messages',
     MESSAGE_DETAIL: (messageId: string) => `/api/gmail/messages/${messageId}`,
     SYNC: '/api/gmail/sync',
     SYNC_STATUS: '/api/gmail/sync/status',
     ATTACHMENTS: (messageId: string, attachmentId: string) => 
       `/api/gmail/messages/${messageId}/attachments/${attachmentId}`,
+    ATTACHMENT_PREVIEW: (messageId: string, attachmentId: string) => 
+      `/api/gmail/messages/${messageId}/attachments/${attachmentId}/preview`,  // P-003用: プレビュー
     EXTRACT_TODOS: (threadId: string) => `/api/gmail/threads/${threadId}/extract-todos`,
     SHARED_ACCOUNTS: '/api/gmail/shared-accounts',
     SHARED_ACCOUNT_DETAIL: (accountId: string) => `/api/gmail/shared-accounts/${accountId}`
@@ -786,7 +1203,49 @@ export const API_PATHS = {
     APPROVE: (todoId: string) => `/api/todos/${todoId}/approve`,
     COMPLETE: (todoId: string) => `/api/todos/${todoId}/complete`,
     AI_EXTRACT: '/api/todos/ai-extract',
-    BATCH_UPDATE: '/api/todos/batch-update'
+    BATCH_UPDATE: '/api/todos/batch-update',
+    SEARCH: '/api/todos/search',
+    STATS: '/api/todos/stats',
+    OVERDUE: '/api/todos/overdue',
+    TODAY: '/api/todos/today',
+    PENDING_APPROVAL: '/api/todos/pending-approval',
+    BULK: '/api/todos/bulk',
+    EXPORT_CSV: '/api/todos/export/csv'
+  },
+
+  // ワークフロー管理関連
+  WORKFLOWS: {
+    BASE: '/api/workflows',
+    TEMPLATES: '/api/workflows/templates',
+    TEMPLATE_DETAIL: (templateId: string) => `/api/workflows/templates/${templateId}`,
+    SETTINGS: '/api/workflows/settings',
+    USER_SETTINGS: (userId: string) => `/api/workflows/settings/user/${userId}`,
+    COMPANY_SETTINGS: (companyId: string) => `/api/workflows/settings/company/${companyId}`,
+    EFFORT_TEMPLATES: '/api/workflows/effort-templates',
+    EFFORT_TEMPLATE_DETAIL: (templateId: string) => `/api/workflows/effort-templates/${templateId}`,
+    EFFORT_TEMPLATE_BY_ID: (templateId: string) => `/api/workflows/effort-templates/${templateId}`,
+    EFFORT_TEMPLATE_STATS: '/api/workflows/effort-templates/stats',
+    TRANSITIONS: '/api/workflows/transitions',
+    APPLY_WORKFLOW: '/api/workflows/apply',
+    STATUS_HISTORY: (todoId: string) => `/api/workflows/todos/${todoId}/status-history`,
+    // 承認フロー関連
+    APPROVAL: {
+      REQUEST: '/api/workflows/approval/request',
+      APPROVE: '/api/workflows/approval/approve',
+      REJECT: '/api/workflows/approval/reject',
+      PENDING: '/api/workflows/approval/pending',
+      HISTORY: '/api/workflows/approval/history',
+      DETAIL: (approvalId: string) => `/api/workflows/approval/${approvalId}`
+    },
+    // カスタムステータス関連
+    CUSTOM_STATUSES: '/api/workflows/custom-statuses',
+    CUSTOM_STATUS_DETAIL: (statusId: string) => `/api/workflows/custom-statuses/${statusId}`,
+    // 権限関連
+    PERMISSIONS: '/api/workflows/permissions',
+    USER_PERMISSIONS: (userId: string) => `/api/workflows/permissions/user/${userId}`,
+    // 操作ログ関連
+    OPERATION_LOGS: '/api/workflows/logs',
+    AUDIT_LOGS: '/api/workflows/audit-logs'
   },
   
   // 商材関連
@@ -829,11 +1288,17 @@ export const API_PATHS = {
   
   // システム設定・管理
   SYSTEM: {
+    STATS: '/api/system/stats',
+    ALERTS: '/api/system/alerts',
+    PERFORMANCE: '/api/system/performance',
+    HEALTH: '/api/system/health',
+    DEPARTMENT_USAGE: '/api/system/department-usage',
+    ALERT_READ: (alertId: string) => `/api/system/alerts/${alertId}/read`,
+    ALERTS_READ_ALL: '/api/system/alerts/read-all',
     SETTINGS: '/api/system/settings',
     AUDIT_LOGS: '/api/system/audit-logs',
     BACKUP: '/api/system/backup',
-    RESTORE: '/api/system/restore',
-    HEALTH: '/api/system/health'
+    RESTORE: '/api/system/restore'
   },
   
   // データインポート・エクスポート
@@ -928,6 +1393,16 @@ export const VALIDATION_RULES = {
     proposalNumber: { required: true, pattern: /^[A-Z0-9-]+$/ },
     title: { required: true, maxLength: 200 },
     totalValue: { min: 0, max: 999999999999 }
+  },
+  WORKFLOW: {
+    name: { required: true, maxLength: 100 },
+    description: { maxLength: 500 }
+  },
+  EFFORT_TEMPLATE: {
+    name: { required: true, maxLength: 100 },
+    category: { required: true, maxLength: 50 },
+    estimatedHours: { required: true, min: 0, max: 999 },
+    description: { maxLength: 500 }
   }
 };
 
@@ -962,3 +1437,19 @@ export const CONSTANTS = {
   AI_ANALYSIS_TIMEOUT: 30 * 1000, // 30秒
   AI_MAX_RETRIES: 3
 };
+
+// ========== プロダクト関連 ==========
+export enum ProductDeploymentStatus {
+  DEVELOPMENT = 'development',
+  STAGING = 'staging',
+  PRODUCTION = 'production',
+  ARCHIVED = 'archived'
+}
+
+export enum ProductType {
+  SERVICE = 'service',
+  SOFTWARE = 'software',
+  CLOUD_SERVICE = 'cloud_service',
+  HARDWARE = 'hardware',
+  CONSULTING = 'consulting'
+}

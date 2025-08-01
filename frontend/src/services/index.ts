@@ -5,6 +5,13 @@
 
 import { getMockAuthService } from './mock/auth.service';
 import { apiAuthService } from './api/auth.service';
+import { systemApiService } from './api/system.service';
+import { userApiService } from './api/user.service';
+import { companyApiService } from './api/company.service';
+import { todoApiService } from './api/todo.service';
+import { workflowApiService } from './api/workflow.service';
+import { gmailApiService } from './api/gmail.service';
+import { mockSystemDashboardService } from './mock/systemDashboard.service';
 
 /**
  * 🔥 重要: @MARKシステム
@@ -20,20 +27,45 @@ const USE_MOCK_API = process.env.REACT_APP_USE_MOCK_API === 'true';
 
 export const authService = USE_MOCK_API ? getMockAuthService() : apiAuthService;
 
+// システムダッシュボード：実APIに統合完了 ✅
+export const systemService = systemApiService;
+
+// ユーザー管理：実APIに統合完了 ✅
+export const userService = userApiService;
+
+// 企業管理：実APIに統合完了 ✅
+export const companyService = companyApiService;
+
+// TODO管理：実APIに統合完了 ✅
+export const todoService = todoApiService;
+
+// ワークフロー管理：実APIに統合完了 ✅
+export const workflowService = workflowApiService;
+
+// Gmail管理：実APIに統合完了 ✅
+export const gmailService = gmailApiService;
+
 console.log(`🔧 Auth Service Mode: ${USE_MOCK_API ? 'MOCK' : 'API'} (REACT_APP_USE_MOCK_API=${process.env.REACT_APP_USE_MOCK_API})`);
+console.log(`🔧 System Dashboard Service Mode: API (統合完了)`);
+console.log(`🔧 User Management Service Mode: API (統合完了)`);
+console.log(`🔧 Company Management Service Mode: API (統合完了)`);
+console.log(`🔧 TODO Management Service Mode: API (統合完了)`);
+console.log(`🔧 Workflow Management Service Mode: API (統合完了)`);
+console.log(`🔧 Gmail Service Mode: API (統合完了)`);
 
 // 他の機能はまだモック（段階的切り替え）
-// export const companyService = getMockCompanyService();  // ← まだモック
-// export const todoService = getMockTodoService();        // ← まだモック
 
 /**
  * モック使用状態表示用フラグ
  */
 export const SERVICE_STATUS = {
   auth: USE_MOCK_API ? 'MOCK' : 'API',  // ← Phase 2B: 環境変数による動的切り替え
-  company: 'MOCK',     // ← 将来的に 'API' に変更
-  todo: 'MOCK',        // ← 将来的に 'API' に変更
-  gmail: 'MOCK',       // ← 将来的に 'API' に変更
+  system: 'API',       // ← ✅ 統合完了
+  user: 'API',         // ← ✅ 統合完了
+  company: 'API',      // ← ✅ 統合完了
+  todo: 'API',         // ← ✅ 統合完了
+  workflow: 'API',     // ← ✅ 統合完了
+  gmail: 'API',        // ← ✅ 統合完了
   product: 'MOCK',     // ← 将来的に 'API' に変更
   contract: 'MOCK',    // ← 将来的に 'API' に変更
   proposal: 'MOCK'     // ← 将来的に 'API' に変更
