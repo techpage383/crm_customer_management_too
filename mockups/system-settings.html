@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>システム設定 - 最強タスク管理ツール</title>
+    
+    <!-- Material UI CSS -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    
+    <!-- Material UI JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+    <style>
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
+            color: white;
+            padding: 0 20px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .admin-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #d32f2f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .breadcrumb {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .breadcrumb a {
+            color: #d32f2f;
+            text-decoration: none;
+        }
+        
+        .settings-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+        }
+        
+        .settings-nav {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        
+        .settings-content {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .nav-item.active {
+            background: #ffebee;
+            color: #d32f2f;
+            font-weight: 500;
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-section {
+            margin-bottom: 40px;
+        }
+        
+        .form-section h3 {
+            color: #d32f2f;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #d32f2f;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            background: white;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .switch-info {
+            flex: 1;
+        }
+        
+        .switch-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .switch-desc {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            background: #ccc;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .switch.active {
+            background: #d32f2f;
+        }
+        
+        .switch-handle {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .switch.active .switch-handle {
+            transform: translateX(28px);
+        }
+        
+        .btn-primary {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background: #b71c1c;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 1px solid #ddd;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #f5f5f5;
+            border-color: #999;
+        }
+        
+        .btn-danger {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #d32f2f;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .log-viewer {
+            background: #1e1e1e;
+            color: #f0f0f0;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .log-timestamp {
+            color: #888;
+        }
+        
+        .log-level-info {
+            color: #4caf50;
+        }
+        
+        .log-level-warning {
+            color: #ff9800;
+        }
+        
+        .log-level-error {
+            color: #f44336;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 4px;
+        }
+        
+        .menu-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .menu-item.active {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .menu-icon {
+            font-size: 20px;
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #d32f2f, #f44336);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .backup-schedule {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .schedule-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .schedule-option:hover {
+            border-color: #d32f2f;
+            background: #f8f9fa;
+        }
+        
+        .schedule-option.selected {
+            border-color: #d32f2f;
+            background: #ffebee;
+        }
+        
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .integration-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .integration-icon {
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 24px;
+            color: #666;
+        }
+        
+        .integration-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .integration-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .status-connected {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        
+        .status-disconnected {
+            color: #f44336;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="logo">
+            <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">security</i>
+            最強タスク管理ツール
+            <span class="admin-badge">管理者</span>
+        </div>
+        
+        <div class="user-info">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="avatar">管</div>
+                <span>管理者</span>
+            </div>
+            
+            <i class="material-icons" style="cursor: pointer; font-size: 24px;">logout</i>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- サイドバー -->
+        <nav class="sidebar">
+            <div class="menu-item">
+                <i class="material-icons menu-icon">admin_panel_settings</i>
+                <span>管理者ダッシュボード</span>
+            </div>
+            
+            <div class="menu-item">
+                <i class="material-icons menu-icon">group</i>
+                <span>ユーザー管理</span>
+            </div>
+            
+            <div class="menu-item active">
+                <i class="material-icons menu-icon">settings</i>
+                <span>システム設定</span>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 0 16px; color: #666; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                クイックアクション
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <div class="menu-item">
+                    <i class="material-icons menu-icon">backup</i>
+                    <span>データバックアップ</span>
+                </div>
+                <div class="menu-item">
+                    <i class="material-icons menu-icon">update</i>
+                    <span>システム更新</span>
+                </div>
+                <div class="menu-item">
+                    <i class="material-icons menu-icon">bug_report</i>
+                    <span>ログ確認</span>
+                </div>
+                <div class="menu-item">
+                    <i class="material-icons menu-icon">restart_alt</i>
+                    <span>システム再起動</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- メインコンテンツ -->
+        <main class="content">
+            <!-- ページヘッダー -->
+            <div class="page-header">
+                <div class="page-title">
+                    <i class="material-icons">settings</i>
+                    システム設定
+                </div>
+                <div class="breadcrumb">
+                    <a href="#">ホーム</a> > <a href="#">管理者</a> > システム設定
+                </div>
+            </div>
+
+            <!-- 設定コンテナ -->
+            <div class="settings-container">
+                <!-- 設定ナビゲーション -->
+                <div class="settings-nav">
+                    <div class="nav-item active" onclick="showSection('general')">
+                        <i class="material-icons nav-icon">tune</i>
+                        <span>一般設定</span>
+                    </div>
+                    
+                    <div class="nav-item" onclick="showSection('backup')">
+                        <i class="material-icons nav-icon">backup</i>
+                        <span>バックアップ</span>
+                    </div>
+                    
+                    <div class="nav-item" onclick="showSection('security')">
+                        <i class="material-icons nav-icon">security</i>
+                        <span>セキュリティ</span>
+                    </div>
+                    
+                    <div class="nav-item" onclick="showSection('integrations')">
+                        <i class="material-icons nav-icon">extension</i>
+                        <span>外部連携</span>
+                    </div>
+                    
+                    <div class="nav-item" onclick="showSection('logs')">
+                        <i class="material-icons nav-icon">description</i>
+                        <span>ログ・監視</span>
+                    </div>
+                </div>
+
+                <!-- 設定コンテンツ -->
+                <div class="settings-content">
+                    <!-- 一般設定 -->
+                    <div id="general-section" class="settings-section">
+                        <div class="section-title">
+                            <i class="material-icons">tune</i>
+                            一般設定
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number">24</div>
+                                <div class="stat-label">総ユーザー数</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">142</div>
+                                <div class="stat-label">アクティブタスク</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">8</div>
+                                <div class="stat-label">プロジェクト数</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">99.8%</div>
+                                <div class="stat-label">稼働率</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">business</i>
+                                組織情報
+                            </h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">組織名</label>
+                                    <input type="text" class="form-input" value="株式会社サンプル" id="orgName">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">管理者メール</label>
+                                    <input type="email" class="form-input" value="admin@example.com" id="adminEmail">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">タイムゾーン</label>
+                                <select class="form-select">
+                                    <option selected>Asia/Tokyo (JST)</option>
+                                    <option>UTC</option>
+                                    <option>America/New_York (EST)</option>
+                                    <option>Europe/London (GMT)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">schedule</i>
+                                デフォルト設定
+                            </h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">新規タスクの期限（日数）</label>
+                                    <select class="form-select">
+                                        <option>1日</option>
+                                        <option>3日</option>
+                                        <option selected>7日</option>
+                                        <option>14日</option>
+                                        <option>30日</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">最大ファイルアップロードサイズ</label>
+                                    <select class="form-select">
+                                        <option>1MB</option>
+                                        <option>5MB</option>
+                                        <option selected>10MB</option>
+                                        <option>25MB</option>
+                                        <option>50MB</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="switch-container">
+                                <div class="switch-info">
+                                    <div class="switch-title">新規ユーザー自動承認</div>
+                                    <div class="switch-desc">新規ユーザー登録時に管理者承認を省略</div>
+                                </div>
+                                <div class="switch" onclick="toggleSwitch(this)">
+                                    <div class="switch-handle"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="switch-container">
+                                <div class="switch-info">
+                                    <div class="switch-title">メンテナンスモード</div>
+                                    <div class="switch-desc">システムメンテナンス中は一般ユーザーのアクセスを制限</div>
+                                </div>
+                                <div class="switch" onclick="toggleSwitch(this)">
+                                    <div class="switch-handle"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- バックアップ設定 -->
+                    <div id="backup-section" class="settings-section hidden">
+                        <div class="section-title">
+                            <i class="material-icons">backup</i>
+                            バックアップ設定
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">schedule</i>
+                                自動バックアップ
+                            </h3>
+                            
+                            <div class="switch-container">
+                                <div class="switch-info">
+                                    <div class="switch-title">自動バックアップを有効化</div>
+                                    <div class="switch-desc">定期的にデータの自動バックアップを実行</div>
+                                </div>
+                                <div class="switch active" onclick="toggleSwitch(this)">
+                                    <div class="switch-handle"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">バックアップ頻度</label>
+                                <div class="backup-schedule">
+                                    <div class="schedule-option selected" onclick="selectSchedule(this)">
+                                        <i class="material-icons">today</i>
+                                        <div>毎日</div>
+                                        <div style="font-size: 12px; color: #666;">午前3時</div>
+                                    </div>
+                                    <div class="schedule-option" onclick="selectSchedule(this)">
+                                        <i class="material-icons">event</i>
+                                        <div>毎週</div>
+                                        <div style="font-size: 12px; color: #666;">日曜日</div>
+                                    </div>
+                                    <div class="schedule-option" onclick="selectSchedule(this)">
+                                        <i class="material-icons">calendar_month</i>
+                                        <div>毎月</div>
+                                        <div style="font-size: 12px; color: #666;">1日</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">保存期間</label>
+                                    <select class="form-select">
+                                        <option>7日</option>
+                                        <option selected>30日</option>
+                                        <option>90日</option>
+                                        <option>1年</option>
+                                        <option>無期限</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">保存場所</label>
+                                    <select class="form-select">
+                                        <option selected>ローカルストレージ</option>
+                                        <option>AWS S3</option>
+                                        <option>Google Cloud Storage</option>
+                                        <option>Azure Blob Storage</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">play_circle</i>
+                                手動バックアップ
+                            </h3>
+                            
+                            <p style="color: #666; margin-bottom: 20px;">
+                                即座にシステム全体のバックアップを作成します。バックアップ中はシステムのパフォーマンスが低下する可能性があります。
+                            </p>
+                            
+                            <div style="display: flex; gap: 15px;">
+                                <button class="btn-primary" onclick="startBackup()">
+                                    <i class="material-icons">backup</i>
+                                    今すぐバックアップ実行
+                                </button>
+                                
+                                <button class="btn-secondary" onclick="downloadBackup()">
+                                    <i class="material-icons">download</i>
+                                    最新バックアップをダウンロード
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">restore</i>
+                                復元
+                            </h3>
+                            
+                            <p style="color: #f44336; margin-bottom: 20px;">
+                                <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">warning</i>
+                                <strong>注意:</strong> データの復元は現在のデータを完全に置き換えます。この操作は取り消すことができません。
+                            </p>
+                            
+                            <button class="btn-danger" onclick="restoreData()">
+                                <i class="material-icons">restore</i>
+                                バックアップから復元
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- セキュリティ設定 -->
+                    <div id="security-section" class="settings-section hidden">
+                        <div class="section-title">
+                            <i class="material-icons">security</i>
+                            セキュリティ設定
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">password</i>
+                                パスワードポリシー
+                            </h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">最小文字数</label>
+                                    <select class="form-select">
+                                        <option>6文字</option>
+                                        <option selected>8文字</option>
+                                        <option>10文字</option>
+                                        <option>12文字</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">パスワード有効期限</label>
+                                    <select class="form-select">
+                                        <option>30日</option>
+                                        <option selected>90日</option>
+                                        <option>180日</option>
+                                        <option>1年</option>
+                                        <option>無期限</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="switch-container">
+                                <div class="switch-info">
+                                    <div class="switch-title">大文字・小文字・数字を必須</div>
+                                    <div class="switch-desc">パスワードに大文字、小文字、数字の組み合わせを要求</div>
+                                </div>
+                                <div class="switch active" onclick="toggleSwitch(this)">
+                                    <div class="switch-handle"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="switch-container">
+                                <div class="switch-info">
+                                    <div class="switch-title">特殊文字を必須</div>
+                                    <div class="switch-desc">パスワードに記号などの特殊文字を要求</div>
+                                </div>
+                                <div class="switch" onclick="toggleSwitch(this)">
+                                    <div class="switch-handle"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">login</i>
+                                ログイン設定
+                            </h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">セッション有効期限</label>
+                                    <select class="form-select">
+                                        <option>30分</option>
+                                        <option>1時間</option>
+                                        <option>8時間</option>
+                                        <option selected>24時間</option>
+                                        <option>1週間</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">ログイン試行上限</label>
+                                    <select class="form-select">
+                                        <option>3回</option>
+                                        <option selected>5回</option>
+                                        <option>10回</option>
+                                        <option>無制限</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="switch-container">
+                                <div class="switch-info">
+                                    <div class="switch-title">2段階認証を強制</div>
+                                    <div class="switch-desc">全ユーザーに2段階認証の設定を義務付け</div>
+                                </div>
+                                <div class="switch" onclick="toggleSwitch(this)">
+                                    <div class="switch-handle"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="switch-container">
+                                <div class="switch-info">
+                                    <div class="switch-title">IPアドレス制限</div>
+                                    <div class="switch-desc">特定のIPアドレスからのアクセスのみを許可</div>
+                                </div>
+                                <div class="switch" onclick="toggleSwitch(this)">
+                                    <div class="switch-handle"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">https</i>
+                                SSL・暗号化
+                            </h3>
+                            
+                            <div class="switch-container">
+                                <div class="switch-info">
+                                    <div class="switch-title">HTTPS強制</div>
+                                    <div class="switch-desc">HTTPでのアクセスを自動的にHTTPSにリダイレクト</div>
+                                </div>
+                                <div class="switch active" onclick="toggleSwitch(this)">
+                                    <div class="switch-handle"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">SSL証明書の有効期限</label>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; color: #666;">
+                                    2025年12月31日まで有効（残り334日）
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 外部連携設定 -->
+                    <div id="integrations-section" class="settings-section hidden">
+                        <div class="section-title">
+                            <i class="material-icons">extension</i>
+                            外部連携設定
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">email</i>
+                                メール連携
+                            </h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">SMTPサーバー</label>
+                                    <input type="text" class="form-input" value="smtp.gmail.com">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">ポート</label>
+                                    <input type="number" class="form-input" value="587">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">送信者メールアドレス</label>
+                                    <input type="email" class="form-input" value="noreply@example.com">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">送信者名</label>
+                                    <input type="text" class="form-input" value="最強タスク管理ツール">
+                                </div>
+                            </div>
+                            
+                            <button class="btn-secondary" onclick="testEmail()">
+                                <i class="material-icons">send</i>
+                                テストメール送信
+                            </button>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">integration_instructions</i>
+                                外部サービス連携
+                            </h3>
+                            
+                            <div class="integration-grid">
+                                <div class="integration-card">
+                                    <div class="integration-icon">
+                                        <i class="material-icons">chat</i>
+                                    </div>
+                                    <div class="integration-name">Slack</div>
+                                    <div class="integration-desc">タスク更新をSlackチャンネルに通知</div>
+                                    <div class="status-connected">接続済み</div>
+                                    <button class="btn-secondary" style="margin-top: 10px;" onclick="configureSlack()">設定</button>
+                                </div>
+                                
+                                <div class="integration-card">
+                                    <div class="integration-icon">
+                                        <i class="material-icons">work</i>
+                                    </div>
+                                    <div class="integration-name">Microsoft Teams</div>
+                                    <div class="integration-desc">Teams会議とタスクを連携</div>
+                                    <div class="status-disconnected">未接続</div>
+                                    <button class="btn-primary" style="margin-top: 10px;" onclick="connectTeams()">接続</button>
+                                </div>
+                                
+                                <div class="integration-card">
+                                    <div class="integration-icon">
+                                        <i class="material-icons">calendar_today</i>
+                                    </div>
+                                    <div class="integration-name">Google Calendar</div>
+                                    <div class="integration-desc">タスクの期限をカレンダーに同期</div>
+                                    <div class="status-disconnected">未接続</div>
+                                    <button class="btn-primary" style="margin-top: 10px;" onclick="connectCalendar()">接続</button>
+                                </div>
+                                
+                                <div class="integration-card">
+                                    <div class="integration-icon">
+                                        <i class="material-icons">code</i>
+                                    </div>
+                                    <div class="integration-name">GitHub</div>
+                                    <div class="integration-desc">イシューとタスクを連携</div>
+                                    <div class="status-connected">接続済み</div>
+                                    <button class="btn-secondary" style="margin-top: 10px;" onclick="configureGitHub()">設定</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ログ・監視設定 -->
+                    <div id="logs-section" class="settings-section hidden">
+                        <div class="section-title">
+                            <i class="material-icons">description</i>
+                            ログ・監視
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">list</i>
+                                システムログ
+                            </h3>
+                            
+                            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                                <button class="btn-secondary" onclick="refreshLogs()">
+                                    <i class="material-icons">refresh</i>
+                                    更新
+                                </button>
+                                <button class="btn-secondary" onclick="downloadLogs()">
+                                    <i class="material-icons">download</i>
+                                    ダウンロード
+                                </button>
+                                <button class="btn-secondary" onclick="clearLogs()">
+                                    <i class="material-icons">clear</i>
+                                    クリア
+                                </button>
+                            </div>
+                            
+                            <div class="log-viewer" id="logViewer">
+                                <div class="log-entry">
+                                    <span class="log-timestamp">[2025-01-29 14:32:15]</span>
+                                    <span class="log-level-info">[INFO]</span>
+                                    <span>ユーザー「田中太郎」がログインしました</span>
+                                </div>
+                                <div class="log-entry">
+                                    <span class="log-timestamp">[2025-01-29 14:30:42]</span>
+                                    <span class="log-level-info">[INFO]</span>
+                                    <span>タスク「システム設計書作成」が完了されました</span>
+                                </div>
+                                <div class="log-entry">
+                                    <span class="log-timestamp">[2025-01-29 14:28:33]</span>
+                                    <span class="log-level-warning">[WARN]</span>
+                                    <span>データベース接続が一時的に失敗しました（再試行成功）</span>
+                                </div>
+                                <div class="log-entry">
+                                    <span class="log-timestamp">[2025-01-29 14:25:17]</span>
+                                    <span class="log-level-info">[INFO]</span>
+                                    <span>自動バックアップが完了しました</span>
+                                </div>
+                                <div class="log-entry">
+                                    <span class="log-timestamp">[2025-01-29 14:20:05]</span>
+                                    <span class="log-level-error">[ERROR]</span>
+                                    <span>メール送信に失敗しました: SMTP接続エラー</span>
+                                </div>
+                                <div class="log-entry">
+                                    <span class="log-timestamp">[2025-01-29 14:15:22]</span>
+                                    <span class="log-level-info">[INFO]</span>
+                                    <span>新規ユーザー「佐藤花子」が登録されました</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>
+                                <i class="material-icons">monitoring</i>
+                                監視設定
+                            </h3>
+                            
+                            <div class="switch-container">
+                                <div class="switch-info">
+                                    <div class="switch-title">パフォーマンス監視</div>
+                                    <div class="switch-desc">システムのパフォーマンス指標を記録・監視</div>
+                                </div>
+                                <div class="switch active" onclick="toggleSwitch(this)">
+                                    <div class="switch-handle"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="switch-container">
+                                <div class="switch-info">
+                                    <div class="switch-title">エラー通知</div>
+                                    <div class="switch-desc">重要なエラー発生時に管理者にメール通知</div>
+                                </div>
+                                <div class="switch active" onclick="toggleSwitch(this)">
+                                    <div class="switch-handle"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">ログ保存期間</label>
+                                <select class="form-select">
+                                    <option>7日</option>
+                                    <option selected>30日</option>
+                                    <option>90日</option>
+                                    <option>1年</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 保存ボタン -->
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="saveSettings()">
+                            <i class="material-icons">save</i>
+                            設定を保存
+                        </button>
+                        
+                        <button class="btn-secondary" onclick="resetSettings()">
+                            <i class="material-icons">refresh</i>
+                            リセット
+                        </button>
+                        
+                        <button class="btn-danger" onclick="restartSystem()">
+                            <i class="material-icons">restart_alt</i>
+                            システム再起動
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showSection(sectionName) {
+            // ナビゲーション項目のアクティブ状態を更新
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // セクションの表示/非表示を切り替え
+            document.querySelectorAll('.settings-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+        }
+
+        function toggleSwitch(switchElement) {
+            switchElement.classList.toggle('active');
+        }
+
+        function selectSchedule(scheduleElement) {
+            document.querySelectorAll('.schedule-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            scheduleElement.classList.add('selected');
+        }
+
+        function startBackup() {
+            if (confirm('システムバックアップを開始しますか？\n\nバックアップ中はシステムのパフォーマンスが低下します。')) {
+                alert('バックアップを開始しました。\n\n完了時にメールで通知されます。');
+            }
+        }
+
+        function downloadBackup() {
+            alert('最新のバックアップファイルをダウンロードしています...\n\nファイル名: backup_2025-01-29_14-30.zip');
+        }
+
+        function restoreData() {
+            const confirmation = prompt('データ復元を実行するには「復元」と入力してください。\n\n現在のデータは完全に失われます。');
+            
+            if (confirmation === '復元') {
+                if (confirm('本当にデータを復元しますか？\n\nこの操作は取り消すことができません。')) {
+                    alert('データ復元を開始します。\n\n復元中はシステムが一時的に利用できなくなります。');
+                }
+            } else if (confirmation !== null) {
+                alert('正しく「復元」と入力してください。');
+            }
+        }
+
+        function testEmail() {
+            const adminEmail = document.getElementById('adminEmail').value;
+            if (confirm(`テストメールを ${adminEmail} に送信しますか？`)) {
+                alert('テストメールを送信しました。\n\n受信を確認してください。');
+            }
+        }
+
+        function configureSlack() {
+            alert('Slack連携設定画面を開きます。\n\n現在の設定:\n- チャンネル: #task-updates\n- 通知レベル: 重要なもののみ');
+        }
+
+        function connectTeams() {
+            alert('Microsoft Teams連携を設定します。\n\nMicrosoftアカウントでの認証が必要です。');
+        }
+
+        function connectCalendar() {
+            alert('Google Calendar連携を設定します。\n\nGoogleアカウントでの認証が必要です。');
+        }
+
+        function configureGitHub() {
+            alert('GitHub連携設定画面を開きます。\n\n現在の設定:\n- リポジトリ: company/project\n- 同期間隔: 1時間');
+        }
+
+        function refreshLogs() {
+            alert('ログを更新しています...');
+            // 実際の実装では、最新のログデータを取得してログビューアを更新
+        }
+
+        function downloadLogs() {
+            alert('システムログをダウンロードしています...\n\nファイル名: system_logs_2025-01-29.txt');
+        }
+
+        function clearLogs() {
+            if (confirm('ログをクリアしますか？\n\n表示されているログがすべて削除されます。')) {
+                document.getElementById('logViewer').innerHTML = '<div class="log-entry">ログがクリアされました</div>';
+            }
+        }
+
+        function saveSettings() {
+            // 成功メッセージを表示
+            const successMessage = document.createElement('div');
+            successMessage.className = 'success-message';
+            successMessage.innerHTML = `
+                <i class="material-icons">check_circle</i>
+                システム設定を保存しました。
+            `;
+            
+            const settingsContent = document.querySelector('.settings-content');
+            settingsContent.insertBefore(successMessage, settingsContent.firstChild);
+            
+            // 3秒後にメッセージを削除
+            setTimeout(() => {
+                successMessage.remove();
+            }, 3000);
+            
+            console.log('システム設定を保存しました');
+        }
+
+        function resetSettings() {
+            if (confirm('設定をリセットしますか？\n\n変更内容は失われます。')) {
+                alert('設定をリセットしました。');
+                location.reload();
+            }
+        }
+
+        function restartSystem() {
+            const confirmation = prompt('システムを再起動するには「再起動」と入力してください。\n\n全ユーザーが一時的にアクセスできなくなります。');
+            
+            if (confirmation === '再起動') {
+                if (confirm('本当にシステムを再起動しますか？\n\n約5分間システムが利用できなくなります。')) {
+                    alert('システム再起動を開始します。\n\n完了時にメールで通知されます。');
+                }
+            } else if (confirmation !== null) {
+                alert('正しく「再起動」と入力してください。');
+            }
+        }
+    </script>
+</body>
+</html>

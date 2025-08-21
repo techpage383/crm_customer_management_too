@@ -474,7 +474,7 @@ export class UserController {
    * ユーザー作成データの検証
    */
   private validateUserCreateData(userData: UserCreate): string | null {
-    if (!userData.email || !validateInput.email(userData.email)) {
+    if (!userData.email || !this.isValidEmail(userData.email)) {
       return '有効なメールアドレスを入力してください';
     }
 
@@ -501,7 +501,7 @@ export class UserController {
    * ユーザー更新データの検証
    */
   private validateUserUpdateData(updateData: UserUpdate): string | null {
-    if (updateData.email && !validateInput.email(updateData.email)) {
+    if (updateData.email && !this.isValidEmail(updateData.email)) {
       return '有効なメールアドレスを入力してください';
     }
 
@@ -518,6 +518,14 @@ export class UserController {
     }
 
     return null;
+  }
+
+  /**
+   * メールアドレスの妥当性検証
+   */
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 }
 

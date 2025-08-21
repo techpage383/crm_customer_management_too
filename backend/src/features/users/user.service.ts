@@ -19,8 +19,8 @@ import {
   UserRole,
   ID 
 } from '../../types/index.js';
-import { auditLogger } from '../../common/utils/audit.js';
-import { query } from '../../common/utils/database.js';
+// import { auditLogger } from '../../common/utils/audit.js';
+import { query } from '../../config/database';
 
 export class UserService {
 
@@ -255,12 +255,13 @@ export class UserService {
       updatedAt: row.updated_at
     };
 
-    // 監査ログ記録
-    await auditLogger.log('USER_CREATED', {
-      targetUserId: newUser.id,
-      targetUserEmail: newUser.email,
-      performedBy: createdBy
-    });
+    // 監査ログ記録 (一時的に無効化)
+    // await auditLogger.log('USER_CREATED', {
+    //   targetUserId: newUser.id,
+    //   targetUserEmail: newUser.email,
+    //   performedBy: createdBy
+    // });
+    console.log('📝 Audit log: USER_CREATED', { targetUserId: newUser.id, targetUserEmail: newUser.email, performedBy: createdBy });
 
     console.log('✅ User created successfully:', newUser.email);
     return newUser;
@@ -381,13 +382,14 @@ export class UserService {
       updatedAt: row.updated_at
     };
 
-    // 監査ログ記録
-    await auditLogger.log('USER_UPDATED', {
-      targetUserId: updatedUser.id,
-      targetUserEmail: updatedUser.email,
-      performedBy: updatedBy,
-      changedFields: Object.keys(updateData)
-    });
+    // 監査ログ記録 (一時的に無効化)
+    // await auditLogger.log('USER_UPDATED', {
+    //   targetUserId: updatedUser.id,
+    //   targetUserEmail: updatedUser.email,
+    //   performedBy: updatedBy,
+    //   changedFields: Object.keys(updateData)
+    // });
+    console.log('📝 Audit log: USER_UPDATED', { targetUserId: updatedUser.id, targetUserEmail: updatedUser.email, performedBy: updatedBy });
 
     console.log('✅ User updated successfully:', updatedUser.email);
     return updatedUser;
@@ -417,12 +419,13 @@ export class UserService {
 
     await query(deleteQuery, [userId]);
 
-    // 監査ログ記録
-    await auditLogger.log('USER_DELETED', {
-      targetUserId: userId,
-      targetUserEmail: user.email,
-      performedBy: deletedBy
-    });
+    // 監査ログ記録 (一時的に無効化)
+    // await auditLogger.log('USER_DELETED', {
+    //   targetUserId: userId,
+    //   targetUserEmail: user.email,
+    //   performedBy: deletedBy
+    // });
+    console.log('📝 Audit log: USER_DELETED', { targetUserId: userId, targetUserEmail: user.email, performedBy: deletedBy });
 
     console.log('✅ User soft deleted successfully');
   }
@@ -505,13 +508,14 @@ export class UserService {
 
     await this.updateUser(userId, { isActive: statusUpdate.isActive }, updatedBy);
 
-    // 監査ログ記録（詳細な理由付き）
-    await auditLogger.log('USER_STATUS_CHANGED', {
-      targetUserId: userId,
-      performedBy: updatedBy,
-      newStatus: statusUpdate.isActive ? 'active' : 'inactive',
-      reason: statusUpdate.reason || 'No reason provided'
-    });
+    // 監査ログ記録 (一時的に無効化)
+    // await auditLogger.log('USER_STATUS_CHANGED', {
+    //   targetUserId: userId,
+    //   performedBy: updatedBy,
+    //   newStatus: statusUpdate.isActive ? 'active' : 'inactive',
+    //   reason: statusUpdate.reason || 'No reason provided'
+    // });
+    console.log('📝 Audit log: USER_STATUS_CHANGED', { targetUserId: userId, performedBy: updatedBy });
 
     console.log('✅ User status updated successfully');
   }

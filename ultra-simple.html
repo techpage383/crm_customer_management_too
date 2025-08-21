@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 超シンプルタスク管理ツール</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #667eea;
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            color: black;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #5a67d8;
+        }
+        .phases {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .phase {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 200px;
+            min-height: 150px;
+        }
+        .phase h3 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+        }
+        .task {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-left: 4px solid #667eea;
+        }
+        .task:hover {
+            background: #f0f9ff;
+        }
+        #status {
+            background: #10b981;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        #debug {
+            background: #1f2937;
+            color: #10b981;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 超シンプルタスク管理ツール</h1>
+        
+        <div id="status">🎯 「サンプル作成」をクリックしてください</div>
+        
+        <button class="btn" onclick="createSample()">📋 サンプル作成</button>
+        <button class="btn" onclick="clearAll()">🗑️ クリア</button>
+        <button class="btn" onclick="testBasic()">🧪 基本テスト</button>
+        
+        <div id="debug"></div>
+        
+        <div class="phases" id="phases"></div>
+    </div>
+
+    <script>
+        console.log('🚀 スクリプト開始');
+        
+        // デバッグ用
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const debugElement = document.getElementById('debug');
+            debugElement.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+        
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+            log(`STATUS: ${message}`);
+        }
+        
+        let phases = [];
+        let tasks = [];
+        
+        // 基本テスト
+        function testBasic() {
+            log('🧪 基本テスト開始');
+            updateStatus('🧪 基本テスト実行中...');
+            
+            try {
+                // DOM要素の確認
+                const statusElement = document.getElementById('status');
+                const phasesElement = document.getElementById('phases');
+                const debugElement = document.getElementById('debug');
+                
+                log(`✅ status要素: ${statusElement ? 'OK' : 'NG'}`);
+                log(`✅ phases要素: ${phasesElement ? 'OK' : 'NG'}`);
+                log(`✅ debug要素: ${debugElement ? 'OK' : 'NG'}`);
+                
+                // 配列の動作確認
+                phases = ['テスト1', 'テスト2'];
+                tasks = ['タスク1', 'タスク2'];
+                
+                log(`✅ phases配列: ${phases.length}個`);
+                log(`✅ tasks配列: ${tasks.length}個`);
+                
+                updateStatus('✅ 基本テスト完了！サンプル作成をお試しください');
+                
+            } catch (error) {
+                log(`❌ エラー: ${error.message}`);
+                updateStatus('❌ 基本テストでエラーが発生しました');
+            }
+        }
+        
+        // サンプル作成
+        function createSample() {
+            log('📋 サンプル作成開始');
+            updateStatus('📋 サンプル作成中...');
+            
+            try {
+                // 段階1: データ作成
+                log('段階1: データ作成');
+                phases = [
+                    { id: 'p1', name: '見積作成', color: '#667eea' },
+                    { id: 'p2', name: '相手確認', color: '#10b981' },
+                    { id: 'p3', name: '完了', color: '#ef4444' }
+                ];
+                log(`✅ フェーズ作成: ${phases.length}個`);
+                
+                tasks = [
+                    { id: 't1', title: 'A社見積書', phaseId: 'p1' },
+                    { id: 't2', title: 'B社返答待ち', phaseId: 'p2' },
+                    { id: 't3', title: 'C社完了', phaseId: 'p3' }
+                ];
+                log(`✅ タスク作成: ${tasks.length}個`);
+                
+                // 段階2: 表示
+                log('段階2: 表示開始');
+                render();
+                
+                updateStatus('✅ サンプル作成完了！');
+                log('🎉 サンプル作成完了');
+                
+            } catch (error) {
+                log(`❌ サンプル作成エラー: ${error.message}`);
+                updateStatus('❌ サンプル作成でエラーが発生しました');
+            }
+        }
+        
+        // 表示
+        function render() {
+            log('🎨 表示開始');
+            
+            try {
+                const container = document.getElementById('phases');
+                if (!container) {
+                    throw new Error('phases要素が見つかりません');
+                }
+                
+                container.innerHTML = '';
+                log('✅ 既存要素をクリア');
+                
+                phases.forEach((phase, index) => {
+                    log(`フェーズ表示: ${phase.name} (${index + 1}/${phases.length})`);
+                    
+                    const phaseDiv = document.createElement('div');
+                    phaseDiv.className = 'phase';
+                    
+                    const phaseTasks = tasks.filter(task => task.phaseId === phase.id);
+                    log(`  - タスク数: ${phaseTasks.length}個`);
+                    
+                    phaseDiv.innerHTML = `
+                        <h3>${phase.name} (${phaseTasks.length})</h3>
+                        ${phaseTasks.map(task => `
+                            <div class="task" onclick="moveTask('${task.id}')">
+                                ${task.title}
+                                <div style="font-size: 12px; color: #666;">クリックで移動</div>
+                            </div>
+                        `).join('')}
+                        <button class="btn" style="width: 100%; margin-top: 10px; padding: 8px;" onclick="addTask('${phase.id}')">
+                            ➕ タスク追加
+                        </button>
+                    `;
+                    
+                    container.appendChild(phaseDiv);
+                    log(`✅ フェーズ「${phase.name}」を表示`);
+                });
+                
+                log('✅ 表示完了');
+                
+            } catch (error) {
+                log(`❌ 表示エラー: ${error.message}`);
+                throw error;
+            }
+        }
+        
+        // タスク移動
+        function moveTask(taskId) {
+            log(`🔄 タスク移動: ${taskId}`);
+            
+            try {
+                const task = tasks.find(t => t.id === taskId);
+                if (!task) {
+                    throw new Error(`タスク ${taskId} が見つかりません`);
+                }
+                
+                const currentIndex = phases.findIndex(p => p.id === task.phaseId);
+                const nextIndex = (currentIndex + 1) % phases.length;
+                const nextPhase = phases[nextIndex];
+                
+                log(`移動: ${phases[currentIndex].name} → ${nextPhase.name}`);
+                
+                task.phaseId = nextPhase.id;
+                render();
+                
+                updateStatus(`✅ タスク「${task.title}」を「${nextPhase.name}」に移動しました`);
+                
+            } catch (error) {
+                log(`❌ タスク移動エラー: ${error.message}`);
+            }
+        }
+        
+        // タスク追加
+        function addTask(phaseId) {
+            log(`➕ タスク追加: ${phaseId}`);
+            
+            try {
+                const title = prompt('タスク名を入力してください:');
+                if (!title) return;
+                
+                const newTask = {
+                    id: 't' + Date.now(),
+                    title: title,
+                    phaseId: phaseId
+                };
+                
+                tasks.push(newTask);
+                render();
+                
+                updateStatus(`✅ タスク「${title}」を追加しました`);
+                log(`✅ タスク追加完了: ${title}`);
+                
+            } catch (error) {
+                log(`❌ タスク追加エラー: ${error.message}`);
+            }
+        }
+        
+        // クリア
+        function clearAll() {
+            log('🗑️ クリア実行');
+            phases = [];
+            tasks = [];
+            render();
+            updateStatus('🗑️ クリア完了');
+        }
+        
+        // 初期化
+        log('🎯 初期化完了');
+        updateStatus('✅ 準備完了！まず「🧪 基本テスト」をクリックしてください');
+    </script>
+</body>
+</html>

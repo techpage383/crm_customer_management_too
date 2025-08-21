@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* カスタムスタイル */
+@layer base {
+  html {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  /* カスタムフロー設計用のキャンバススタイル */
+  .flow-canvas {
+    @apply bg-white border-2 border-dashed border-gray-200 rounded-xl;
+    background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+    background-size: 20px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* フェーズウィンドウスタイル */
+  .phase-window {
+    @apply bg-white rounded-lg shadow-lg border border-gray-200 p-4;
+    @apply hover:shadow-xl transition-all duration-200;
+    @apply cursor-move select-none;
+    min-width: 200px;
+    min-height: 120px;
+  }
+  
+  /* タスクカードスタイル */
+  .task-card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-3;
+    @apply hover:shadow-md transition-all duration-150;
+    @apply cursor-pointer;
+  }
+  
+  /* ドラッグ中のスタイル */
+  .dragging {
+    @apply opacity-50 rotate-2 scale-105;
+  }
+  
+  /* ドロップゾーンのハイライト */
+  .drop-zone-active {
+    @apply bg-primary-50 border-primary-300 border-2;
+  }
+  
+  /* アニメーション */
+  .slide-in {
+    animation: slideIn 0.3s ease-out forwards;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+}
+
+@layer utilities {
+  /* ユーティリティクラス */
+  .text-shadow {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .glass {
+    @apply bg-white/80 backdrop-blur-sm;
+  }
+  
+  /* スクロールバーカスタマイズ */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded-full;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full hover:bg-gray-400;
+  }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .phase-window {
+    min-width: 160px;
+    min-height: 100px;
+  }
+  
+  .flow-canvas {
+    background-size: 15px 15px;
+  }
+}

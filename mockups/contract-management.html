@@ -3,16 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>契約管理 - 顧客管理ツール</title>
-    
-    <!-- Material UI CDN -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://unpkg.com/@mui/material@5.14.20/umd/material-ui.development.js"></script>
-    <script src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <title>企業別契約管理 - 顧客管理ツール</title>
     
     <style>
         * {
@@ -22,8 +13,8 @@
         }
         
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
             line-height: 1.6;
         }
         
@@ -31,19 +22,20 @@
             background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
             color: white;
             padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .header h1 {
-            margin: 0;
             font-size: 1.5rem;
             font-weight: 500;
-        }
-        
-        .breadcrumb {
-            margin-top: 0.5rem;
-            opacity: 0.8;
-            font-size: 0.9rem;
         }
         
         .main-container {
@@ -52,154 +44,84 @@
             padding: 2rem;
         }
         
-        .company-header {
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
             background: white;
             padding: 1.5rem;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .summary-number {
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .active { color: #4caf50; }
+        .expiring { color: #ff9800; }
+        .expired { color: #f44336; }
+        .pending { color: #2196f3; }
+        
+        .summary-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .controls-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-        
-        .company-info h2 {
-            margin: 0 0 0.5rem 0;
-            color: #333;
-        }
-        
-        .company-meta {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 2rem;
-            align-items: start;
-        }
-        
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .card-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .card-title {
-            margin: 0;
-            font-size: 1.25rem;
-            color: #333;
-        }
-        
-        .card-content {
-            padding: 1.5rem;
-        }
-        
-        .contract-item {
-            display: grid;
-            grid-template-columns: auto 1fr auto auto;
             gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
             align-items: center;
         }
         
-        .contract-item:last-child {
-            border-bottom: none;
+        .search-input {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 200px;
         }
         
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            flex-shrink: 0;
+        .filter-dropdown {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
         }
         
-        .status-active { background: #4caf50; }
-        .status-ending { background: #ff9800; }
-        .status-expired { background: #f44336; }
-        .status-proposal { background: #2196f3; }
-        
-        .contract-details {
-            min-width: 0;
-        }
-        
-        .contract-name {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 0.25rem;
-        }
-        
-        .contract-period {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .contract-amount {
-            font-weight: 500;
-            color: #1976d2;
-            text-align: right;
-        }
-        
-        .contract-status {
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-        
-        .status-active-text {
-            background: #e8f5e8;
-            color: #2e7d32;
-        }
-        
-        .status-ending-text {
-            background: #fff3e0;
-            color: #ef6c00;
-        }
-        
-        .status-expired-text {
-            background: #ffebee;
-            color: #c62828;
-        }
-        
-        .status-proposal-text {
-            background: #e3f2fd;
-            color: #1565c0;
-        }
-        
-        .contract-actions {
+        .action-buttons {
             display: flex;
-            gap: 0.5rem;
+            gap: 1rem;
         }
         
         .btn {
-            padding: 0.5rem 1rem;
+            padding: 10px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
         
         .btn-primary {
@@ -211,89 +133,356 @@
             background: #1565c0;
         }
         
-        .btn-success {
-            background: #4caf50;
+        .btn-secondary {
+            background: #6c757d;
             color: white;
         }
         
-        .btn-success:hover {
-            background: #45a049;
+        .btn-secondary:hover {
+            background: #5a6268;
         }
         
-        .btn-icon {
-            padding: 0.5rem;
-            background: #f5f5f5;
-            color: #666;
-        }
-        
-        .btn-icon:hover {
-            background: #e0e0e0;
-        }
-        
-        .sidebar {
-            display: flex;
-            flex-direction: column;
+        .contracts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
             gap: 1.5rem;
         }
         
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
+        .company-group {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         
-        .stat-item {
-            text-align: center;
-            padding: 1rem;
+        .company-header {
             background: #f8f9fa;
-            border-radius: 4px;
-        }
-        
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: #1976d2;
-            margin-bottom: 0.25rem;
-        }
-        
-        .stat-label {
-            font-size: 0.8rem;
-            color: #666;
-        }
-        
-        .chart-container {
-            height: 200px;
-            position: relative;
-        }
-        
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .renewal-alerts {
-            background: #fff3e0;
-            border-left: 4px solid #ff9800;
-            padding: 1rem;
-            border-radius: 4px;
-        }
-        
-        .alert-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        
+        .company-name {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .company-stats {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .contracts-list {
+            padding: 1rem;
+        }
+        
+        .contract-card {
+            padding: 1rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .contract-card:hover {
+            border-color: #1976d2;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .contract-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 0.5rem;
         }
         
-        .alert-item:last-child {
-            margin-bottom: 0;
+        .contract-title {
+            font-weight: 500;
+            color: #333;
         }
         
-        @media (max-width: 1200px) {
-            .content-grid {
+        .contract-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status-expiring {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .status-expired {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .status-pending {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .contract-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .contract-progress {
+            margin-top: 0.5rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-active { background: #4caf50; }
+        .progress-warning { background: #ff9800; }
+        .progress-expired { background: #f44336; }
+        
+        .progress-text {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        .contract-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .action-btn {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn:hover {
+            background: #f5f5f5;
+        }
+        
+        .action-btn.primary {
+            background: #1976d2;
+            color: white;
+            border-color: #1976d2;
+        }
+        
+        .action-btn.primary:hover {
+            background: #1565c0;
+        }
+        
+        .timeline-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .timeline-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .timeline-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .timeline-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .timeline-btn.active {
+            background: #1976d2;
+            color: white;
+            border-color: #1976d2;
+        }
+        
+        .timeline-content {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            min-height: 200px;
+        }
+        
+        .timeline-day {
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 0.5rem;
+            min-height: 120px;
+        }
+        
+        .day-header {
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        
+        .day-events {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .timeline-event {
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        
+        .event-renewal {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .event-expiry {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .event-review {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 1024px) {
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .contracts-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .timeline-content {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
         
@@ -302,271 +491,568 @@
                 padding: 1rem;
             }
             
-            .company-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            
-            .contract-item {
+            .summary-cards {
                 grid-template-columns: 1fr;
-                gap: 0.5rem;
-                text-align: left;
             }
             
-            .stats-grid {
+            .controls-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-controls {
+                flex-wrap: wrap;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .timeline-content {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
+    <!-- ヘッダー -->
     <header class="header">
-        <h1>契約管理</h1>
-        <div class="breadcrumb">企業管理 > サンプル株式会社 > 契約状況</div>
-    </header>
-
-    <div class="main-container">
-        <div class="company-header">
-            <div class="company-info">
-                <h2>サンプル株式会社 - 契約状況</h2>
-                <div class="company-meta">
-                    担当者: 田中 | 最終更新: 2024年1月15日 | 総契約数: 5件
-                </div>
+        <div class="header-content">
+            <h1>企業別契約管理</h1>
+            <div class="user-info">
+                <span>👤 田中 太郎</span>
             </div>
-            <button class="btn btn-success">
-                <span class="material-icons">add</span>
-                新規契約追加
-            </button>
         </div>
-
-        <div class="content-grid">
-            <div class="main-content">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">導入済み商材</h3>
-                        <button class="btn btn-primary">
-                            <span class="material-icons">edit</span>
-                            契約管理
-                        </button>
-                    </div>
-                    <div class="card-content">
-                        <div class="contract-item">
-                            <div class="status-indicator status-active"></div>
-                            <div class="contract-details">
-                                <div class="contract-name">CRMプラットフォーム Pro</div>
-                                <div class="contract-period">2023/04/01 - 2024/03/31 (自動更新)</div>
-                            </div>
-                            <div class="contract-status status-active-text">契約中</div>
-                            <div class="contract-actions">
-                                <button class="btn btn-icon">
-                                    <span class="material-icons">edit</span>
-                                </button>
-                                <button class="btn btn-icon">
-                                    <span class="material-icons">history</span>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="contract-item">
-                            <div class="status-indicator status-ending"></div>
-                            <div class="contract-details">
-                                <div class="contract-name">マーケティングオートメーション</div>
-                                <div class="contract-period">2023/07/01 - 2024/06/30</div>
-                            </div>
-                            <div class="contract-status status-ending-text">更新要</div>
-                            <div class="contract-actions">
-                                <button class="btn btn-icon">
-                                    <span class="material-icons">edit</span>
-                                </button>
-                                <button class="btn btn-icon">
-                                    <span class="material-icons">notification_important</span>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="contract-item">
-                            <div class="status-indicator status-active"></div>
-                            <div class="contract-details">
-                                <div class="contract-name">データ分析ツール Basic</div>
-                                <div class="contract-period">2023/10/01 - 2024/09/30</div>
-                            </div>
-                            <div class="contract-status status-active-text">契約中</div>
-                            <div class="contract-actions">
-                                <button class="btn btn-icon">
-                                    <span class="material-icons">edit</span>
-                                </button>
-                                <button class="btn btn-icon">
-                                    <span class="material-icons">history</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">提案中商材</h3>
-                        <button class="btn btn-primary">
-                            <span class="material-icons">add</span>
-                            提案追加
-                        </button>
-                    </div>
-                    <div class="card-content">
-                        <div class="contract-item">
-                            <div class="status-indicator status-proposal"></div>
-                            <div class="contract-details">
-                                <div class="contract-name">AI チャットボット Pro</div>
-                                <div class="contract-period">提案日: 2024/01/10 | 回答期限: 2024/01/31</div>
-                            </div>
-                            <div class="contract-status status-proposal-text">検討中</div>
-                            <div class="contract-actions">
-                                <button class="btn btn-icon">
-                                    <span class="material-icons">edit</span>
-                                </button>
-                                <button class="btn btn-icon">
-                                    <span class="material-icons">schedule</span>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="contract-item">
-                            <div class="status-indicator status-proposal"></div>
-                            <div class="contract-details">
-                                <div class="contract-name">セキュリティ強化パック</div>
-                                <div class="contract-period">提案日: 2024/01/05 | 回答期限: 2024/02/15</div>
-                            </div>
-                            <div class="contract-status status-proposal-text">提案済み</div>
-                            <div class="contract-actions">
-                                <button class="btn btn-icon">
-                                    <span class="material-icons">edit</span>
-                                </button>
-                                <button class="btn btn-icon">
-                                    <span class="material-icons">mail</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+    </header>
+    
+    <!-- メインコンテンツ -->
+    <main class="main-container">
+        <!-- サマリーカード -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="summary-number active" id="activeContracts">24</div>
+                <div class="summary-label">アクティブ契約</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number expiring" id="expiringContracts">8</div>
+                <div class="summary-label">30日以内期限</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number expired" id="expiredContracts">3</div>
+                <div class="summary-label">期限切れ</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number pending" id="pendingContracts">5</div>
+                <div class="summary-label">更新待ち</div>
+            </div>
+        </div>
+        
+        <!-- コントロール -->
+        <div class="controls-section">
+            <div class="filter-controls">
+                <input type="text" class="search-input" placeholder="企業名・契約名で検索..." id="searchInput" oninput="filterContracts()">
+                <select class="filter-dropdown" id="statusFilter" onchange="filterContracts()">
+                    <option value="">全てのステータス</option>
+                    <option value="active">アクティブ</option>
+                    <option value="expiring">期限間近</option>
+                    <option value="expired">期限切れ</option>
+                    <option value="pending">更新待ち</option>
+                </select>
+                <select class="filter-dropdown" id="companyFilter" onchange="filterContracts()">
+                    <option value="">全ての企業</option>
+                    <option value="1">株式会社ABC商事</option>
+                    <option value="2">XYZ株式会社</option>
+                    <option value="3">DEF技研</option>
+                </select>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="exportContracts()">📊 レポート出力</button>
+                <button class="btn btn-primary" onclick="openContractModal()">+ 新規契約</button>
+            </div>
+        </div>
+        
+        <!-- 契約一覧 -->
+        <div class="contracts-grid" id="contractsGrid">
+            <!-- 契約カードがここに動的に生成される -->
+        </div>
+        
+        <!-- タイムライン -->
+        <div class="timeline-section">
+            <div class="timeline-header">
+                <div class="timeline-title">📅 契約期限タイムライン</div>
+                <div class="timeline-controls">
+                    <button class="timeline-btn active" onclick="switchTimelineView('week')">週表示</button>
+                    <button class="timeline-btn" onclick="switchTimelineView('month')">月表示</button>
                 </div>
             </div>
-
-            <div class="sidebar">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">契約サマリー</h3>
-                    </div>
-                    <div class="card-content">
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <div class="stat-value">3</div>
-                                <div class="stat-label">契約中</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value">2</div>
-                                <div class="stat-label">提案中</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value">1</div>
-                                <div class="stat-label">更新予定</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value">5</div>
-                                <div class="stat-label">総商材数</div>
-                            </div>
-                        </div>
-                        
-                        <div class="chart-container">
-                            <canvas id="contractChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">更新アラート</h3>
-                    </div>
-                    <div class="card-content">
-                        <div class="renewal-alerts">
-                            <div class="alert-item">
-                                <div>
-                                    <div style="font-weight: 500;">マーケティングオートメーション</div>
-                                    <div style="font-size: 0.8rem; color: #666;">5ヶ月後更新</div>
-                                </div>
-                                <span class="material-icons" style="color: #ff9800;">warning</span>
-                            </div>
-                            
-                            <div class="alert-item">
-                                <div>
-                                    <div style="font-weight: 500;">CRMプラットフォーム Pro</div>
-                                    <div style="font-size: 0.8rem; color: #666;">2ヶ月後更新</div>
-                                </div>
-                                <span class="material-icons" style="color: #ff9800;">schedule</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">クイックアクション</h3>
-                    </div>
-                    <div class="card-content">
-                        <div class="action-buttons">
-                            <button class="btn btn-primary">
-                                <span class="material-icons">assessment</span>
-                                契約レポート
-                            </button>
-                            <button class="btn btn-primary">
-                                <span class="material-icons">email</span>
-                                更新リマインド送信
-                            </button>
-                            <button class="btn btn-primary">
-                                <span class="material-icons">calendar_today</span>
-                                更新スケジュール
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="timeline-content" id="timelineContent">
+                <!-- タイムラインがここに動的に生成される -->
             </div>
+        </div>
+    </main>
+    
+    <!-- 契約編集モーダル -->
+    <div class="modal" id="contractModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">新規契約作成</div>
+                <button class="close-btn" onclick="closeContractModal()">&times;</button>
+            </div>
+            <form onsubmit="saveContract(event)">
+                <div class="form-group">
+                    <label class="form-label">企業名 *</label>
+                    <select class="form-select" id="contractCompany" required>
+                        <option value="">企業を選択...</option>
+                        <option value="1">株式会社ABC商事</option>
+                        <option value="2">XYZ株式会社</option>
+                        <option value="3">DEF技研</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">契約名 *</label>
+                    <input type="text" class="form-input" id="contractName" required placeholder="例: CRMシステム利用契約">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">契約金額 *</label>
+                    <input type="number" class="form-input" id="contractAmount" required placeholder="例: 500000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">契約開始日 *</label>
+                    <input type="date" class="form-input" id="contractStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">契約終了日 *</label>
+                    <input type="date" class="form-input" id="contractEndDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">自動更新</label>
+                    <select class="form-select" id="contractAutoRenewal">
+                        <option value="true">有効</option>
+                        <option value="false">無効</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">契約ステータス *</label>
+                    <select class="form-select" id="contractStatus" required>
+                        <option value="pending">検討中</option>
+                        <option value="active">アクティブ</option>
+                        <option value="expiring">期限間近</option>
+                        <option value="expired">期限切れ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <textarea class="form-textarea" id="contractNotes" placeholder="契約に関する追加情報"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeContractModal()">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
+        // モックデータ
+        let contracts = [
+            {
+                id: 1,
+                companyId: 1,
+                companyName: '株式会社ABC商事',
+                name: 'CRMシステム利用契約',
+                amount: 500000,
+                startDate: '2024-01-01',
+                endDate: '2024-12-31',
+                status: 'active',
+                autoRenewal: true,
+                notes: '基本プラン契約',
+                daysLeft: 157
+            },
+            {
+                id: 2,
+                companyId: 1,
+                companyName: '株式会社ABC商事',
+                name: 'データ分析ツール契約',
+                amount: 300000,
+                startDate: '2024-03-01',
+                endDate: '2025-02-28',
+                status: 'active',
+                autoRenewal: false,
+                notes: 'オプション契約',
+                daysLeft: 215
+            },
+            {
+                id: 3,
+                companyId: 2,
+                companyName: 'XYZ株式会社',
+                name: 'セキュリティソフト契約',
+                amount: 800000,
+                startDate: '2024-01-01',
+                endDate: '2024-08-31',
+                status: 'expiring',
+                autoRenewal: true,
+                notes: 'エンタープライズ版',
+                daysLeft: 15
+            },
+            {
+                id: 4,
+                companyId: 2,
+                companyName: 'XYZ株式会社',
+                name: 'バックアップサービス契約',
+                amount: 200000,
+                startDate: '2023-12-01',
+                endDate: '2024-07-15',
+                status: 'expired',
+                autoRenewal: false,
+                notes: '期限切れ - 更新検討中',
+                daysLeft: -30
+            },
+            {
+                id: 5,
+                companyId: 3,
+                companyName: 'DEF技研',
+                name: 'コンサルティング契約',
+                amount: 1200000,
+                startDate: '2024-04-01',
+                endDate: '2025-03-31',
+                status: 'active',
+                autoRenewal: true,
+                notes: '年間サポート契約',
+                daysLeft: 245
+            }
+        ];
+
+        let companies = [
+            { id: 1, name: '株式会社ABC商事' },
+            { id: 2, name: 'XYZ株式会社' },
+            { id: 3, name: 'DEF技研' }
+        ];
+
+        let editingContractId = null;
+
+        // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            // 契約状況チャート
-            const ctx = document.getElementById('contractChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['契約中', '提案中', '期限間近'],
-                    datasets: [{
-                        data: [3, 2, 1],
-                        backgroundColor: [
-                            '#4caf50',
-                            '#2196f3', 
-                            '#ff9800'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 15,
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            renderContracts();
+            renderTimeline();
+            updateSummary();
         });
+
+        // 契約表示
+        function renderContracts() {
+            const contractsGrid = document.getElementById('contractsGrid');
+            const companyGroups = {};
+            
+            // 企業ごとにグループ化
+            contracts.forEach(contract => {
+                if (!companyGroups[contract.companyId]) {
+                    companyGroups[contract.companyId] = [];
+                }
+                companyGroups[contract.companyId].push(contract);
+            });
+            
+            contractsGrid.innerHTML = Object.keys(companyGroups).map(companyId => {
+                const company = companies.find(c => c.id == companyId);
+                const companyContracts = companyGroups[companyId];
+                const activeCount = companyContracts.filter(c => c.status === 'active').length;
+                const totalValue = companyContracts.reduce((sum, c) => sum + c.amount, 0);
+                
+                return `
+                    <div class="company-group">
+                        <div class="company-header">
+                            <div class="company-name">${company.name}</div>
+                            <div class="company-stats">アクティブ: ${activeCount}件 | 総額: ¥${totalValue.toLocaleString()}</div>
+                        </div>
+                        <div class="contracts-list">
+                            ${companyContracts.map(contract => renderContractCard(contract)).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderContractCard(contract) {
+            const statusClass = `status-${contract.status}`;
+            const progressClass = contract.status === 'expired' ? 'progress-expired' : 
+                                 contract.status === 'expiring' ? 'progress-warning' : 'progress-active';
+            const progressPercentage = Math.max(0, Math.min(100, (contract.daysLeft / 365) * 100));
+            
+            return `
+                <div class="contract-card" onclick="openContractModal(${contract.id})">
+                    <div class="contract-header">
+                        <div class="contract-title">${contract.name}</div>
+                        <div class="contract-status ${statusClass}">${getStatusText(contract.status)}</div>
+                    </div>
+                    <div class="contract-details">
+                        <div>💰 ¥${contract.amount.toLocaleString()}</div>
+                        <div>📅 ${contract.endDate}</div>
+                        <div>🔄 ${contract.autoRenewal ? '自動更新' : '手動更新'}</div>
+                        <div>⏰ ${contract.daysLeft > 0 ? `${contract.daysLeft}日後` : '期限切れ'}</div>
+                    </div>
+                    <div class="contract-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill ${progressClass}" style="width: ${progressPercentage}%"></div>
+                        </div>
+                        <div class="progress-text">契約期間: ${contract.startDate} 〜 ${contract.endDate}</div>
+                    </div>
+                    <div class="contract-actions" onclick="event.stopPropagation()">
+                        <button class="action-btn" onclick="viewContractDetails(${contract.id})">詳細</button>
+                        ${contract.status === 'expiring' || contract.status === 'expired' ? 
+                            `<button class="action-btn primary" onclick="renewContract(${contract.id})">更新</button>` : ''}
+                        <button class="action-btn" onclick="editContract(${contract.id})">編集</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'active': 'アクティブ',
+                'expiring': '期限間近',
+                'expired': '期限切れ',
+                'pending': '更新待ち'
+            };
+            return statusMap[status] || status;
+        }
+
+        // タイムライン表示
+        function renderTimeline() {
+            const timelineContent = document.getElementById('timelineContent');
+            const today = new Date();
+            const days = [];
+            
+            // 今週の7日間を生成
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                days.push(date);
+            }
+            
+            timelineContent.innerHTML = days.map(date => {
+                const dateStr = date.toISOString().split('T')[0];
+                const dayName = date.toLocaleDateString('ja-JP', { weekday: 'short' });
+                const dayNum = date.getDate();
+                
+                // この日の契約イベントを検索
+                const events = contracts.filter(contract => {
+                    const endDate = new Date(contract.endDate);
+                    const daysDiff = Math.ceil((endDate - date) / (1000 * 60 * 60 * 24));
+                    
+                    // 期限日、30日前、7日前のイベントを表示
+                    return daysDiff === 0 || daysDiff === 30 || daysDiff === 7;
+                }).map(contract => {
+                    const endDate = new Date(contract.endDate);
+                    const daysDiff = Math.ceil((endDate - date) / (1000 * 60 * 60 * 24));
+                    
+                    let eventType = 'event-review';
+                    let eventText = '';
+                    
+                    if (daysDiff === 0) {
+                        eventType = 'event-expiry';
+                        eventText = `${contract.companyName}: 期限`;
+                    } else if (daysDiff === 30) {
+                        eventType = 'event-review';
+                        eventText = `${contract.companyName}: 30日前`;
+                    } else if (daysDiff === 7) {
+                        eventType = 'event-renewal';
+                        eventText = `${contract.companyName}: 7日前`;
+                    }
+                    
+                    return `<div class="timeline-event ${eventType}" onclick="viewContractDetails(${contract.id})">${eventText}</div>`;
+                });
+                
+                return `
+                    <div class="timeline-day">
+                        <div class="day-header">${dayName} ${dayNum}</div>
+                        <div class="day-events">
+                            ${events.join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // サマリー更新
+        function updateSummary() {
+            const activeCount = contracts.filter(c => c.status === 'active').length;
+            const expiringCount = contracts.filter(c => c.status === 'expiring').length;
+            const expiredCount = contracts.filter(c => c.status === 'expired').length;
+            const pendingCount = contracts.filter(c => c.status === 'pending').length;
+            
+            document.getElementById('activeContracts').textContent = activeCount;
+            document.getElementById('expiringContracts').textContent = expiringCount;
+            document.getElementById('expiredContracts').textContent = expiredCount;
+            document.getElementById('pendingContracts').textContent = pendingCount;
+        }
+
+        // フィルタリング
+        function filterContracts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const companyFilter = document.getElementById('companyFilter').value;
+            
+            // 実装は簡易版のため省略
+            showMessage('フィルター機能は実装版で対応します');
+        }
+
+        // モーダル制御
+        function openContractModal(contractId = null) {
+            editingContractId = contractId;
+            const modal = document.getElementById('contractModal');
+            const title = document.getElementById('modalTitle');
+            
+            if (contractId) {
+                const contract = contracts.find(c => c.id === contractId);
+                title.textContent = '契約編集';
+                populateContractForm(contract);
+            } else {
+                title.textContent = '新規契約作成';
+                clearContractForm();
+            }
+            
+            modal.classList.add('show');
+        }
+
+        function closeContractModal() {
+            document.getElementById('contractModal').classList.remove('show');
+            clearContractForm();
+        }
+
+        function populateContractForm(contract) {
+            document.getElementById('contractCompany').value = contract.companyId;
+            document.getElementById('contractName').value = contract.name;
+            document.getElementById('contractAmount').value = contract.amount;
+            document.getElementById('contractStartDate').value = contract.startDate;
+            document.getElementById('contractEndDate').value = contract.endDate;
+            document.getElementById('contractAutoRenewal').value = contract.autoRenewal;
+            document.getElementById('contractStatus').value = contract.status;
+            document.getElementById('contractNotes').value = contract.notes;
+        }
+
+        function clearContractForm() {
+            document.getElementById('contractCompany').value = '';
+            document.getElementById('contractName').value = '';
+            document.getElementById('contractAmount').value = '';
+            document.getElementById('contractStartDate').value = '';
+            document.getElementById('contractEndDate').value = '';
+            document.getElementById('contractAutoRenewal').value = 'true';
+            document.getElementById('contractStatus').value = 'pending';
+            document.getElementById('contractNotes').value = '';
+        }
+
+        // 契約保存
+        function saveContract(event) {
+            event.preventDefault();
+            
+            const formData = {
+                companyId: parseInt(document.getElementById('contractCompany').value),
+                companyName: companies.find(c => c.id == document.getElementById('contractCompany').value).name,
+                name: document.getElementById('contractName').value,
+                amount: parseInt(document.getElementById('contractAmount').value),
+                startDate: document.getElementById('contractStartDate').value,
+                endDate: document.getElementById('contractEndDate').value,
+                autoRenewal: document.getElementById('contractAutoRenewal').value === 'true',
+                status: document.getElementById('contractStatus').value,
+                notes: document.getElementById('contractNotes').value
+            };
+            
+            // 残り日数計算
+            const endDate = new Date(formData.endDate);
+            const today = new Date();
+            formData.daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+            
+            if (editingContractId) {
+                const index = contracts.findIndex(c => c.id === editingContractId);
+                contracts[index] = { ...contracts[index], ...formData };
+                showMessage('契約を更新しました');
+            } else {
+                const newContract = {
+                    id: Math.max(...contracts.map(c => c.id)) + 1,
+                    ...formData
+                };
+                contracts.push(newContract);
+                showMessage('新規契約を作成しました');
+            }
+            
+            closeContractModal();
+            renderContracts();
+            renderTimeline();
+            updateSummary();
+        }
+
+        // 契約詳細表示
+        function viewContractDetails(contractId) {
+            const contract = contracts.find(c => c.id === contractId);
+            if (contract) {
+                alert(`契約詳細:\n\n企業: ${contract.companyName}\n契約名: ${contract.name}\n金額: ¥${contract.amount.toLocaleString()}\n期間: ${contract.startDate} 〜 ${contract.endDate}\nステータス: ${getStatusText(contract.status)}\n\n${contract.notes}`);
+            }
+        }
+
+        // 契約更新
+        function renewContract(contractId) {
+            const contract = contracts.find(c => c.id === contractId);
+            if (contract) {
+                if (confirm(`${contract.name}の契約を更新しますか？`)) {
+                    // 1年延長
+                    const endDate = new Date(contract.endDate);
+                    endDate.setFullYear(endDate.getFullYear() + 1);
+                    contract.endDate = endDate.toISOString().split('T')[0];
+                    contract.status = 'active';
+                    contract.daysLeft = 365;
+                    
+                    renderContracts();
+                    renderTimeline();
+                    updateSummary();
+                    showMessage(`${contract.name}を1年間更新しました`);
+                }
+            }
+        }
+
+        // 契約編集
+        function editContract(contractId) {
+            openContractModal(contractId);
+        }
+
+        // タイムライン表示切り替え
+        function switchTimelineView(view) {
+            document.querySelectorAll('.timeline-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (view === 'month') {
+                showMessage('月表示機能は実装版で対応します');
+            } else {
+                renderTimeline();
+            }
+        }
+
+        // レポート出力
+        function exportContracts() {
+            showMessage('契約レポートを生成中...');
+            setTimeout(() => {
+                showMessage('契約レポートの準備が完了しました');
+            }, 1500);
+        }
+
+        // メッセージ表示
+        function showMessage(text) {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4caf50;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                z-index: 1001;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            `;
+            message.textContent = text;
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        }
     </script>
 </body>
 </html>

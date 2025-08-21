@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工数・ワークフローマスタ設定 - 最強タスク管理ツール</title>
+    
+    <!-- Material UI CSS -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    
+    <!-- Sortable.js for drag and drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    
+    <!-- Material UI JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+    <style>
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+            color: white;
+            padding: 0 20px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #1976d2;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1976d2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .breadcrumb {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .breadcrumb a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+        
+        .master-tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 4px;
+        }
+        
+        .master-tab {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .master-tab.active {
+            background: white;
+            color: #1976d2;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .master-tab:hover:not(.active) {
+            background: #eeeeee;
+        }
+        
+        .master-section {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .workflow-builder {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .available-statuses {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            height: fit-content;
+        }
+        
+        .available-statuses h4 {
+            margin: 0 0 15px 0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-library {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .status-template {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: grab;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-template:hover {
+            border-color: #1976d2;
+            transform: translateY(-2px);
+        }
+        
+        .status-template.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+        
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .status-info {
+            flex: 1;
+        }
+        
+        .status-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        
+        .status-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .workflow-canvas {
+            background: white;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            min-height: 400px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .workflow-canvas.drag-over {
+            border-color: #1976d2;
+            background: #f8f9fa;
+        }
+        
+        .workflow-canvas h4 {
+            margin: 0 0 20px 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .workflow-columns {
+            display: flex;
+            gap: 15px;
+            min-height: 300px;
+        }
+        
+        .workflow-column {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            min-height: 250px;
+        }
+        
+        .workflow-column.drag-over {
+            border-color: #1976d2;
+            background: #e3f2fd;
+        }
+        
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .column-title {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .column-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-icon {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover {
+            background: #e0e0e0;
+            color: #1976d2;
+        }
+        
+        .column-status {
+            background: white;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        
+        .column-status:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        
+        .column-status.dragging {
+            opacity: 0.5;
+        }
+        
+        .add-column-btn {
+            background: #f5f5f5;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 200px;
+        }
+        
+        .add-column-btn:hover {
+            background: #eeeeee;
+            border-color: #999;
+        }
+        
+        .effort-templates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .effort-template {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .effort-template:hover {
+            border-color: #1976d2;
+            transform: translateY(-2px);
+        }
+        
+        .template-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .template-info {
+            flex: 1;
+        }
+        
+        .template-name {
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 5px;
+        }
+        
+        .template-hours {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .template-desc {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .template-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 1px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #f5f5f5;
+            border-color: #999;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 4px;
+        }
+        
+        .menu-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .menu-item.active {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .menu-icon {
+            font-size: 20px;
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1976d2, #42a5f5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal h3 {
+            margin: 0 0 20px 0;
+            color: #1976d2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .color-option.selected {
+            border-color: #333;
+            transform: scale(1.2);
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn-cancel {
+            background: #f5f5f5;
+            color: #666;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="logo">
+            <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">dashboard</i>
+            最強タスク管理ツール
+        </div>
+        
+        <div class="user-info">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="avatar">田</div>
+                <span>田中太郎</span>
+            </div>
+            
+            <i class="material-icons" style="cursor: pointer; font-size: 24px;">logout</i>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- サイドバー -->
+        <nav class="sidebar">
+            <div class="menu-item">
+                <i class="material-icons menu-icon">dashboard</i>
+                <span>メインダッシュボード</span>
+            </div>
+            
+            <div class="menu-item">
+                <i class="material-icons menu-icon">folder</i>
+                <span>プロジェクト管理</span>
+            </div>
+            
+            <div class="menu-item">
+                <i class="material-icons menu-icon">settings</i>
+                <span>個人設定</span>
+            </div>
+            
+            <div class="menu-item active">
+                <i class="material-icons menu-icon">tune</i>
+                <span>工数・ワークフロー設定</span>
+            </div>
+        </nav>
+
+        <!-- メインコンテンツ -->
+        <main class="content">
+            <!-- ページヘッダー -->
+            <div class="page-header">
+                <div class="page-title">
+                    <i class="material-icons">tune</i>
+                    工数・ワークフローマスタ設定
+                </div>
+                <div class="breadcrumb">
+                    <a href="#">ホーム</a> > 工数・ワークフローマスタ設定
+                </div>
+            </div>
+
+            <!-- マスタータブ -->
+            <div class="master-tabs">
+                <div class="master-tab active" onclick="switchMasterTab('workflow')">
+                    <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">linear_scale</i>
+                    ワークフロー設定
+                </div>
+                <div class="master-tab" onclick="switchMasterTab('effort')">
+                    <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">schedule</i>
+                    工数テンプレート
+                </div>
+            </div>
+
+            <!-- ワークフロー設定セクション -->
+            <div class="master-section" id="workflow-section">
+                <div class="section-title">
+                    <i class="material-icons">linear_scale</i>
+                    カスタムワークフロー設定
+                </div>
+                
+                <p style="color: #666; margin-bottom: 30px;">
+                    左の「利用可能なステータス」から必要なものを右の「ワークフロー」にドラッグ&ドロップしてください。
+                    ステータスの順番は自由に変更でき、独自のステータスも追加できます。
+                </p>
+                
+                <div class="workflow-builder">
+                    <!-- 利用可能なステータス -->
+                    <div class="available-statuses">
+                        <h4>
+                            <i class="material-icons">inventory</i>
+                            利用可能なステータス
+                        </h4>
+                        
+                        <div class="status-library" id="statusLibrary">
+                            <div class="status-template" draggable="true" data-status="todo">
+                                <div class="status-icon" style="background: #ffecb3;">
+                                    <i class="material-icons">assignment</i>
+                                </div>
+                                <div class="status-info">
+                                    <div class="status-name">TO DO</div>
+                                    <div class="status-desc">未着手・予定</div>
+                                </div>
+                            </div>
+                            
+                            <div class="status-template" draggable="true" data-status="progress">
+                                <div class="status-icon" style="background: #e1f5fe;">
+                                    <i class="material-icons">trending_up</i>
+                                </div>
+                                <div class="status-info">
+                                    <div class="status-name">進行中</div>
+                                    <div class="status-desc">作業実行中</div>
+                                </div>
+                            </div>
+                            
+                            <div class="status-template" draggable="true" data-status="approval">
+                                <div class="status-icon" style="background: #fff3e0;">
+                                    <i class="material-icons">approval</i>
+                                </div>
+                                <div class="status-info">
+                                    <div class="status-name">承認待ち</div>
+                                    <div class="status-desc">上司・管理者の承認待ち</div>
+                                </div>
+                            </div>
+                            
+                            <div class="status-template" draggable="true" data-status="response">
+                                <div class="status-icon" style="background: #f3e5f5;">
+                                    <i class="material-icons">reply</i>
+                                </div>
+                                <div class="status-info">
+                                    <div class="status-name">返信待ち</div>
+                                    <div class="status-desc">相手からの回答待ち</div>
+                                </div>
+                            </div>
+                            
+                            <div class="status-template" draggable="true" data-status="customer">
+                                <div class="status-icon" style="background: #e8f5e8;">
+                                    <i class="material-icons">business</i>
+                                </div>
+                                <div class="status-info">
+                                    <div class="status-name">お客様確認中</div>
+                                    <div class="status-desc">顧客による確認・検討中</div>
+                                </div>
+                            </div>
+                            
+                            <div class="status-template" draggable="true" data-status="review">
+                                <div class="status-icon" style="background: #fff3e0;">
+                                    <i class="material-icons">rate_review</i>
+                                </div>
+                                <div class="status-info">
+                                    <div class="status-name">レビュー中</div>
+                                    <div class="status-desc">内容確認・品質チェック</div>
+                                </div>
+                            </div>
+                            
+                            <div class="status-template" draggable="true" data-status="ringi">
+                                <div class="status-icon" style="background: #ffebee;">
+                                    <i class="material-icons">gavel</i>
+                                </div>
+                                <div class="status-info">
+                                    <div class="status-name">稟議待ち</div>
+                                    <div class="status-desc">決裁・稟議書承認待ち</div>
+                                </div>
+                            </div>
+                            
+                            <div class="status-template" draggable="true" data-status="testing">
+                                <div class="status-icon" style="background: #e1f5fe;">
+                                    <i class="material-icons">bug_report</i>
+                                </div>
+                                <div class="status-info">
+                                    <div class="status-name">テスト中</div>
+                                    <div class="status-desc">動作確認・品質検証</div>
+                                </div>
+                            </div>
+                            
+                            <div class="status-template" draggable="true" data-status="done">
+                                <div class="status-icon" style="background: #e8f5e8;">
+                                    <i class="material-icons">check_circle</i>
+                                </div>
+                                <div class="status-info">
+                                    <div class="status-name">完了</div>
+                                    <div class="status-desc">作業完了</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-primary" style="width: 100%; margin-top: 15px;" onclick="addCustomStatus()">
+                            <i class="material-icons">add</i>
+                            カスタムステータス追加
+                        </button>
+                    </div>
+                    
+                    <!-- ワークフローキャンバス -->
+                    <div class="workflow-canvas" id="workflowCanvas">
+                        <h4>
+                            <i class="material-icons">view_kanban</i>
+                            現在のワークフロー
+                        </h4>
+                        
+                        <div class="workflow-columns" id="workflowColumns">
+                            <div class="workflow-column" data-column="1">
+                                <div class="column-header">
+                                    <div class="column-title">ステップ 1</div>
+                                    <div class="column-actions">
+                                        <button class="btn-icon" onclick="removeColumn(this)" title="列を削除">
+                                            <i class="material-icons">delete</i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="column-status" draggable="true">
+                                    <div class="status-icon" style="background: #ffecb3;">
+                                        <i class="material-icons">assignment</i>
+                                    </div>
+                                    <div class="status-info">
+                                        <div class="status-name">TO DO</div>
+                                        <div class="status-desc">未着手・予定</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="workflow-column" data-column="2">
+                                <div class="column-header">
+                                    <div class="column-title">ステップ 2</div>
+                                    <div class="column-actions">
+                                        <button class="btn-icon" onclick="removeColumn(this)" title="列を削除">
+                                            <i class="material-icons">delete</i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="column-status" draggable="true">
+                                    <div class="status-icon" style="background: #e1f5fe;">
+                                        <i class="material-icons">trending_up</i>
+                                    </div>
+                                    <div class="status-info">
+                                        <div class="status-name">進行中</div>
+                                        <div class="status-desc">作業実行中</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="workflow-column" data-column="3">
+                                <div class="column-header">
+                                    <div class="column-title">ステップ 3</div>
+                                    <div class="column-actions">
+                                        <button class="btn-icon" onclick="removeColumn(this)" title="列を削除">
+                                            <i class="material-icons">delete</i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="column-status" draggable="true">
+                                    <div class="status-icon" style="background: #fff3e0;">
+                                        <i class="material-icons">rate_review</i>
+                                    </div>
+                                    <div class="status-info">
+                                        <div class="status-name">レビュー中</div>
+                                        <div class="status-desc">内容確認・品質チェック</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="workflow-column" data-column="4">
+                                <div class="column-header">
+                                    <div class="column-title">ステップ 4</div>
+                                    <div class="column-actions">
+                                        <button class="btn-icon" onclick="removeColumn(this)" title="列を削除">
+                                            <i class="material-icons">delete</i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="column-status" draggable="true">
+                                    <div class="status-icon" style="background: #e8f5e8;">
+                                        <i class="material-icons">check_circle</i>
+                                    </div>
+                                    <div class="status-info">
+                                        <div class="status-name">完了</div>
+                                        <div class="status-desc">作業完了</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="add-column-btn" onclick="addColumn()">
+                                <i class="material-icons" style="font-size: 36px; color: #ccc; margin-bottom: 10px;">add</i>
+                                <div>新しいステップを追加</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 工数テンプレートセクション -->
+            <div class="master-section hidden" id="effort-section">
+                <div class="section-title">
+                    <i class="material-icons">schedule</i>
+                    工数テンプレート設定
+                </div>
+                
+                <p style="color: #666; margin-bottom: 30px;">
+                    タスク作成時に素早く工数を設定できるテンプレートを管理します。
+                    実際の業務に合わせてテンプレートをカスタマイズしてください。
+                </p>
+                
+                <div class="effort-templates" id="effortTemplates">
+                    <div class="effort-template">
+                        <div class="template-header">
+                            <div class="template-info">
+                                <div class="template-name">軽作業</div>
+                                <div class="template-hours">2時間</div>
+                                <div class="template-desc">簡単な確認・修正作業</div>
+                            </div>
+                            <div class="template-actions">
+                                <button class="btn-icon" onclick="editTemplate(this)" title="編集">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="btn-icon" onclick="deleteTemplate(this)" title="削除">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="effort-template">
+                        <div class="template-header">
+                            <div class="template-info">
+                                <div class="template-name">標準作業</div>
+                                <div class="template-hours">4時間</div>
+                                <div class="template-desc">通常の作業・調査・分析</div>
+                            </div>
+                            <div class="template-actions">
+                                <button class="btn-icon" onclick="editTemplate(this)" title="編集">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="btn-icon" onclick="deleteTemplate(this)" title="削除">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="effort-template">
+                        <div class="template-header">
+                            <div class="template-info">
+                                <div class="template-name">資料作成</div>
+                                <div class="template-hours">8時間</div>
+                                <div class="template-desc">文書・プレゼン資料作成</div>
+                            </div>
+                            <div class="template-actions">
+                                <button class="btn-icon" onclick="editTemplate(this)" title="編集">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="btn-icon" onclick="deleteTemplate(this)" title="削除">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="effort-template">
+                        <div class="template-header">
+                            <div class="template-info">
+                                <div class="template-name">設計・デザイン</div>
+                                <div class="template-hours">12時間</div>
+                                <div class="template-desc">UI/UX・システム設計</div>
+                            </div>
+                            <div class="template-actions">
+                                <button class="btn-icon" onclick="editTemplate(this)" title="編集">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="btn-icon" onclick="deleteTemplate(this)" title="削除">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="effort-template">
+                        <div class="template-header">
+                            <div class="template-info">
+                                <div class="template-name">承認待ち</div>
+                                <div class="template-hours">1時間</div>
+                                <div class="template-desc">確認・承認プロセス</div>
+                            </div>
+                            <div class="template-actions">
+                                <button class="btn-icon" onclick="editTemplate(this)" title="編集">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="btn-icon" onclick="deleteTemplate(this)" title="削除">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="effort-template">
+                        <div class="template-header">
+                            <div class="template-info">
+                                <div class="template-name">返信待ち</div>
+                                <div class="template-hours">0.5時間</div>
+                                <div class="template-desc">回答・返事待ち</div>
+                            </div>
+                            <div class="template-actions">
+                                <button class="btn-icon" onclick="editTemplate(this)" title="編集">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="btn-icon" onclick="deleteTemplate(this)" title="削除">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn-primary" onclick="addEffortTemplate()">
+                    <i class="material-icons">add</i>
+                    新しいテンプレートを追加
+                </button>
+            </div>
+
+            <!-- アクションボタン -->
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="resetToDefault()">
+                    <i class="material-icons">refresh</i>
+                    デフォルトに戻す
+                </button>
+                
+                <button class="btn-primary" onclick="saveSettings()">
+                    <i class="material-icons">save</i>
+                    設定を保存
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- カスタムステータス追加モーダル -->
+    <div class="modal-overlay" id="statusModal">
+        <div class="modal">
+            <h3>
+                <i class="material-icons">add</i>
+                カスタムステータス追加
+            </h3>
+            
+            <div class="form-group">
+                <label class="form-label">ステータス名</label>
+                <input type="text" class="form-input" id="statusName" placeholder="例: お客様回答待ち">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">説明</label>
+                <textarea class="form-textarea" id="statusDesc" placeholder="このステータスの説明を入力してください"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">アイコン</label>
+                <select class="form-input" id="statusIcon">
+                    <option value="schedule">schedule - スケジュール</option>
+                    <option value="email">email - メール</option>
+                    <option value="phone">phone - 電話</option>
+                    <option value="meeting_room">meeting_room - 会議</option>
+                    <option value="person">person - 人</option>
+                    <option value="business">business - ビジネス</option>
+                    <option value="pending">pending - 保留</option>
+                    <option value="help">help - ヘルプ</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">背景色</label>
+                <div class="color-picker">
+                    <div class="color-option selected" style="background: #e3f2fd;" onclick="selectColor(this, '#e3f2fd')"></div>
+                    <div class="color-option" style="background: #e8f5e8;" onclick="selectColor(this, '#e8f5e8')"></div>
+                    <div class="color-option" style="background: #fff3e0;" onclick="selectColor(this, '#fff3e0')"></div>
+                    <div class="color-option" style="background: #ffebee;" onclick="selectColor(this, '#ffebee')"></div>
+                    <div class="color-option" style="background: #f3e5f5;" onclick="selectColor(this, '#f3e5f5')"></div>
+                    <div class="color-option" style="background: #ffecb3;" onclick="selectColor(this, '#ffecb3')"></div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeStatusModal()">キャンセル</button>
+                <button class="btn-primary" onclick="createCustomStatus()">
+                    <i class="material-icons">add</i>
+                    追加
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 工数テンプレート編集モーダル -->
+    <div class="modal-overlay" id="effortModal">
+        <div class="modal">
+            <h3>
+                <i class="material-icons">schedule</i>
+                <span id="effortModalTitle">工数テンプレート編集</span>
+            </h3>
+            
+            <div class="form-group">
+                <label class="form-label">テンプレート名</label>
+                <input type="text" class="form-input" id="effortName" placeholder="例: 軽作業">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">工数（時間）</label>
+                <input type="number" class="form-input" id="effortHours" placeholder="4" step="0.5" min="0">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">説明</label>
+                <textarea class="form-textarea" id="effortDesc" placeholder="このテンプレートの説明を入力してください"></textarea>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeEffortModal()">キャンセル</button>
+                <button class="btn-primary" onclick="saveEffortTemplate()">
+                    <i class="material-icons">save</i>
+                    保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedColor = '#e3f2fd';
+        let currentEditingTemplate = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+        });
+
+        function setupDragAndDrop() {
+            // ステータステンプレートのドラッグ
+            const statusTemplates = document.querySelectorAll('.status-template');
+            statusTemplates.forEach(template => {
+                template.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/html', this.outerHTML);
+                    e.dataTransfer.effectAllowed = 'copy';
+                    this.classList.add('dragging');
+                });
+
+                template.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                });
+            });
+
+            // ワークフロー列へのドロップ
+            const workflowColumns = document.querySelectorAll('.workflow-column');
+            workflowColumns.forEach(column => {
+                column.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drag-over');
+                });
+
+                column.addEventListener('dragleave', function() {
+                    this.classList.remove('drag-over');
+                });
+
+                column.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    const draggedHTML = e.dataTransfer.getData('text/html');
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = draggedHTML;
+                    const statusElement = tempDiv.firstElementChild;
+                    
+                    // クラスを変更してワークフロー内のステータスにする
+                    statusElement.className = 'column-status';
+                    statusElement.draggable = true;
+                    
+                    // 既存のステータスを削除して新しいものを追加
+                    const existingStatus = this.querySelector('.column-status');
+                    if (existingStatus) {
+                        existingStatus.remove();
+                    }
+                    
+                    const columnHeader = this.querySelector('.column-header');
+                    this.insertBefore(statusElement, columnHeader.nextSibling);
+                    
+                    setupColumnStatusDrag(statusElement);
+                });
+            });
+        }
+
+        function setupColumnStatusDrag(element) {
+            element.addEventListener('dragstart', function(e) {
+                e.dataTransfer.effectAllowed = 'move';
+                this.classList.add('dragging');
+            });
+
+            element.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+            });
+        }
+
+        function switchMasterTab(tabType) {
+            document.querySelectorAll('.master-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (tabType === 'workflow') {
+                document.getElementById('workflow-section').classList.remove('hidden');
+                document.getElementById('effort-section').classList.add('hidden');
+            } else {
+                document.getElementById('workflow-section').classList.add('hidden');
+                document.getElementById('effort-section').classList.remove('hidden');
+            }
+        }
+
+        function addColumn() {
+            const workflowColumns = document.getElementById('workflowColumns');
+            const columnCount = workflowColumns.querySelectorAll('.workflow-column').length;
+            const addBtn = workflowColumns.querySelector('.add-column-btn');
+            
+            const newColumn = document.createElement('div');
+            newColumn.className = 'workflow-column';
+            newColumn.dataset.column = columnCount + 1;
+            newColumn.innerHTML = `
+                <div class="column-header">
+                    <div class="column-title">ステップ ${columnCount + 1}</div>
+                    <div class="column-actions">
+                        <button class="btn-icon" onclick="removeColumn(this)" title="列を削除">
+                            <i class="material-icons">delete</i>
+                        </button>
+                    </div>
+                </div>
+                <div class="empty-state">
+                    <i class="material-icons">drag_indicator</i>
+                    <p>左からステータスをドラッグしてください</p>
+                </div>
+            `;
+            
+            // ドロップイベントを設定
+            newColumn.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+
+            newColumn.addEventListener('dragleave', function() {
+                this.classList.remove('drag-over');
+            });
+
+            newColumn.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                
+                const draggedHTML = e.dataTransfer.getData('text/html');
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = draggedHTML;
+                const statusElement = tempDiv.firstElementChild;
+                
+                statusElement.className = 'column-status';
+                statusElement.draggable = true;
+                
+                const emptyState = this.querySelector('.empty-state');
+                if (emptyState) {
+                    emptyState.remove();
+                }
+                
+                const columnHeader = this.querySelector('.column-header');
+                this.insertBefore(statusElement, columnHeader.nextSibling);
+                
+                setupColumnStatusDrag(statusElement);
+            });
+            
+            workflowColumns.insertBefore(newColumn, addBtn);
+        }
+
+        function removeColumn(button) {
+            const column = button.closest('.workflow-column');
+            if (confirm('この列を削除しますか？')) {
+                column.remove();
+                
+                // 列番号を振り直し
+                const columns = document.querySelectorAll('.workflow-column');
+                columns.forEach((col, index) => {
+                    col.dataset.column = index + 1;
+                    col.querySelector('.column-title').textContent = `ステップ ${index + 1}`;
+                });
+            }
+        }
+
+        function addCustomStatus() {
+            document.getElementById('statusModal').style.display = 'flex';
+        }
+
+        function closeStatusModal() {
+            document.getElementById('statusModal').style.display = 'none';
+            document.getElementById('statusName').value = '';
+            document.getElementById('statusDesc').value = '';
+            selectedColor = '#e3f2fd';
+        }
+
+        function selectColor(element, color) {
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedColor = color;
+        }
+
+        function createCustomStatus() {
+            const name = document.getElementById('statusName').value;
+            const desc = document.getElementById('statusDesc').value;
+            const icon = document.getElementById('statusIcon').value;
+            
+            if (!name) {
+                alert('ステータス名を入力してください。');
+                return;
+            }
+            
+            const statusLibrary = document.getElementById('statusLibrary');
+            const newStatus = document.createElement('div');
+            newStatus.className = 'status-template';
+            newStatus.draggable = true;
+            newStatus.dataset.status = name.toLowerCase().replace(/\s+/g, '_');
+            
+            newStatus.innerHTML = `
+                <div class="status-icon" style="background: ${selectedColor};">
+                    <i class="material-icons">${icon}</i>
+                </div>
+                <div class="status-info">
+                    <div class="status-name">${name}</div>
+                    <div class="status-desc">${desc}</div>
+                </div>
+            `;
+            
+            // ドラッグイベントを設定
+            newStatus.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/html', this.outerHTML);
+                e.dataTransfer.effectAllowed = 'copy';
+                this.classList.add('dragging');
+            });
+
+            newStatus.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+            });
+            
+            statusLibrary.appendChild(newStatus);
+            closeStatusModal();
+            
+            alert(`カスタムステータス「${name}」を追加しました。`);
+        }
+
+        function addEffortTemplate() {
+            document.getElementById('effortModalTitle').textContent = '新しい工数テンプレート';
+            document.getElementById('effortName').value = '';
+            document.getElementById('effortHours').value = '';
+            document.getElementById('effortDesc').value = '';
+            currentEditingTemplate = null;
+            document.getElementById('effortModal').style.display = 'flex';
+        }
+
+        function editTemplate(button) {
+            const template = button.closest('.effort-template');
+            const name = template.querySelector('.template-name').textContent;
+            const hours = parseFloat(template.querySelector('.template-hours').textContent);
+            const desc = template.querySelector('.template-desc').textContent;
+            
+            document.getElementById('effortModalTitle').textContent = '工数テンプレート編集';
+            document.getElementById('effortName').value = name;
+            document.getElementById('effortHours').value = hours;
+            document.getElementById('effortDesc').value = desc;
+            currentEditingTemplate = template;
+            document.getElementById('effortModal').style.display = 'flex';
+        }
+
+        function closeEffortModal() {
+            document.getElementById('effortModal').style.display = 'none';
+        }
+
+        function saveEffortTemplate() {
+            const name = document.getElementById('effortName').value;
+            const hours = parseFloat(document.getElementById('effortHours').value);
+            const desc = document.getElementById('effortDesc').value;
+            
+            if (!name || !hours) {
+                alert('テンプレート名と工数を入力してください。');
+                return;
+            }
+            
+            if (currentEditingTemplate) {
+                // 編集
+                currentEditingTemplate.querySelector('.template-name').textContent = name;
+                currentEditingTemplate.querySelector('.template-hours').textContent = hours + '時間';
+                currentEditingTemplate.querySelector('.template-desc').textContent = desc;
+                alert('テンプレートを更新しました。');
+            } else {
+                // 新規追加
+                const effortTemplates = document.getElementById('effortTemplates');
+                const newTemplate = document.createElement('div');
+                newTemplate.className = 'effort-template';
+                newTemplate.innerHTML = `
+                    <div class="template-header">
+                        <div class="template-info">
+                            <div class="template-name">${name}</div>
+                            <div class="template-hours">${hours}時間</div>
+                            <div class="template-desc">${desc}</div>
+                        </div>
+                        <div class="template-actions">
+                            <button class="btn-icon" onclick="editTemplate(this)" title="編集">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="btn-icon" onclick="deleteTemplate(this)" title="削除">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                effortTemplates.appendChild(newTemplate);
+                alert('新しいテンプレートを追加しました。');
+            }
+            
+            closeEffortModal();
+        }
+
+        function deleteTemplate(button) {
+            const template = button.closest('.effort-template');
+            const name = template.querySelector('.template-name').textContent;
+            
+            if (confirm(`「${name}」テンプレートを削除しますか？`)) {
+                template.remove();
+                alert('テンプレートを削除しました。');
+            }
+        }
+
+        function resetToDefault() {
+            if (confirm('設定をデフォルトに戻しますか？\n\nカスタム設定は失われます。')) {
+                location.reload();
+            }
+        }
+
+        function saveSettings() {
+            const successMessage = document.createElement('div');
+            successMessage.className = 'success-message';
+            successMessage.innerHTML = `
+                <i class="material-icons">check_circle</i>
+                ワークフロー・工数設定を保存しました。
+            `;
+            
+            const content = document.querySelector('.content');
+            const pageHeader = content.querySelector('.page-header');
+            content.insertBefore(successMessage, pageHeader.nextSibling);
+            
+            setTimeout(() => {
+                successMessage.remove();
+            }, 3000);
+            
+            console.log('ワークフロー・工数設定を保存しました');
+        }
+
+        // モーダルの外側クリックで閉じる
+        document.getElementById('statusModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeStatusModal();
+            }
+        });
+
+        document.getElementById('effortModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEffortModal();
+            }
+        });
+    </script>
+</body>
+</html>

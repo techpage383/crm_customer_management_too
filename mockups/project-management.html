@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロジェクト管理 - 最強タスク管理ツール</title>
+    
+    <!-- Material UI CSS -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Material UI JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+    <style>
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+            color: white;
+            padding: 0 20px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1976d2;
+        }
+        
+        .breadcrumb {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .breadcrumb a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+        
+        .project-selector-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .project-tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 4px;
+        }
+        
+        .project-tab {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .project-tab.active {
+            background: white;
+            color: #1976d2;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .project-tab:hover:not(.active) {
+            background: #eeeeee;
+        }
+        
+        .project-overview {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .project-info-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+        
+        .project-details h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .project-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .members-section {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1976d2;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .member-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .member-card:hover {
+            border-color: #1976d2;
+            background: white;
+        }
+        
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1976d2, #42a5f5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .member-info {
+            flex: 1;
+        }
+        
+        .member-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .member-role {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .member-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-icon {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover {
+            background: #e0e0e0;
+            color: #1976d2;
+        }
+        
+        .workflow-section {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .workflow-templates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .template-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .template-card:hover {
+            border-color: #1976d2;
+            background: #f8f9fa;
+        }
+        
+        .template-card.selected {
+            border-color: #1976d2;
+            background: #e3f2fd;
+        }
+        
+        .template-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1976d2;
+        }
+        
+        .template-stages {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .stage-chip {
+            background: #e0e0e0;
+            color: #666;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .custom-workflow {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        
+        .workflow-builder {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .stage-input {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px 12px;
+            min-width: 120px;
+        }
+        
+        .stage-preview {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .stage-preview-item {
+            background: #1976d2;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .remove-stage {
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        
+        .remove-stage:hover {
+            opacity: 1;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 4px;
+        }
+        
+        .menu-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .menu-item.active {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .menu-icon {
+            font-size: 20px;
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1976d2, #42a5f5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .fab:hover {
+            background: #1565c0;
+            transform: scale(1.1);
+        }
+        
+        .progress-chart {
+            height: 200px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="logo">
+            <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">dashboard</i>
+            最強タスク管理ツール
+        </div>
+        
+        <div class="user-info">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="avatar">田</div>
+                <span>田中太郎</span>
+            </div>
+            
+            <i class="material-icons" style="cursor: pointer; font-size: 24px;">logout</i>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- サイドバー -->
+        <nav class="sidebar">
+            <div class="menu-item">
+                <i class="material-icons menu-icon">dashboard</i>
+                <span>メインダッシュボード</span>
+            </div>
+            
+            <div class="menu-item active">
+                <i class="material-icons menu-icon">folder</i>
+                <span>プロジェクト管理</span>
+            </div>
+            
+            <div class="menu-item">
+                <i class="material-icons menu-icon">settings</i>
+                <span>個人設定</span>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 0 16px; color: #666; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                プロジェクト一覧
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <div class="menu-item">
+                    <i class="material-icons menu-icon" style="color: #4caf50;">fiber_manual_record</i>
+                    <span>Webサイト制作</span>
+                </div>
+                <div class="menu-item">
+                    <i class="material-icons menu-icon" style="color: #ff9800;">fiber_manual_record</i>
+                    <span>システム改修</span>
+                </div>
+                <div class="menu-item">
+                    <i class="material-icons menu-icon" style="color: #f44336;">fiber_manual_record</i>
+                    <span>営業資料作成</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- メインコンテンツ -->
+        <main class="content">
+            <!-- ページヘッダー -->
+            <div class="page-header">
+                <div class="page-title">プロジェクト管理</div>
+                <div class="breadcrumb">
+                    <a href="#">ホーム</a> > プロジェクト管理
+                </div>
+            </div>
+
+            <!-- プロジェクト選択タブ -->
+            <div class="project-selector-section">
+                <div class="project-tabs">
+                    <div class="project-tab active" onclick="selectProject('web')">
+                        <i class="material-icons" style="vertical-align: middle; margin-right: 5px; color: #4caf50;">fiber_manual_record</i>
+                        Webサイト制作
+                    </div>
+                    <div class="project-tab" onclick="selectProject('system')">
+                        <i class="material-icons" style="vertical-align: middle; margin-right: 5px; color: #ff9800;">fiber_manual_record</i>
+                        システム改修
+                    </div>
+                    <div class="project-tab" onclick="selectProject('sales')">
+                        <i class="material-icons" style="vertical-align: middle; margin-right: 5px; color: #f44336;">fiber_manual_record</i>
+                        営業資料作成
+                    </div>
+                </div>
+            </div>
+
+            <!-- プロジェクト概要 -->
+            <div class="project-overview">
+                <div class="project-info-grid">
+                    <div class="project-details">
+                        <h3>
+                            <i class="material-icons">info</i>
+                            プロジェクト詳細
+                        </h3>
+                        <p style="color: #666; line-height: 1.6; margin-bottom: 15px;">
+                            新しい企業サイトの制作プロジェクトです。レスポンシブデザイン、CMSの導入、SEO対策を含む包括的なWebサイト制作を行います。
+                        </p>
+                        <div style="display: flex; gap: 15px; font-size: 14px;">
+                            <div><strong>開始日:</strong> 2025/01/15</div>
+                            <div><strong>期限:</strong> 2025/03/31</div>
+                            <div><strong>予算:</strong> ¥2,500,000</div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-stats">
+                        <div class="stat-card">
+                            <div class="stat-number">24</div>
+                            <div class="stat-label">総タスク数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">68%</div>
+                            <div class="stat-label">完了率</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">5</div>
+                            <div class="stat-label">メンバー数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">残り日数</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="progress-chart">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+
+            <!-- メンバー管理セクション -->
+            <div class="members-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="material-icons">group</i>
+                        プロジェクトメンバー
+                    </div>
+                    <button class="btn-primary" onclick="addMember()">
+                        <i class="material-icons">person_add</i>
+                        メンバー追加
+                    </button>
+                </div>
+                
+                <div class="members-grid">
+                    <div class="member-card">
+                        <div class="member-avatar">田</div>
+                        <div class="member-info">
+                            <div class="member-name">田中太郎</div>
+                            <div class="member-role">プロジェクトマネージャー</div>
+                        </div>
+                        <div class="member-actions">
+                            <button class="btn-icon" title="編集">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="btn-icon" title="削除">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="member-card">
+                        <div class="member-avatar">佐</div>
+                        <div class="member-info">
+                            <div class="member-name">佐藤花子</div>
+                            <div class="member-role">フロントエンドエンジニア</div>
+                        </div>
+                        <div class="member-actions">
+                            <button class="btn-icon" title="編集">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="btn-icon" title="削除">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="member-card">
+                        <div class="member-avatar">山</div>
+                        <div class="member-info">
+                            <div class="member-name">山田次郎</div>
+                            <div class="member-role">デザイナー</div>
+                        </div>
+                        <div class="member-actions">
+                            <button class="btn-icon" title="編集">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="btn-icon" title="削除">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="member-card">
+                        <div class="member-avatar">鈴</div>
+                        <div class="member-info">
+                            <div class="member-name">鈴木一郎</div>
+                            <div class="member-role">バックエンドエンジニア</div>
+                        </div>
+                        <div class="member-actions">
+                            <button class="btn-icon" title="編集">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="btn-icon" title="削除">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="member-card">
+                        <div class="member-avatar">高</div>
+                        <div class="member-info">
+                            <div class="member-name">高橋美咲</div>
+                            <div class="member-role">QAエンジニア</div>
+                        </div>
+                        <div class="member-actions">
+                            <button class="btn-icon" title="編集">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="btn-icon" title="削除">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ワークフロー設定セクション -->
+            <div class="workflow-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="material-icons">linear_scale</i>
+                        ワークフロー設定
+                    </div>
+                    <button class="btn-primary" onclick="saveWorkflow()">
+                        <i class="material-icons">save</i>
+                        設定を保存
+                    </button>
+                </div>
+                
+                <div class="workflow-templates">
+                    <div class="template-card selected" onclick="selectTemplate('default')">
+                        <div class="template-name">標準ワークフロー</div>
+                        <div class="template-stages">
+                            <span class="stage-chip">TO DO</span>
+                            <span class="stage-chip">進行中</span>
+                            <span class="stage-chip">レビュー中</span>
+                            <span class="stage-chip">完了</span>
+                        </div>
+                    </div>
+                    
+                    <div class="template-card" onclick="selectTemplate('development')">
+                        <div class="template-name">開発ワークフロー</div>
+                        <div class="template-stages">
+                            <span class="stage-chip">バックログ</span>
+                            <span class="stage-chip">設計</span>
+                            <span class="stage-chip">開発</span>
+                            <span class="stage-chip">テスト</span>
+                            <span class="stage-chip">リリース</span>
+                        </div>
+                    </div>
+                    
+                    <div class="template-card" onclick="selectTemplate('approval')">
+                        <div class="template-name">承認ワークフロー</div>
+                        <div class="template-stages">
+                            <span class="stage-chip">作成</span>
+                            <span class="stage-chip">上司確認</span>
+                            <span class="stage-chip">部長承認</span>
+                            <span class="stage-chip">完了</span>
+                        </div>
+                    </div>
+                    
+                    <div class="template-card" onclick="selectTemplate('custom')">
+                        <div class="template-name">カスタム</div>
+                        <div class="template-stages">
+                            <span class="stage-chip">独自設定</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="custom-workflow" id="customWorkflow" style="display: none;">
+                    <h4 style="margin-bottom: 15px; color: #1976d2;">カスタムワークフロー作成</h4>
+                    <div class="workflow-builder">
+                        <input type="text" id="stageInput" class="stage-input" placeholder="ステージ名を入力" />
+                        <button class="btn-primary" onclick="addStage()">
+                            <i class="material-icons">add</i>
+                            追加
+                        </button>
+                    </div>
+                    <div class="stage-preview" id="stagePreview">
+                        <!-- カスタムステージがここに表示される -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" onclick="window.location.href='task-dashboard.html'">
+        <i class="material-icons">view_kanban</i>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initChart();
+        });
+
+        function selectProject(projectType) {
+            // タブの選択状態を更新
+            document.querySelectorAll('.project-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // プロジェクトデータを更新（実際の実装では API コール）
+            updateProjectData(projectType);
+        }
+
+        function updateProjectData(projectType) {
+            const projectData = {
+                'web': {
+                    description: '新しい企業サイトの制作プロジェクトです。レスポンシブデザイン、CMSの導入、SEO対策を含む包括的なWebサイト制作を行います。',
+                    stats: { tasks: 24, completion: 68, members: 5, days: 12 }
+                },
+                'system': {
+                    description: '既存システムの機能改修とパフォーマンス向上を行うプロジェクトです。データベース最適化、API改善、UI/UX改善が主な作業内容です。',
+                    stats: { tasks: 18, completion: 42, members: 4, days: 25 }
+                },
+                'sales': {
+                    description: '営業活動で使用する各種資料の作成プロジェクトです。提案書テンプレート、製品カタログ、プレゼンテーション資料の制作を行います。',
+                    stats: { tasks: 12, completion: 85, members: 3, days: 5 }
+                }
+            };
+            
+            const data = projectData[projectType];
+            if (data) {
+                // 説明文を更新
+                document.querySelector('.project-details p').textContent = data.description;
+                
+                // 統計を更新
+                const statNumbers = document.querySelectorAll('.stat-number');
+                statNumbers[0].textContent = data.stats.tasks;
+                statNumbers[1].textContent = data.stats.completion + '%';
+                statNumbers[2].textContent = data.stats.members;
+                statNumbers[3].textContent = data.stats.days;
+                
+                // チャートを更新
+                updateChart(data.stats.completion);
+            }
+        }
+
+        function addMember() {
+            const name = prompt('新しいメンバーの名前を入力してください：');
+            const role = prompt('役割を入力してください：');
+            
+            if (name && role) {
+                const membersGrid = document.querySelector('.members-grid');
+                const memberCard = document.createElement('div');
+                memberCard.className = 'member-card';
+                
+                const initial = name.charAt(0);
+                memberCard.innerHTML = `
+                    <div class="member-avatar">${initial}</div>
+                    <div class="member-info">
+                        <div class="member-name">${name}</div>
+                        <div class="member-role">${role}</div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="btn-icon" title="編集">
+                            <i class="material-icons">edit</i>
+                        </button>
+                        <button class="btn-icon" title="削除">
+                            <i class="material-icons">delete</i>
+                        </button>
+                    </div>
+                `;
+                
+                membersGrid.appendChild(memberCard);
+                
+                // 統計を更新
+                const memberCount = document.querySelectorAll('.stat-number')[2];
+                memberCount.textContent = parseInt(memberCount.textContent) + 1;
+            }
+        }
+
+        function selectTemplate(templateType) {
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            const customWorkflow = document.getElementById('customWorkflow');
+            if (templateType === 'custom') {
+                customWorkflow.style.display = 'block';
+            } else {
+                customWorkflow.style.display = 'none';
+            }
+        }
+
+        let customStages = [];
+
+        function addStage() {
+            const input = document.getElementById('stageInput');
+            const stageName = input.value.trim();
+            
+            if (stageName && !customStages.includes(stageName)) {
+                customStages.push(stageName);
+                input.value = '';
+                updateStagePreview();
+            }
+        }
+
+        function updateStagePreview() {
+            const preview = document.getElementById('stagePreview');
+            preview.innerHTML = '';
+            
+            customStages.forEach((stage, index) => {
+                const stageItem = document.createElement('div');
+                stageItem.className = 'stage-preview-item';
+                stageItem.innerHTML = `
+                    ${stage}
+                    <i class="material-icons remove-stage" onclick="removeStage(${index})">close</i>
+                `;
+                preview.appendChild(stageItem);
+            });
+        }
+
+        function removeStage(index) {
+            customStages.splice(index, 1);
+            updateStagePreview();
+        }
+
+        function saveWorkflow() {
+            const selectedTemplate = document.querySelector('.template-card.selected .template-name').textContent;
+            
+            if (selectedTemplate === 'カスタム' && customStages.length === 0) {
+                alert('カスタムワークフローにはステージを追加してください。');
+                return;
+            }
+            
+            alert(`ワークフロー設定を保存しました: ${selectedTemplate}`);
+            console.log('保存されたワークフロー:', selectedTemplate === 'カスタム' ? customStages : selectedTemplate);
+        }
+
+        let progressChart;
+
+        function initChart() {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            progressChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1/15', '1/22', '1/29', '2/5', '2/12', '2/19', '2/26'],
+                    datasets: [{
+                        label: '完了率 (%)',
+                        data: [0, 15, 28, 42, 55, 68, 75],
+                        borderColor: '#1976d2',
+                        backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart(completion) {
+            if (progressChart) {
+                // 最新の完了率でチャートの最後のデータポイントを更新
+                const data = progressChart.data.datasets[0].data;
+                data[data.length - 1] = completion;
+                progressChart.update();
+            }
+        }
+
+        // Enterキーでステージ追加
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.id === 'stageInput') {
+                addStage();
+            }
+        });
+    </script>
+</body>
+</html>

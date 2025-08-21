@@ -5,40 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>顧客管理ツール - ログイン</title>
     
-    <!-- Material UI CDN -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     
-    <!-- React and ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Material UI -->
-    <script src="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.js"></script>
-    
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: 'Roboto', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
         
-        .login-container {
+        .login-card {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            padding: 48px;
-            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 40px;
             width: 100%;
+            max-width: 380px;
             text-align: center;
         }
         
@@ -48,54 +41,62 @@
         
         .logo h1 {
             color: #1976d2;
-            font-size: 28px;
-            margin: 0;
+            font-size: 24px;
             font-weight: 500;
+            margin-bottom: 8px;
         }
         
         .logo p {
             color: #666;
-            margin: 8px 0 0 0;
             font-size: 14px;
         }
         
-        .auth-methods {
+        .auth-section {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
         }
         
-        .google-btn {
-            display: flex;
+        .primary-auth {
+            order: 1;
+        }
+        
+        .google-login {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             background: #4285f4;
             color: white;
             border: none;
             border-radius: 8px;
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
             text-decoration: none;
-            transition: background-color 0.2s;
         }
         
-        .google-btn:hover {
+        .google-login:hover {
             background: #357ae8;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
         }
         
-        .google-btn svg {
+        .google-icon {
+            width: 18px;
+            height: 18px;
             margin-right: 12px;
-            width: 20px;
-            height: 20px;
         }
         
         .divider {
+            order: 2;
             display: flex;
             align-items: center;
-            margin: 24px 0;
             color: #999;
-            font-size: 14px;
+            font-size: 13px;
+            margin: 8px 0;
         }
         
         .divider::before,
@@ -103,377 +104,376 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: #ddd;
+            background: #e0e0e0;
         }
         
         .divider span {
             padding: 0 16px;
         }
         
-        .traditional-login {
+        .email-auth {
+            order: 3;
+        }
+        
+        .input-group {
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
         
-        .form-group {
-            text-align: left;
+        .input-field {
+            position: relative;
         }
         
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .form-group input {
+        .input-field input {
             width: 100%;
-            padding: 12px;
+            padding: 14px 16px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
+            font-size: 15px;
+            transition: border-color 0.2s ease;
         }
         
-        .form-group input:focus {
+        .input-field input:focus {
             outline: none;
             border-color: #1976d2;
-            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
         }
         
-        .login-btn {
+        .input-field input::placeholder {
+            color: #999;
+        }
+        
+        .email-login {
             background: #1976d2;
             color: white;
             border: none;
             border-radius: 8px;
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s ease;
+            width: 100%;
         }
         
-        .login-btn:hover {
+        .email-login:hover {
             background: #1565c0;
+            transform: translateY(-1px);
         }
         
         .footer-links {
             margin-top: 24px;
             display: flex;
-            justify-content: space-between;
-            font-size: 14px;
+            justify-content: center;
+            gap: 20px;
+            font-size: 13px;
         }
         
         .footer-links a {
             color: #1976d2;
             text-decoration: none;
+            transition: color 0.2s ease;
         }
         
         .footer-links a:hover {
+            color: #1565c0;
             text-decoration: underline;
         }
         
-        .security-notice {
-            margin-top: 24px;
-            padding: 12px;
-            background: #f5f5f5;
+        .status-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
             border-radius: 8px;
-            font-size: 12px;
-            color: #666;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
         }
         
-        .mfa-prompt {
-            display: none;
-            margin-top: 16px;
-            padding: 16px;
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            font-size: 14px;
+        .status-message.show {
+            transform: translateX(0);
         }
         
-        .mfa-code {
-            margin-top: 12px;
-        }
+        .status-message.success { background: #4caf50; }
+        .status-message.error { background: #f44336; }
+        .status-message.info { background: #2196f3; }
         
-        .mfa-code input {
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 24px;
             border-radius: 8px;
             text-align: center;
-            font-size: 18px;
-            letter-spacing: 4px;
-            box-sizing: border-box;
+            min-width: 200px;
+        }
+        
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1976d2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         @media (max-width: 480px) {
-            .login-container {
+            .login-card {
                 padding: 32px 24px;
                 margin: 16px;
             }
             
             .footer-links {
                 flex-direction: column;
-                gap: 8px;
-                text-align: center;
+                gap: 12px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <!-- ロゴ・タイトル -->
+    <div class="login-card">
+        <!-- ブランドロゴ -->
         <div class="logo">
             <h1>顧客管理ツール</h1>
-            <p>効率的な顧客関係管理</p>
+            <p>Gmail連携による統合CRM</p>
         </div>
         
-        <!-- 認証方法 -->
-        <div class="auth-methods">
-            <!-- メイン認証: Google OAuth -->
-            <button class="google-btn" onclick="handleGoogleLogin()">
-                <svg viewBox="0 0 24 24">
-                    <path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Googleアカウントでログイン
-            </button>
+        <!-- 認証セクション -->
+        <div class="auth-section">
+            <!-- メイン認証: Google OAuth（最優先） -->
+            <div class="primary-auth">
+                <button class="google-login" onclick="handleGoogleAuth()">
+                    <svg class="google-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="white"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="white"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="white"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="white"/>
+                    </svg>
+                    Googleアカウントで続ける
+                </button>
+            </div>
             
             <!-- 区切り線 -->
             <div class="divider">
                 <span>または</span>
             </div>
             
-            <!-- 従来ログイン（最小化） -->
-            <div class="traditional-login">
-                <div class="form-group">
-                    <label for="email">メールアドレス</label>
-                    <input type="email" id="email" placeholder="例: user@company.com">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">パスワード</label>
-                    <input type="password" id="password" placeholder="パスワードを入力">
-                </div>
-                
-                <button class="login-btn" onclick="handleTraditionalLogin()">
-                    ログイン
-                </button>
+            <!-- 代替認証: メール/パスワード -->
+            <div class="email-auth">
+                <form class="input-group" onsubmit="handleEmailAuth(event)">
+                    <div class="input-field">
+                        <input 
+                            type="email" 
+                            id="email" 
+                            placeholder="メールアドレス"
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+                    <div class="input-field">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            placeholder="パスワード"
+                            required
+                            autocomplete="current-password"
+                        >
+                    </div>
+                    <button type="submit" class="email-login">
+                        ログイン
+                    </button>
+                </form>
             </div>
         </div>
         
-        <!-- 多要素認証プロンプト（必要時のみ表示） -->
-        <div class="mfa-prompt" id="mfaPrompt">
-            <strong>セキュリティ確認</strong>
-            <p>認証アプリの6桁のコードを入力してください</p>
-            <div class="mfa-code">
-                <input type="text" id="mfaCode" placeholder="000000" maxlength="6">
-            </div>
-            <button class="login-btn" onclick="handleMFAVerification()" style="margin-top: 12px; width: 100%;">
-                確認
-            </button>
-        </div>
-        
-        <!-- フッターリンク -->
+        <!-- フッターリンク（最小限） -->
         <div class="footer-links">
-            <a href="#" onclick="handleForgotPassword()">パスワードを忘れた方</a>
-            <a href="#" onclick="handleRegister()">新規ユーザー登録</a>
-        </div>
-        
-        <!-- セキュリティ注意事項 -->
-        <div class="security-notice">
-            <strong>🔒 セキュリティ:</strong> このシステムは多層セキュリティで保護されています。不正アクセスは自動検知・ブロックされます。
+            <a href="#" onclick="handlePasswordReset()">パスワードを忘れた場合</a>
         </div>
     </div>
+    
+    <!-- ローディングオーバーレイ -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div id="loadingText">認証中...</div>
+        </div>
+    </div>
+    
+    <!-- ステータスメッセージ -->
+    <div class="status-message" id="statusMessage"></div>
 
     <script>
-        // モックデータ・状態管理
-        let currentUser = null;
-        let mfaRequired = false;
-        let loginAttempts = 0;
+        console.log('ログインページ読み込み開始');
+        
+        // アプリケーション状態
+        const appState = {
+            isLoading: false,
+            user: null
+        };
 
-        // Google OAuth ログイン
-        function handleGoogleLogin() {
-            // 実際の実装では Google OAuth2 フローを実行
+        // Google OAuth認証（メイン認証フロー）
+        function handleGoogleAuth() {
+            console.log('Google認証開始');
             showLoading('Googleアカウント認証中...');
             
+            // 実際の実装では Google OAuth2 SDK を使用
             setTimeout(() => {
-                // モック認証成功
-                currentUser = {
-                    id: 'user_001',
+                const mockUser = {
+                    id: 'google_user_001',
                     email: 'user@company.com',
                     name: '田中 太郎',
-                    role: 'manager',
-                    gmailConnected: true
+                    authProvider: 'google',
+                    gmailConnected: true,
+                    role: 'manager'
                 };
                 
-                hideLoading();
-                showSuccess('ログイン成功！ダッシュボードへリダイレクトします...');
-                
-                setTimeout(() => {
-                    // 実際の実装では dashboard.html へリダイレクト
-                    alert('ダッシュボードページへ移動します');
-                }, 1500);
+                console.log('Google認証成功:', mockUser);
+                handleAuthSuccess(mockUser);
             }, 2000);
         }
 
-        // 従来ログイン
-        function handleTraditionalLogin() {
-            const email = document.getElementById('email').value;
+        // メール/パスワード認証（代替認証）
+        function handleEmailAuth(event) {
+            event.preventDefault();
+            console.log('メール認証開始');
+            
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             
             if (!email || !password) {
-                showError('メールアドレスとパスワードを入力してください');
+                showMessage('メールアドレスとパスワードを入力してください', 'error');
                 return;
             }
             
-            loginAttempts++;
             showLoading('認証中...');
             
+            // モック認証処理
             setTimeout(() => {
-                hideLoading();
-                
-                // 多要素認証が必要な場合
-                if (loginAttempts === 1) {
-                    mfaRequired = true;
-                    document.getElementById('mfaPrompt').style.display = 'block';
-                    showInfo('セキュリティのため、多要素認証が必要です');
-                    return;
+                if (email === 'demo@example.com' && password === 'demo123') {
+                    const mockUser = {
+                        id: 'email_user_001',
+                        email: email,
+                        name: '山田 花子',
+                        authProvider: 'email',
+                        gmailConnected: false,
+                        role: 'user'
+                    };
+                    
+                    console.log('メール認証成功:', mockUser);
+                    handleAuthSuccess(mockUser);
+                } else {
+                    hideLoading();
+                    showMessage('メールアドレスまたはパスワードが正しくありません', 'error');
                 }
-                
-                // ログイン成功
-                currentUser = {
-                    id: 'user_002',
-                    email: email,
-                    name: '山田 花子',
-                    role: 'user',
-                    gmailConnected: false
-                };
-                
-                showSuccess('ログイン成功！');
-                setTimeout(() => {
-                    alert('ダッシュボードページへ移動します');
-                }, 1500);
             }, 1500);
         }
 
-        // 多要素認証確認
-        function handleMFAVerification() {
-            const mfaCode = document.getElementById('mfaCode').value;
+        // 認証成功時の共通処理
+        function handleAuthSuccess(user) {
+            appState.user = user;
+            hideLoading();
             
-            if (!mfaCode || mfaCode.length !== 6) {
-                showError('6桁のコードを入力してください');
-                return;
+            if (user.authProvider === 'google') {
+                showMessage('Google認証成功！ダッシュボードに移動します...', 'success');
+            } else {
+                showMessage('ログイン成功！ダッシュボードに移動します...', 'success');
             }
             
-            showLoading('認証中...');
-            
+            // 実際の実装では適切なページにリダイレクト
             setTimeout(() => {
-                hideLoading();
-                
-                if (mfaCode === '123456') {
-                    showSuccess('多要素認証成功！ログインしています...');
-                    document.getElementById('mfaPrompt').style.display = 'none';
-                    
-                    setTimeout(() => {
-                        alert('ダッシュボードページへ移動します');
-                    }, 1500);
-                } else {
-                    showError('認証コードが正しくありません');
-                }
-            }, 1000);
+                console.log('リダイレクト予定:', user.gmailConnected ? '/dashboard/companies' : '/dashboard/gmail-setup');
+                alert(`ログイン成功！\n${user.name}さん\n次ページ: ${user.gmailConnected ? '企業管理' : 'Gmail設定'}`);
+            }, 2000);
         }
 
         // パスワードリセット
-        function handleForgotPassword() {
-            const email = prompt('パスワードリセット用のメールアドレスを入力してください:');
-            if (email) {
-                showInfo(`${email} にリセット手順を送信しました`);
+        function handlePasswordReset() {
+            const email = document.getElementById('email').value || 
+                         prompt('パスワードリセット用のメールアドレスを入力してください:');
+                         
+            if (email && isValidEmail(email)) {
+                showMessage(`${email} にリセット手順を送信しました`, 'info');
+            } else if (email) {
+                showMessage('有効なメールアドレスを入力してください', 'error');
             }
-        }
-
-        // 新規登録
-        function handleRegister() {
-            alert('新規ユーザー登録は管理者にお問い合わせください');
         }
 
         // ユーティリティ関数
-        function showLoading(message) {
-            // 簡易ローディング表示
-            const loadingDiv = document.createElement('div');
-            loadingDiv.id = 'loading';
-            loadingDiv.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.5);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                color: white;
-                font-size: 18px;
-                z-index: 1000;
-            `;
-            loadingDiv.innerHTML = `<div>${message}</div>`;
-            document.body.appendChild(loadingDiv);
+        function showLoading(text = '処理中...') {
+            console.log('ローディング表示:', text);
+            appState.isLoading = true;
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.add('show');
         }
 
         function hideLoading() {
-            const loading = document.getElementById('loading');
-            if (loading) {
-                loading.remove();
-            }
+            console.log('ローディング非表示');
+            appState.isLoading = false;
+            document.getElementById('loadingOverlay').classList.remove('show');
         }
 
-        function showMessage(message, type) {
-            const messageDiv = document.createElement('div');
-            messageDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 12px 20px;
-                border-radius: 8px;
-                color: white;
-                font-weight: 500;
-                z-index: 1001;
-                background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
-            `;
-            messageDiv.textContent = message;
-            document.body.appendChild(messageDiv);
+        function showMessage(text, type = 'info') {
+            console.log('メッセージ表示:', type, text);
+            const messageEl = document.getElementById('statusMessage');
+            messageEl.textContent = text;
+            messageEl.className = `status-message ${type} show`;
             
             setTimeout(() => {
-                messageDiv.remove();
-            }, 3000);
+                messageEl.classList.remove('show');
+            }, 4000);
         }
 
-        function showSuccess(message) { showMessage(message, 'success'); }
-        function showError(message) { showMessage(message, 'error'); }
-        function showInfo(message) { showMessage(message, 'info'); }
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            // フォーカス設定
-            document.getElementById('email').focus();
+            console.log('ページ初期化完了');
             
-            // エンターキー対応
-            document.getElementById('password').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleTraditionalLogin();
-                }
-            });
+            // フォーカス設定（UX向上）
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.focus();
+            }
             
-            document.getElementById('mfaCode').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleMFAVerification();
-                }
-            });
+            // デモ用の説明表示
+            setTimeout(() => {
+                showMessage('テスト用ログイン: demo@example.com / demo123', 'info');
+            }, 1000);
         });
+        
+        console.log('スクリプト読み込み完了');
     </script>
 </body>
 </html>

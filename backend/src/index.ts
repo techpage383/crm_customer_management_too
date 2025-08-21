@@ -2,15 +2,34 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 
 // New authentication system
 import { createAuthRoutes } from './features/auth/auth.routes.js';
 import { getAuthService } from './features/auth/auth.service.js';
 import { securityHeaders, authErrorHandler } from './features/auth/auth.middleware.js';
+import { Pool } from 'pg';
+
+// User management system
+import { createUserRoutes } from './features/users/user.routes.js';
+
+// System dashboard management
+import { createSystemRoutes } from './features/system/system.routes.js';
+
+// Company management system
+import companyRoutes from './features/companies/company.routes.js';
+
+// TODO management system
+import todoRoutes from './features/todos/todo.routes.js';
+
+// Gmail integration system
+import { createGmailRoutes } from './features/gmail/gmail.routes.js';
+
+// Workflow management system (最強タスク管理ツール)
+import { createWorkflowRoutes } from './features/workflows/workflow.routes.js';
 
 // Legacy routes (to be migrated) - temporarily disabled for Phase 2B
 // import customerRoutes from './routes/customers.js';
-// import gmailRoutes from './routes/gmail.js';
 // import threadRoutes from './routes/threads.js';
 
 dotenv.config();
@@ -55,15 +74,52 @@ app.get('/health', (_req, res) => {
 // Initialize authentication service
 const authService = getAuthService();
 
+// Create database pool for Gmail routes
+const dbPool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
 // Mount authentication routes (new system)
 app.use('/api/auth', createAuthRoutes(authService));
 
+// Mount user management routes (new system)
+app.use('/api/users', createUserRoutes(authService));
+
+// Mount system dashboard routes (new system)
+app.use('/api/system', createSystemRoutes(authService));
+
+// Mount company management routes (new system)
+app.use('/api/companies', companyRoutes);
+
+// Mount TODO management routes (new system)
+app.use('/api/todos', todoRoutes);
+
+// Mount Gmail integration routes
+app.use('/api/gmail', createGmailRoutes(dbPool));
+
+// Mount workflow management routes (最強タスク管理ツール) - temporarily disabled
+// app.use('/api/workflows', createWorkflowRoutes(process.env.DATABASE_URL));
+
 // Mount legacy routes (to be migrated to features-based architecture) - disabled for Phase 2B
 // app.use('/api/customers', customerRoutes);
-// app.use('/api/gmail', gmailRoutes);
 // app.use('/api/threads', threadRoutes);
 
-// 404 handler
+// Static file serving for frontend (production only)
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../frontend-build');
+  app.use(express.static(frontendPath));
+  
+  // Serve React app for all non-API routes (must be before 404 handler)
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next(); // Let API routes handle themselves
+    }
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
+
+// 404 handler for API routes
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'エンドポイントが見つかりません',
@@ -106,5 +162,15 @@ app.listen(PORT, () => {
     console.log(`   Health Check: http://localhost:${PORT}/health`);
     console.log(`   Auth Status: http://localhost:${PORT}/api/auth/status`);
     console.log(`   Auth Config: http://localhost:${PORT}/api/auth/config`);
+    console.log(`   Users: http://localhost:${PORT}/api/users`);
+    console.log(`   User Stats: http://localhost:${PORT}/api/users/stats`);
+    console.log(`   System Stats: http://localhost:${PORT}/api/system/stats`);
+    console.log(`   System Health: http://localhost:${PORT}/api/system/health`);
+    console.log(`   Companies: http://localhost:${PORT}/api/companies`);
+    console.log(`   Company Stats: http://localhost:${PORT}/api/companies/stats`);
+    console.log(`   TODOs: http://localhost:${PORT}/api/todos`);
+    console.log(`   TODO Stats: http://localhost:${PORT}/api/todos/stats`);
+    console.log(`   Gmail: http://localhost:${PORT}/api/gmail`);
+    console.log(`   Gmail Health: http://localhost:${PORT}/api/gmail/health`);
   }
 });

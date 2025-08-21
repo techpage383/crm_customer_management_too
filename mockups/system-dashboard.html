@@ -3,26 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>システム管理ダッシュボード - 顧客管理ツール</title>
+    <title>システムダッシュボード - 顧客管理ツール</title>
     
-    <!-- Material UI CDN -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     
-    <!-- React and ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Material UI -->
-    <script src="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.js"></script>
-    
-    <!-- Chart.js for monitoring charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
     <style>
         * {
             margin: 0;
@@ -31,169 +16,342 @@
         }
         
         body {
-            font-family: 'Roboto', sans-serif;
-            background: #f5f5f5;
-            height: 100vh;
-            overflow: hidden;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
         }
         
-        .app-header {
-            background: #1976d2;
+        .header {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
             color: white;
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 1rem 2rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
-        .app-title {
-            font-size: 20px;
-            font-weight: 500;
-        }
-        
-        .system-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-        
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4caf50;
-        }
-        
-        .status-warning { background: #ff9800; }
-        .status-error { background: #f44336; animation: blink 1s infinite; }
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.5; }
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .main-container {
-            display: flex;
-            height: calc(100vh - 64px);
-        }
-        
-        .sidebar {
-            width: 280px;
-            background: white;
-            border-right: 1px solid #e0e0e0;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .nav-menu {
-            flex: 1;
-            padding: 0;
-        }
-        
-        .nav-item {
-            display: block;
-            width: 100%;
-            padding: 16px 20px;
-            border: none;
-            background: none;
-            text-align: left;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            font-size: 14px;
-            color: #333;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .nav-item:hover {
-            background: #f8f9fa;
-        }
-        
-        .nav-item.active {
-            background: #e3f2fd;
-            color: #1976d2;
-            border-right: 3px solid #1976d2;
-        }
-        
-        .nav-item i {
-            margin-right: 12px;
-            font-size: 18px;
-        }
-        
-        .alert-section {
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
-            background: #fff3cd;
-        }
-        
-        .alert-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: #856404;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .alert-item {
-            background: white;
-            border: 1px solid #ffeaa7;
-            border-radius: 4px;
-            padding: 8px 12px;
-            margin-bottom: 6px;
-            font-size: 12px;
-            color: #856404;
-        }
-        
-        .main-content {
-            flex: 1;
-            background: white;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .content-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #e0e0e0;
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .content-title {
-            font-size: 24px;
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .refresh-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 14px;
+        }
+        
+        .refresh-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .refresh-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .system-health {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .health-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .health-indicator {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .health-normal { background: #4caf50; }
+        .health-warning { background: #ff9800; }
+        .health-critical { background: #f44336; }
+        
+        .health-text {
+            font-size: 1.5rem;
             font-weight: 500;
             color: #333;
         }
         
-        .header-actions {
-            display: flex;
-            gap: 12px;
+        .health-details {
+            font-size: 14px;
+            color: #666;
+            margin-top: 0.5rem;
         }
         
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .performance-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 0.5rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .metric-progress {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-normal { background: #4caf50; }
+        .progress-warning { background: #ff9800; }
+        .progress-critical { background: #f44336; }
+        
+        .cpu-usage { color: #2196f3; }
+        .memory-usage { color: #9c27b0; }
+        .disk-usage { color: #ff5722; }
+        .network-usage { color: #4caf50; }
+        
+        .alerts-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .alerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-count {
+            background: #f44336;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .alert-item:hover {
+            background: #f5f5f5;
+            border-color: #ddd;
+        }
+        
+        .alert-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .alert-high { background: #f44336; }
+        .alert-medium { background: #ff9800; }
+        .alert-low { background: #2196f3; }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-title {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        
+        .alert-time {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .alert-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .alert-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .resolve-btn {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .dismiss-btn {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+        
+        .stats-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 500;
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-detail {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .activity-chart {
+            margin-top: 1rem;
+            height: 100px;
+            background: linear-gradient(to right, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: end;
+            padding: 8px;
+            gap: 2px;
+        }
+        
+        .chart-bar {
+            flex: 1;
+            background: #1976d2;
+            border-radius: 2px 2px 0 0;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        
+        .chart-bar:hover {
+            opacity: 1;
+        }
+        
+        .actions-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
         
         .btn-primary {
@@ -201,10 +359,9 @@
             color: white;
         }
         
-        .btn-secondary {
-            background: #f5f5f5;
-            color: #333;
-            border: 1px solid #ddd;
+        .btn-warning {
+            background: #ff9800;
+            color: white;
         }
         
         .btn-danger {
@@ -212,1105 +369,433 @@
             color: white;
         }
         
-        .content-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px;
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
         }
         
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
-        .status-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        
-        .card-title {
-            font-size: 16px;
-            font-weight: 500;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .card-status {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        
-        .status-healthy { background: #e8f5e8; color: #2e7d32; }
-        .status-warning { background: #fff3e0; color: #ef6c00; }
-        .status-critical { background: #ffebee; color: #c62828; }
-        
-        .metric-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        
-        .metric-item {
-            text-align: center;
-        }
-        
-        .metric-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1976d2;
-            margin-bottom: 4px;
-        }
-        
-        .metric-label {
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .chart-container {
-            height: 200px;
-            margin-top: 16px;
-        }
-        
-        .user-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .user-table th,
-        .user-table td {
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .user-table th {
-            background: #f8f9fa;
-            font-weight: 500;
-            color: #333;
-            font-size: 13px;
-        }
-        
-        .user-table td {
-            font-size: 14px;
-        }
-        
-        .user-status {
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-        
-        .user-online { background: #e8f5e8; color: #2e7d32; }
-        .user-offline { background: #f5f5f5; color: #666; }
-        
-        .role-admin { background: #ffebee; color: #c62828; }
-        .role-user { background: #e3f2fd; color: #1976d2; }
-        
-        .log-container {
-            background: #fafafa;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            height: 400px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            padding: 16px;
-        }
-        
-        .log-entry {
-            margin-bottom: 4px;
-            padding: 4px 0;
-        }
-        
-        .log-timestamp {
-            color: #666;
-        }
-        
-        .log-level-info { color: #1976d2; }
-        .log-level-warn { color: #ef6c00; }
-        .log-level-error { color: #c62828; }
-        
-        .log-message {
-            margin-left: 8px;
-        }
-        
-        .settings-section {
-            margin-bottom: 32px;
-        }
-        
-        .settings-title {
-            font-size: 18px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #1976d2;
-        }
-        
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-        }
-        
-        .setting-item {
-            background: white;
-            padding: 16px;
-            border-radius: 6px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .setting-label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .setting-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .setting-toggle {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .toggle-switch {
-            position: relative;
-            width: 44px;
-            height: 24px;
-            background: #ccc;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .toggle-switch.active {
-            background: #1976d2;
-        }
-        
-        .toggle-knob {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.2s;
-        }
-        
-        .toggle-switch.active .toggle-knob {
-            transform: translateX(20px);
-        }
-        
-        @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                height: auto;
-                max-height: 200px;
-                overflow-y: auto;
-            }
-            
+        @media (max-width: 1024px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
             
-            .metric-grid {
+            .metrics-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .user-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
     <!-- ヘッダー -->
-    <header class="app-header">
-        <div class="app-title">システム管理ダッシュボード</div>
-        <div class="system-status">
-            <div class="status-indicator" id="systemStatusIndicator"></div>
-            <span id="systemStatusText">システム正常稼働中</span>
-        </div>
-        <div class="user-info">
-            <span>管理者: 田中 太郎</span>
-            <i class="material-icons">admin_panel_settings</i>
+    <header class="header">
+        <div class="header-content">
+            <h1>システムダッシュボード</h1>
+            <div class="refresh-info">
+                <span id="lastUpdate">最終更新: 14:32:18</span>
+                <button class="refresh-btn" onclick="refreshDashboard()">🔄 更新</button>
+            </div>
         </div>
     </header>
-
-    <!-- メインコンテナ -->
-    <div class="main-container">
-        <!-- サイドバー: ナビゲーション -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h3 style="font-size: 16px; color: #333;">管理メニュー</h3>
-            </div>
-            
-            <!-- アラート表示 -->
-            <div class="alert-section" id="alertSection">
-                <div class="alert-title">
-                    <i class="material-icons" style="font-size: 16px;">warning</i>
-                    システムアラート
+    
+    <!-- メインコンテンツ -->
+    <main class="main-container">
+        <!-- システムヘルス -->
+        <div class="system-health">
+            <div class="health-status">
+                <div class="health-indicator health-normal" id="healthIndicator">✓</div>
+                <div>
+                    <div class="health-text" id="healthText">システム正常稼働中</div>
+                    <div class="health-details" id="healthDetails">すべてのサービスが正常に動作しています</div>
                 </div>
-                <div class="alert-item">Gmail同期遅延が発生しています (5分遅延)</div>
-                <div class="alert-item">ディスク使用量が80%を超えています</div>
             </div>
-            
-            <nav class="nav-menu">
-                <button class="nav-item active" onclick="showSection('overview')">
-                    <i class="material-icons">dashboard</i>
-                    システム概要
-                </button>
-                <button class="nav-item" onclick="showSection('users')">
-                    <i class="material-icons">people</i>
-                    ユーザー管理
-                </button>
-                <button class="nav-item" onclick="showSection('monitoring')">
-                    <i class="material-icons">monitoring</i>
-                    パフォーマンス監視
-                </button>
-                <button class="nav-item" onclick="showSection('logs')">
-                    <i class="material-icons">article</i>
-                    ログ・履歴
-                </button>
-                <button class="nav-item" onclick="showSection('security')">
-                    <i class="material-icons">security</i>
-                    セキュリティ
-                </button>
-                <button class="nav-item" onclick="showSection('backup')">
-                    <i class="material-icons">backup</i>
-                    バックアップ
-                </button>
-                <button class="nav-item" onclick="showSection('settings')">
-                    <i class="material-icons">settings</i>
-                    システム設定
-                </button>
-            </nav>
         </div>
-
-        <!-- メインコンテンツ -->
-        <div class="main-content">
-            <div class="content-header">
-                <div class="content-title" id="contentTitle">システム概要</div>
-                <div class="header-actions" id="headerActions">
-                    <button class="btn btn-secondary" onclick="refreshDashboard()">
-                        <i class="material-icons" style="font-size: 16px;">refresh</i>
-                        更新
-                    </button>
-                    <button class="btn btn-primary" onclick="exportReport()">
-                        <i class="material-icons" style="font-size: 16px;">download</i>
-                        レポート出力
-                    </button>
+        
+        <!-- ダッシュボードグリッド -->
+        <div class="dashboard-grid">
+            <!-- パフォーマンス指標 -->
+            <div class="performance-section">
+                <h2 class="section-title">⚡ パフォーマンス指標</h2>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value cpu-usage" id="cpuValue">23%</div>
+                        <div class="metric-label">CPU使用率</div>
+                        <div class="metric-bar">
+                            <div class="metric-progress progress-normal" id="cpuProgress" style="width: 23%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-value memory-usage" id="memoryValue">67%</div>
+                        <div class="metric-label">メモリ使用率</div>
+                        <div class="metric-bar">
+                            <div class="metric-progress progress-warning" id="memoryProgress" style="width: 67%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-value disk-usage" id="diskValue">45%</div>
+                        <div class="metric-label">ディスク使用率</div>
+                        <div class="metric-bar">
+                            <div class="metric-progress progress-normal" id="diskProgress" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-value network-usage" id="networkValue">12%</div>
+                        <div class="metric-label">ネットワーク使用率</div>
+                        <div class="metric-bar">
+                            <div class="metric-progress progress-normal" id="networkProgress" style="width: 12%"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="content-body" id="contentBody">
-                <!-- コンテンツはJavaScriptで動的生成 -->
+            <!-- アラート -->
+            <div class="alerts-section">
+                <div class="alerts-header">
+                    <h2 class="section-title">🚨 アラート</h2>
+                    <span class="alert-count" id="alertCount">3</span>
+                </div>
+                
+                <div id="alertsList">
+                    <div class="alert-item" onclick="viewAlert(1)">
+                        <div class="alert-icon alert-high">!</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Gmail API レート制限接近</div>
+                            <div class="alert-time">2分前</div>
+                        </div>
+                        <div class="alert-actions" onclick="event.stopPropagation()">
+                            <button class="alert-btn resolve-btn" onclick="resolveAlert(1)">解決</button>
+                            <button class="alert-btn dismiss-btn" onclick="dismissAlert(1)">却下</button>
+                        </div>
+                    </div>
+                    
+                    <div class="alert-item" onclick="viewAlert(2)">
+                        <div class="alert-icon alert-medium">⚠</div>
+                        <div class="alert-content">
+                            <div class="alert-title">データベース接続数増加</div>
+                            <div class="alert-time">15分前</div>
+                        </div>
+                        <div class="alert-actions" onclick="event.stopPropagation()">
+                            <button class="alert-btn resolve-btn" onclick="resolveAlert(2)">解決</button>
+                            <button class="alert-btn dismiss-btn" onclick="dismissAlert(2)">却下</button>
+                        </div>
+                    </div>
+                    
+                    <div class="alert-item" onclick="viewAlert(3)">
+                        <div class="alert-icon alert-low">i</div>
+                        <div class="alert-content">
+                            <div class="alert-title">定期バックアップ完了</div>
+                            <div class="alert-time">1時間前</div>
+                        </div>
+                        <div class="alert-actions" onclick="event.stopPropagation()">
+                            <button class="alert-btn resolve-btn" onclick="resolveAlert(3)">解決</button>
+                            <button class="alert-btn dismiss-btn" onclick="dismissAlert(3)">却下</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+        
+        <!-- ユーザー統計 -->
+        <div class="user-stats">
+            <div class="stats-card">
+                <div class="stats-number" id="activeUsers">24</div>
+                <div class="stats-label">アクティブユーザー</div>
+                <div class="stats-detail">過去24時間のログインユーザー数</div>
+                <div class="activity-chart" id="userActivityChart">
+                    <div class="chart-bar" style="height: 60%"></div>
+                    <div class="chart-bar" style="height: 80%"></div>
+                    <div class="chart-bar" style="height: 45%"></div>
+                    <div class="chart-bar" style="height: 90%"></div>
+                    <div class="chart-bar" style="height: 70%"></div>
+                    <div class="chart-bar" style="height: 55%"></div>
+                    <div class="chart-bar" style="height: 85%"></div>
+                    <div class="chart-bar" style="height: 30%"></div>
+                    <div class="chart-bar" style="height: 95%"></div>
+                    <div class="chart-bar" style="height: 75%"></div>
+                    <div class="chart-bar" style="height: 40%"></div>
+                    <div class="chart-bar" style="height: 65%"></div>
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <div class="stats-number" id="totalSessions">156</div>
+                <div class="stats-label">総セッション数</div>
+                <div class="stats-detail">本日の総ログインセッション数</div>
+                <div class="activity-chart">
+                    <div class="chart-bar" style="height: 40%"></div>
+                    <div class="chart-bar" style="height: 60%"></div>
+                    <div class="chart-bar" style="height: 30%"></div>
+                    <div class="chart-bar" style="height: 80%"></div>
+                    <div class="chart-bar" style="height: 50%"></div>
+                    <div class="chart-bar" style="height: 70%"></div>
+                    <div class="chart-bar" style="height: 90%"></div>
+                    <div class="chart-bar" style="height: 35%"></div>
+                    <div class="chart-bar" style="height: 75%"></div>
+                    <div class="chart-bar" style="height: 85%"></div>
+                    <div class="chart-bar" style="height: 45%"></div>
+                    <div class="chart-bar" style="height: 95%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- システムアクション -->
+        <div class="actions-section">
+            <h2 class="section-title">🔧 システムアクション</h2>
+            <div class="action-buttons">
+                <button class="action-btn btn-primary" onclick="runDiagnostics()">システム診断実行</button>
+                <button class="action-btn btn-warning" onclick="clearCache()">キャッシュクリア</button>
+                <button class="action-btn btn-secondary" onclick="exportLogs()">ログエクスポート</button>
+                <button class="action-btn btn-danger" onclick="emergencyMode()">緊急モード</button>
+            </div>
+        </div>
+    </main>
 
     <script>
-        let currentSection = 'overview';
-        let charts = {};
+        // モックデータ
+        let systemData = {
+            health: 'normal',
+            cpu: 23,
+            memory: 67,
+            disk: 45,
+            network: 12,
+            alerts: [
+                { id: 1, level: 'high', title: 'Gmail API レート制限接近', time: '2分前', resolved: false },
+                { id: 2, level: 'medium', title: 'データベース接続数増加', time: '15分前', resolved: false },
+                { id: 3, level: 'low', title: '定期バックアップ完了', time: '1時間前', resolved: false }
+            ],
+            activeUsers: 24,
+            totalSessions: 156
+        };
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            showSection('overview');
-            updateSystemStatus();
+            updateDashboard();
+            startAutoRefresh();
         });
 
-        // セクション表示
-        function showSection(section) {
-            currentSection = section;
+        // ダッシュボード更新
+        function updateDashboard() {
+            updateSystemHealth();
+            updateMetrics();
+            updateAlerts();
+            updateUserStats();
+            updateLastUpdateTime();
+        }
+
+        // システムヘルス更新
+        function updateSystemHealth() {
+            const indicator = document.getElementById('healthIndicator');
+            const text = document.getElementById('healthText');
+            const details = document.getElementById('healthDetails');
             
-            // アクティブナビ更新
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.target.classList.add('active');
+            const criticalAlerts = systemData.alerts.filter(a => a.level === 'high' && !a.resolved).length;
             
-            // コンテンツ更新
-            const titles = {
-                'overview': 'システム概要',
-                'users': 'ユーザー管理',
-                'monitoring': 'パフォーマンス監視',
-                'logs': 'ログ・履歴',
-                'security': 'セキュリティ',
-                'backup': 'バックアップ',
-                'settings': 'システム設定'
-            };
-            
-            document.getElementById('contentTitle').textContent = titles[section];
-            
-            // セクション別コンテンツ表示
-            switch(section) {
-                case 'overview':
-                    showOverview();
-                    break;
-                case 'users':
-                    showUsers();
-                    break;
-                case 'monitoring':
-                    showMonitoring();
-                    break;
-                case 'logs':
-                    showLogs();
-                    break;
-                case 'security':
-                    showSecurity();
-                    break;
-                case 'backup':
-                    showBackup();
-                    break;
-                case 'settings':
-                    showSettings();
-                    break;
-            }
-        }
-
-        // システム概要表示
-        function showOverview() {
-            document.getElementById('contentBody').innerHTML = `
-                <div class="dashboard-grid">
-                    <div class="status-card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <i class="material-icons">computer</i>
-                                システム稼働状況
-                            </div>
-                            <span class="card-status status-healthy">正常</span>
-                        </div>
-                        <div class="metric-grid">
-                            <div class="metric-item">
-                                <div class="metric-value">99.8%</div>
-                                <div class="metric-label">稼働率（30日）</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">15日</div>
-                                <div class="metric-label">連続稼働時間</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">234ms</div>
-                                <div class="metric-label">平均応答時間</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">10</div>
-                                <div class="metric-label">アクティブユーザー</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="status-card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <i class="material-icons">email</i>
-                                Gmail同期状況
-                            </div>
-                            <span class="card-status status-warning">遅延</span>
-                        </div>
-                        <div class="metric-grid">
-                            <div class="metric-item">
-                                <div class="metric-value">15:25</div>
-                                <div class="metric-label">最終同期</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">5分</div>
-                                <div class="metric-label">遅延時間</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">1,234</div>
-                                <div class="metric-label">本日同期メール数</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">8</div>
-                                <div class="metric-label">AI TODO抽出数</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="status-card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <i class="material-icons">storage</i>
-                                データベース
-                            </div>
-                            <span class="card-status status-healthy">正常</span>
-                        </div>
-                        <div class="metric-grid">
-                            <div class="metric-item">
-                                <div class="metric-value">2.3GB</div>
-                                <div class="metric-label">データサイズ</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">156</div>
-                                <div class="metric-label">企業レコード数</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">23,456</div>
-                                <div class="metric-label">メールレコード数</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">15:20</div>
-                                <div class="metric-label">最終バックアップ</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="status-card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <i class="material-icons">security</i>
-                                セキュリティ
-                            </div>
-                            <span class="card-status status-healthy">安全</span>
-                        </div>
-                        <div class="metric-grid">
-                            <div class="metric-item">
-                                <div class="metric-value">0</div>
-                                <div class="metric-label">不正アクセス試行</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">100%</div>
-                                <div class="metric-label">SSL通信率</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">24</div>
-                                <div class="metric-label">今日のログイン数</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">3</div>
-                                <div class="metric-label">アクティブセッション</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="status-card">
-                    <div class="card-title">
-                        <i class="material-icons">timeline</i>
-                        システムパフォーマンス（24時間）
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="performanceChart" height="200"></canvas>
-                    </div>
-                </div>
-            `;
-
-            // パフォーマンスチャート描画
-            setTimeout(() => {
-                renderPerformanceChart();
-            }, 100);
-        }
-
-        // ユーザー管理表示
-        function showUsers() {
-            document.getElementById('contentBody').innerHTML = `
-                <div style="margin-bottom: 20px;">
-                    <button class="btn btn-primary" onclick="addUser()">
-                        <i class="material-icons" style="font-size: 16px;">person_add</i>
-                        新規ユーザー追加
-                    </button>
-                </div>
-
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>ユーザー名</th>
-                            <th>メールアドレス</th>
-                            <th>権限</th>
-                            <th>ステータス</th>
-                            <th>最終ログイン</th>
-                            <th>Gmail連携</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>田中 太郎</td>
-                            <td>tanaka@company.com</td>
-                            <td><span class="user-status role-admin">管理者</span></td>
-                            <td><span class="user-status user-online">オンライン</span></td>
-                            <td>2024-01-27 15:30</td>
-                            <td>✅ 連携済み</td>
-                            <td>
-                                <button class="btn btn-secondary" onclick="editUser(1)">編集</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>佐藤 次郎</td>
-                            <td>sato@company.com</td>
-                            <td><span class="user-status role-user">一般</span></td>
-                            <td><span class="user-status user-online">オンライン</span></td>
-                            <td>2024-01-27 14:15</td>
-                            <td>✅ 連携済み</td>
-                            <td>
-                                <button class="btn btn-secondary" onclick="editUser(2)">編集</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>山田 花子</td>
-                            <td>yamada@company.com</td>
-                            <td><span class="user-status role-user">一般</span></td>
-                            <td><span class="user-status user-offline">オフライン</span></td>
-                            <td>2024-01-27 12:00</td>
-                            <td>✅ 連携済み</td>
-                            <td>
-                                <button class="btn btn-secondary" onclick="editUser(3)">編集</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            `;
-        }
-
-        // 監視画面表示
-        function showMonitoring() {
-            document.getElementById('contentBody').innerHTML = `
-                <div class="dashboard-grid">
-                    <div class="status-card">
-                        <div class="card-title">
-                            <i class="material-icons">memory</i>
-                            リソース使用状況
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="resourceChart" height="200"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="status-card">
-                        <div class="card-title">
-                            <i class="material-icons">speed</i>
-                            応答時間監視
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="responseChart" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="status-card">
-                    <div class="card-title">
-                        <i class="material-icons">warning</i>
-                        アラート設定
-                    </div>
-                    <div class="settings-grid">
-                        <div class="setting-item">
-                            <div class="setting-label">応答時間アラート（秒）</div>
-                            <input type="number" class="setting-input" value="2" min="1" max="10">
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">CPU使用率アラート（%）</div>
-                            <input type="number" class="setting-input" value="80" min="50" max="95">
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">ディスク使用率アラート（%）</div>
-                            <input type="number" class="setting-input" value="85" min="70" max="95">
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">Gmail同期遅延アラート（分）</div>
-                            <input type="number" class="setting-input" value="5" min="1" max="30">
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            setTimeout(() => {
-                renderResourceChart();
-                renderResponseChart();
-            }, 100);
-        }
-
-        // ログ表示
-        function showLogs() {
-            document.getElementById('contentBody').innerHTML = `
-                <div style="margin-bottom: 20px; display: flex; gap: 12px;">
-                    <select class="setting-input" style="width: auto;">
-                        <option>すべてのログ</option>
-                        <option>システムログ</option>
-                        <option>アクセスログ</option>
-                        <option>エラーログ</option>
-                        <option>セキュリティログ</option>
-                    </select>
-                    <button class="btn btn-secondary" onclick="refreshLogs()">
-                        <i class="material-icons" style="font-size: 16px;">refresh</i>
-                        更新
-                    </button>
-                    <button class="btn btn-secondary" onclick="exportLogs()">
-                        <i class="material-icons" style="font-size: 16px;">download</i>
-                        エクスポート
-                    </button>
-                </div>
-
-                <div class="log-container">
-                    <div class="log-entry">
-                        <span class="log-timestamp">2024-01-27 15:30:25</span>
-                        <span class="log-level-info">[INFO]</span>
-                        <span class="log-message">Gmail同期完了: 新着メール 5件を処理</span>
-                    </div>
-                    <div class="log-entry">
-                        <span class="log-timestamp">2024-01-27 15:29:18</span>
-                        <span class="log-level-info">[INFO]</span>
-                        <span class="log-message">ユーザーログイン: tanaka@company.com (IP: 192.168.1.100)</span>
-                    </div>
-                    <div class="log-entry">
-                        <span class="log-timestamp">2024-01-27 15:25:33</span>
-                        <span class="log-level-warn">[WARN]</span>
-                        <span class="log-message">Gmail同期遅延: APIレート制限により5分遅延</span>
-                    </div>
-                    <div class="log-entry">
-                        <span class="log-timestamp">2024-01-27 15:20:15</span>
-                        <span class="log-level-info">[INFO]</span>
-                        <span class="log-message">自動バックアップ完了: データサイズ 2.3GB</span>
-                    </div>
-                    <div class="log-entry">
-                        <span class="log-timestamp">2024-01-27 15:15:42</span>
-                        <span class="log-level-info">[INFO]</span>
-                        <span class="log-message">AI TODO抽出: 3件のTODOを検出</span>
-                    </div>
-                    <div class="log-entry">
-                        <span class="log-timestamp">2024-01-27 15:10:28</span>
-                        <span class="log-level-warn">[WARN]</span>
-                        <span class="log-message">ディスク使用率警告: 80%に到達</span>
-                    </div>
-                    <div class="log-entry">
-                        <span class="log-timestamp">2024-01-27 15:05:12</span>
-                        <span class="log-level-info">[INFO]</span>
-                        <span class="log-message">企業情報更新: 株式会社サンプル商事</span>
-                    </div>
-                    <div class="log-entry">
-                        <span class="log-timestamp">2024-01-27 15:00:00</span>
-                        <span class="log-level-info">[INFO]</span>
-                        <span class="log-message">定期ヘルスチェック完了: 全サービス正常</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        // セキュリティ表示
-        function showSecurity() {
-            document.getElementById('contentBody').innerHTML = `
-                <div class="dashboard-grid">
-                    <div class="status-card">
-                        <div class="card-title">
-                            <i class="material-icons">shield</i>
-                            セキュリティ状況
-                        </div>
-                        <div class="metric-grid">
-                            <div class="metric-item">
-                                <div class="metric-value">0</div>
-                                <div class="metric-label">不正アクセス試行</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">100%</div>
-                                <div class="metric-label">SSL通信率</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">10</div>
-                                <div class="metric-label">有効なセッション</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">30日</div>
-                                <div class="metric-label">パスワード有効期限</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="settings-section">
-                    <div class="settings-title">セキュリティ設定</div>
-                    <div class="settings-grid">
-                        <div class="setting-item">
-                            <div class="setting-label">多要素認証必須</div>
-                            <div class="setting-toggle">
-                                <div class="toggle-switch active" onclick="toggleSetting(this)">
-                                    <div class="toggle-knob"></div>
-                                </div>
-                                <span>有効</span>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">IPアドレス制限</div>
-                            <div class="setting-toggle">
-                                <div class="toggle-switch" onclick="toggleSetting(this)">
-                                    <div class="toggle-knob"></div>
-                                </div>
-                                <span>無効</span>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">セッションタイムアウト（分）</div>
-                            <input type="number" class="setting-input" value="30" min="15" max="120">
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">ログイン試行回数制限</div>
-                            <input type="number" class="setting-input" value="5" min="3" max="10">
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // バックアップ表示
-        function showBackup() {
-            document.getElementById('contentBody').innerHTML = `
-                <div class="dashboard-grid">
-                    <div class="status-card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <i class="material-icons">backup</i>
-                                バックアップ状況
-                            </div>
-                            <span class="card-status status-healthy">正常</span>
-                        </div>
-                        <div class="metric-grid">
-                            <div class="metric-item">
-                                <div class="metric-value">15:20</div>
-                                <div class="metric-label">最終バックアップ</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">2.3GB</div>
-                                <div class="metric-label">バックアップサイズ</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">90日</div>
-                                <div class="metric-label">保存期間</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">3分</div>
-                                <div class="metric-label">実行時間</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <button class="btn btn-primary" onclick="startBackup()">
-                        <i class="material-icons" style="font-size: 16px;">backup</i>
-                        手動バックアップ実行
-                    </button>
-                    <button class="btn btn-secondary" onclick="restoreBackup()">
-                        <i class="material-icons" style="font-size: 16px;">restore</i>
-                        復元
-                    </button>
-                </div>
-
-                <div class="settings-section">
-                    <div class="settings-title">バックアップ設定</div>
-                    <div class="settings-grid">
-                        <div class="setting-item">
-                            <div class="setting-label">自動バックアップ</div>
-                            <div class="setting-toggle">
-                                <div class="toggle-switch active" onclick="toggleSetting(this)">
-                                    <div class="toggle-knob"></div>
-                                </div>
-                                <span>有効</span>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">バックアップ間隔（時間）</div>
-                            <input type="number" class="setting-input" value="6" min="1" max="24">
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">保存期間（日）</div>
-                            <input type="number" class="setting-input" value="90" min="7" max="365">
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">バックアップ先</div>
-                            <select class="setting-input">
-                                <option>ローカルストレージ</option>
-                                <option>AWS S3</option>
-                                <option>Google Cloud Storage</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // システム設定表示
-        function showSettings() {
-            document.getElementById('contentBody').innerHTML = `
-                <div class="settings-section">
-                    <div class="settings-title">Gmail連携設定</div>
-                    <div class="settings-grid">
-                        <div class="setting-item">
-                            <div class="setting-label">同期間隔（分）</div>
-                            <input type="number" class="setting-input" value="5" min="1" max="60">
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">一回の取得件数</div>
-                            <input type="number" class="setting-input" value="100" min="10" max="500">
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">AI TODO抽出</div>
-                            <div class="setting-toggle">
-                                <div class="toggle-switch active" onclick="toggleSetting(this)">
-                                    <div class="toggle-knob"></div>
-                                </div>
-                                <span>有効</span>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">過去メール取得期間（日）</div>
-                            <input type="number" class="setting-input" value="365" min="30" max="1095">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="settings-section">
-                    <div class="settings-title">システム全般設定</div>
-                    <div class="settings-grid">
-                        <div class="setting-item">
-                            <div class="setting-label">タイムゾーン</div>
-                            <select class="setting-input">
-                                <option>Asia/Tokyo</option>
-                                <option>UTC</option>
-                            </select>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">ログレベル</div>
-                            <select class="setting-input">
-                                <option>INFO</option>
-                                <option>DEBUG</option>
-                                <option>WARN</option>
-                                <option>ERROR</option>
-                            </select>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">メンテナンスモード</div>
-                            <div class="setting-toggle">
-                                <div class="toggle-switch" onclick="toggleSetting(this)">
-                                    <div class="toggle-knob"></div>
-                                </div>
-                                <span>無効</span>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-label">デバッグモード</div>
-                            <div class="setting-toggle">
-                                <div class="toggle-switch" onclick="toggleSetting(this)">
-                                    <div class="toggle-knob"></div>
-                                </div>
-                                <span>無効</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e0e0e0;">
-                    <button class="btn btn-primary" onclick="saveSettings()">
-                        <i class="material-icons" style="font-size: 16px;">save</i>
-                        設定を保存
-                    </button>
-                    <button class="btn btn-danger" onclick="resetSettings()">
-                        <i class="material-icons" style="font-size: 16px;">restore</i>
-                        初期設定に戻す
-                    </button>
-                </div>
-            `;
-        }
-
-        // チャート描画関数
-        function renderPerformanceChart() {
-            const ctx = document.getElementById('performanceChart');
-            if (!ctx) return;
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
-                    datasets: [{
-                        label: '応答時間 (ms)',
-                        data: [180, 200, 250, 400, 350, 280, 220],
-                        borderColor: '#1976d2',
-                        backgroundColor: 'rgba(25, 118, 210, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: '応答時間 (ms)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function renderResourceChart() {
-            const ctx = document.getElementById('resourceChart');
-            if (!ctx) return;
-
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['使用中', '空き'],
-                    datasets: [{
-                        data: [75, 25],
-                        backgroundColor: ['#ff9800', '#e0e0e0'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-        }
-
-        function renderResponseChart() {
-            const ctx = document.getElementById('responseChart');
-            if (!ctx) return;
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['ログイン', '企業検索', 'メール取得', 'TODO抽出'],
-                    datasets: [{
-                        data: [120, 85, 340, 560],
-                        backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#f44336']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: '応答時間 (ms)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ユーティリティ関数
-        function updateSystemStatus() {
-            // 実際の実装では、サーバーからステータスを取得
-            const indicator = document.getElementById('systemStatusIndicator');
-            const text = document.getElementById('systemStatusText');
-            
-            // モック: 時々警告状態に変更
-            const statuses = ['正常', '注意', 'エラー'];
-            const status = statuses[Math.floor(Math.random() * 3)];
-            
-            if (status === '正常') {
-                indicator.className = 'status-indicator';
-                text.textContent = 'システム正常稼働中';
-            } else if (status === '注意') {
-                indicator.className = 'status-indicator status-warning';
-                text.textContent = 'システム注意: 軽微な問題';
+            if (criticalAlerts > 0) {
+                systemData.health = 'critical';
+                indicator.className = 'health-indicator health-critical';
+                indicator.textContent = '!';
+                text.textContent = 'システム異常';
+                details.textContent = `${criticalAlerts}件の重要なアラートがあります`;
+            } else if (systemData.memory > 80 || systemData.cpu > 80) {
+                systemData.health = 'warning';
+                indicator.className = 'health-indicator health-warning';
+                indicator.textContent = '⚠';
+                text.textContent = 'システム注意';
+                details.textContent = 'リソース使用率が高くなっています';
             } else {
-                indicator.className = 'status-indicator status-error';
-                text.textContent = 'システムエラー: 対応必要';
+                systemData.health = 'normal';
+                indicator.className = 'health-indicator health-normal';
+                indicator.textContent = '✓';
+                text.textContent = 'システム正常稼働中';
+                details.textContent = 'すべてのサービスが正常に動作しています';
             }
         }
 
-        function toggleSetting(element) {
-            element.classList.toggle('active');
-            const span = element.nextElementSibling;
-            span.textContent = element.classList.contains('active') ? '有効' : '無効';
+        // メトリクス更新
+        function updateMetrics() {
+            updateMetric('cpu', systemData.cpu);
+            updateMetric('memory', systemData.memory);
+            updateMetric('disk', systemData.disk);
+            updateMetric('network', systemData.network);
         }
 
-        // アクション関数
+        function updateMetric(type, value) {
+            const valueElement = document.getElementById(`${type}Value`);
+            const progressElement = document.getElementById(`${type}Progress`);
+            
+            valueElement.textContent = `${value}%`;
+            progressElement.style.width = `${value}%`;
+            
+            // 色の更新
+            let progressClass = 'progress-normal';
+            if (value > 80) progressClass = 'progress-critical';
+            else if (value > 60) progressClass = 'progress-warning';
+            
+            progressElement.className = `metric-progress ${progressClass}`;
+        }
+
+        // アラート更新
+        function updateAlerts() {
+            const activeAlerts = systemData.alerts.filter(a => !a.resolved);
+            document.getElementById('alertCount').textContent = activeAlerts.length;
+            
+            const alertsList = document.getElementById('alertsList');
+            alertsList.innerHTML = activeAlerts.map(alert => `
+                <div class="alert-item" onclick="viewAlert(${alert.id})">
+                    <div class="alert-icon alert-${alert.level}">${getAlertIcon(alert.level)}</div>
+                    <div class="alert-content">
+                        <div class="alert-title">${alert.title}</div>
+                        <div class="alert-time">${alert.time}</div>
+                    </div>
+                    <div class="alert-actions" onclick="event.stopPropagation()">
+                        <button class="alert-btn resolve-btn" onclick="resolveAlert(${alert.id})">解決</button>
+                        <button class="alert-btn dismiss-btn" onclick="dismissAlert(${alert.id})">却下</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getAlertIcon(level) {
+            return { high: '!', medium: '⚠', low: 'i' }[level];
+        }
+
+        // ユーザー統計更新
+        function updateUserStats() {
+            document.getElementById('activeUsers').textContent = systemData.activeUsers;
+            document.getElementById('totalSessions').textContent = systemData.totalSessions;
+        }
+
+        // 最終更新時刻更新
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ja-JP', { hour12: false });
+            document.getElementById('lastUpdate').textContent = `最終更新: ${timeString}`;
+        }
+
+        // 手動リフレッシュ
         function refreshDashboard() {
-            alert('ダッシュボードを更新しました');
-            updateSystemStatus();
+            // データの模擬更新
+            systemData.cpu = Math.floor(Math.random() * 40) + 10;
+            systemData.memory = Math.floor(Math.random() * 30) + 50;
+            systemData.disk = Math.floor(Math.random() * 20) + 40;
+            systemData.network = Math.floor(Math.random() * 25) + 5;
+            systemData.activeUsers = Math.floor(Math.random() * 20) + 15;
+            systemData.totalSessions = Math.floor(Math.random() * 100) + 100;
+            
+            updateDashboard();
+            showMessage('ダッシュボードを更新しました');
         }
 
-        function exportReport() {
-            alert('システムレポートをエクスポートします');
+        // 自動リフレッシュ開始
+        function startAutoRefresh() {
+            setInterval(() => {
+                refreshDashboard();
+            }, 30000); // 30秒間隔
         }
 
-        function addUser() {
-            alert('新規ユーザー追加画面を開きます');
+        // アラート処理
+        function viewAlert(id) {
+            const alert = systemData.alerts.find(a => a.id === id);
+            if (alert) {
+                alert(`アラート詳細:\n\n${alert.title}\n発生時刻: ${alert.time}\nレベル: ${alert.level}`);
+            }
         }
 
-        function editUser(userId) {
-            alert(`ユーザー編集画面を開きます (ID: ${userId})`);
+        function resolveAlert(id) {
+            const alert = systemData.alerts.find(a => a.id === id);
+            if (alert) {
+                alert.resolved = true;
+                updateAlerts();
+                updateSystemHealth();
+                showMessage(`アラート「${alert.title}」を解決しました`);
+            }
         }
 
-        function refreshLogs() {
-            alert('ログを更新しました');
+        function dismissAlert(id) {
+            const alert = systemData.alerts.find(a => a.id === id);
+            if (alert) {
+                alert.resolved = true;
+                updateAlerts();
+                updateSystemHealth();
+                showMessage(`アラート「${alert.title}」を却下しました`);
+            }
+        }
+
+        // システムアクション
+        function runDiagnostics() {
+            showMessage('システム診断を開始しました...', 'info');
+            setTimeout(() => {
+                showMessage('システム診断が完了しました。異常は検出されませんでした。');
+            }, 3000);
+        }
+
+        function clearCache() {
+            showMessage('キャッシュクリアを開始しました...', 'info');
+            setTimeout(() => {
+                showMessage('キャッシュクリアが完了しました。');
+            }, 2000);
         }
 
         function exportLogs() {
-            alert('ログをエクスポートします');
+            showMessage('ログエクスポートを開始しました...', 'info');
+            setTimeout(() => {
+                showMessage('ログファイルの準備が完了しました。ダウンロードが開始されます。');
+            }, 1500);
         }
 
-        function startBackup() {
-            alert('手動バックアップを開始します');
-        }
-
-        function restoreBackup() {
-            alert('バックアップ復元画面を開きます');
-        }
-
-        function saveSettings() {
-            alert('設定を保存しました');
-        }
-
-        function resetSettings() {
-            if (confirm('本当に初期設定に戻しますか？')) {
-                alert('設定を初期値に戻しました');
+        function emergencyMode() {
+            if (confirm('緊急モードを有効にしますか？\nこの操作により一部の機能が制限されます。')) {
+                showMessage('緊急モードを有効にしました', 'warning');
             }
         }
 
-        // 定期更新
-        setInterval(updateSystemStatus, 30000);
+        // メッセージ表示
+        function showMessage(text, type = 'success') {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4caf50' : type === 'warning' ? '#ff9800' : '#2196f3'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                z-index: 1001;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            `;
+            message.textContent = text;
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+            }, 4000);
+        }
     </script>
 </body>
 </html>

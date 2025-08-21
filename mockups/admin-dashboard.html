@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者ダッシュボード - 最強タスク管理ツール</title>
+    
+    <!-- Material UI CSS -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Material UI JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+    <style>
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
+            color: white;
+            padding: 0 20px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .admin-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #d32f2f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .breadcrumb {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .breadcrumb a {
+            color: #d32f2f;
+            text-decoration: none;
+        }
+        
+        .alert-section {
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        
+        .alert-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .alert-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 4px solid #f44336;
+        }
+        
+        .alert-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-icon {
+            color: #f44336;
+        }
+        
+        .alert-text {
+            flex: 1;
+        }
+        
+        .alert-title {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        
+        .alert-desc {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .alert-action {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        
+        .stat-icon.tasks {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .stat-icon.users {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .stat-icon.projects {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .stat-icon.alerts {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .stat-info {
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .stat-change {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .stat-change.positive {
+            color: #2e7d32;
+        }
+        
+        .stat-change.negative {
+            color: #d32f2f;
+        }
+        
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .chart-container {
+            height: 300px;
+        }
+        
+        .team-overview {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .team-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .member-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .member-item:hover {
+            background: #e3f2fd;
+        }
+        
+        .member-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1976d2, #42a5f5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .member-info {
+            flex: 1;
+        }
+        
+        .member-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .member-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-dot.online {
+            background: #4caf50;
+        }
+        
+        .status-dot.away {
+            background: #ff9800;
+        }
+        
+        .status-dot.offline {
+            background: #757575;
+        }
+        
+        .member-tasks {
+            text-align: right;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .task-count {
+            font-weight: bold;
+            color: #1976d2;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 4px;
+        }
+        
+        .menu-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .menu-item.active {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .menu-icon {
+            font-size: 20px;
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #d32f2f, #f44336);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .system-status {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .system-status h3 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .status-label {
+            font-weight: 500;
+        }
+        
+        .status-value {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .status-indicator.good {
+            background: #4caf50;
+        }
+        
+        .status-indicator.warning {
+            background: #ff9800;
+        }
+        
+        .status-indicator.error {
+            background: #f44336;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .fab:hover {
+            background: #b71c1c;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="logo">
+            <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">security</i>
+            最強タスク管理ツール
+            <span class="admin-badge">管理者</span>
+        </div>
+        
+        <div class="user-info">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="avatar">管</div>
+                <span>管理者</span>
+            </div>
+            
+            <i class="material-icons" style="cursor: pointer; font-size: 24px;">logout</i>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- サイドバー -->
+        <nav class="sidebar">
+            <div class="menu-item active">
+                <i class="material-icons menu-icon">admin_panel_settings</i>
+                <span>管理者ダッシュボード</span>
+            </div>
+            
+            <div class="menu-item">
+                <i class="material-icons menu-icon">group</i>
+                <span>ユーザー管理</span>
+            </div>
+            
+            <div class="menu-item">
+                <i class="material-icons menu-icon">settings</i>
+                <span>システム設定</span>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 0 16px; color: #666; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                クイックアクション
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <div class="menu-item">
+                    <i class="material-icons menu-icon">person_add</i>
+                    <span>ユーザー追加</span>
+                </div>
+                <div class="menu-item">
+                    <i class="material-icons menu-icon">folder_open</i>
+                    <span>プロジェクト作成</span>
+                </div>
+                <div class="menu-item">
+                    <i class="material-icons menu-icon">backup</i>
+                    <span>データバックアップ</span>
+                </div>
+                <div class="menu-item">
+                    <i class="material-icons menu-icon">assessment</i>
+                    <span>レポート生成</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- メインコンテンツ -->
+        <main class="content">
+            <!-- ページヘッダー -->
+            <div class="page-header">
+                <div class="page-title">
+                    <i class="material-icons">admin_panel_settings</i>
+                    管理者ダッシュボード
+                </div>
+                <div class="breadcrumb">
+                    <a href="#">ホーム</a> > 管理者ダッシュボード
+                </div>
+            </div>
+
+            <!-- 緊急アラートセクション -->
+            <div class="alert-section">
+                <div class="alert-header">
+                    <i class="material-icons">warning</i>
+                    緊急対応が必要な項目
+                </div>
+                <div class="alert-items">
+                    <div class="alert-item">
+                        <div class="alert-content">
+                            <i class="material-icons alert-icon">schedule</i>
+                            <div class="alert-text">
+                                <div class="alert-title">期限切れタスク</div>
+                                <div class="alert-desc">3件のタスクが期限を過ぎています（最大5日遅延）</div>
+                            </div>
+                        </div>
+                        <button class="alert-action" onclick="viewDelayedTasks()">確認</button>
+                    </div>
+                    
+                    <div class="alert-item">
+                        <div class="alert-content">
+                            <i class="material-icons alert-icon">person_off</i>
+                            <div class="alert-text">
+                                <div class="alert-title">非アクティブユーザー</div>
+                                <div class="alert-desc">佐藤花子が72時間以上ログインしていません</div>
+                            </div>
+                        </div>
+                        <button class="alert-action" onclick="contactUser('佐藤花子')">連絡</button>
+                    </div>
+                    
+                    <div class="alert-item">
+                        <div class="alert-content">
+                            <i class="material-icons alert-icon">trending_down</i>
+                            <div class="alert-text">
+                                <div class="alert-title">プロジェクト進捗遅延</div>
+                                <div class="alert-desc">「システム改修」プロジェクトが予定より25%遅れています</div>
+                            </div>
+                        </div>
+                        <button class="alert-action" onclick="viewProject('システム改修')">詳細</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 統計カード -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon tasks">
+                        <i class="material-icons">assignment</i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number">142</div>
+                        <div class="stat-label">総タスク数</div>
+                        <div class="stat-change positive">+12 今週</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon users">
+                        <i class="material-icons">group</i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number">24</div>
+                        <div class="stat-label">アクティブユーザー</div>
+                        <div class="stat-change positive">+2 今月</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon projects">
+                        <i class="material-icons">folder</i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">進行中プロジェクト</div>
+                        <div class="stat-change negative">-1 今週</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon alerts">
+                        <i class="material-icons">error</i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number">7</div>
+                        <div class="stat-label">要対応項目</div>
+                        <div class="stat-change negative">+3 今日</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- チャートセクション -->
+            <div class="charts-section">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">チーム生産性推移</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="productivityChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">タスク完了率</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="completionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- チーム概要 -->
+            <div class="team-overview">
+                <div class="team-header">
+                    <div class="team-title">
+                        <i class="material-icons">people</i>
+                        チーム概要
+                    </div>
+                    <span style="color: #666; font-size: 14px;">最終更新: 2分前</span>
+                </div>
+                
+                <div class="member-list">
+                    <div class="member-item">
+                        <div class="member-avatar">田</div>
+                        <div class="member-info">
+                            <div class="member-name">田中太郎</div>
+                            <div class="member-status">
+                                <div class="status-dot online"></div>
+                                <span>オンライン - プロジェクトマネージャー</span>
+                            </div>
+                        </div>
+                        <div class="member-tasks">
+                            <div class="task-count">8</div>
+                            <div>進行中タスク</div>
+                        </div>
+                    </div>
+                    
+                    <div class="member-item">
+                        <div class="member-avatar">佐</div>
+                        <div class="member-info">
+                            <div class="member-name">佐藤花子</div>
+                            <div class="member-status">
+                                <div class="status-dot offline"></div>
+                                <span>オフライン (72時間) - フロントエンドエンジニア</span>
+                            </div>
+                        </div>
+                        <div class="member-tasks">
+                            <div class="task-count">12</div>
+                            <div>進行中タスク</div>
+                        </div>
+                    </div>
+                    
+                    <div class="member-item">
+                        <div class="member-avatar">山</div>
+                        <div class="member-info">
+                            <div class="member-name">山田次郎</div>
+                            <div class="member-status">
+                                <div class="status-dot online"></div>
+                                <span>オンライン - デザイナー</span>
+                            </div>
+                        </div>
+                        <div class="member-tasks">
+                            <div class="task-count">5</div>
+                            <div>進行中タスク</div>
+                        </div>
+                    </div>
+                    
+                    <div class="member-item">
+                        <div class="member-avatar">鈴</div>
+                        <div class="member-info">
+                            <div class="member-name">鈴木一郎</div>
+                            <div class="member-status">
+                                <div class="status-dot away"></div>
+                                <span>離席中 - バックエンドエンジニア</span>
+                            </div>
+                        </div>
+                        <div class="member-tasks">
+                            <div class="task-count">6</div>
+                            <div>進行中タスク</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- システム状況 -->
+            <div class="system-status">
+                <h3>
+                    <i class="material-icons">monitor_heart</i>
+                    システム状況
+                </h3>
+                <div class="status-items">
+                    <div class="status-item">
+                        <div class="status-label">サーバー応答時間</div>
+                        <div class="status-value">
+                            <div class="status-indicator good"></div>
+                            <span>125ms</span>
+                        </div>
+                    </div>
+                    
+                    <div class="status-item">
+                        <div class="status-label">データベース接続</div>
+                        <div class="status-value">
+                            <div class="status-indicator good"></div>
+                            <span>正常</span>
+                        </div>
+                    </div>
+                    
+                    <div class="status-item">
+                        <div class="status-label">ストレージ使用量</div>
+                        <div class="status-value">
+                            <div class="status-indicator warning"></div>
+                            <span>78% (156GB / 200GB)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="status-item">
+                        <div class="status-label">最終バックアップ</div>
+                        <div class="status-value">
+                            <div class="status-indicator good"></div>
+                            <span>6時間前</span>
+                        </div>
+                    </div>
+                    
+                    <div class="status-item">
+                        <div class="status-label">同時接続ユーザー</div>
+                        <div class="status-value">
+                            <div class="status-indicator good"></div>
+                            <span>18 / 50</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" onclick="showQuickActions()">
+        <i class="material-icons">add</i>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+        });
+
+        function initCharts() {
+            // 生産性推移チャート
+            const productivityCtx = document.getElementById('productivityChart').getContext('2d');
+            new Chart(productivityCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1/15', '1/22', '1/29', '2/5', '2/12', '2/19', '2/26'],
+                    datasets: [{
+                        label: '完了タスク数',
+                        data: [18, 22, 15, 28, 24, 32, 29],
+                        borderColor: '#1976d2',
+                        backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: '新規タスク数',
+                        data: [15, 19, 23, 21, 27, 25, 30],
+                        borderColor: '#ff9800',
+                        backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // 完了率チャート
+            const completionCtx = document.getElementById('completionChart').getContext('2d');
+            new Chart(completionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['完了', '進行中', '未着手', '遅延'],
+                    datasets: [{
+                        data: [68, 22, 7, 3],
+                        backgroundColor: [
+                            '#4caf50',
+                            '#2196f3',
+                            '#ff9800',
+                            '#f44336'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function viewDelayedTasks() {
+            alert('期限切れタスクの詳細画面に遷移します。\n\n遅延タスク:\n- 定期報告書の更新 (5日遅延)\n- システム要件書レビュー (2日遅延)\n- UI設計書更新 (1日遅延)');
+        }
+
+        function contactUser(userName) {
+            const message = `${userName}さんに連絡を取りますか？\n\n連絡方法を選択してください：\n1. システム内通知\n2. メール送信\n3. Slack通知`;
+            if (confirm(message)) {
+                alert(`${userName}さんに連絡しました。`);
+            }
+        }
+
+        function viewProject(projectName) {
+            alert(`${projectName}プロジェクトの詳細画面に遷移します。\n\n現在の状況:\n- 完了率: 42%\n- 予定遅延: 25%\n- 遅延タスク数: 6件\n- 担当者: 4名`);
+        }
+
+        function showQuickActions() {
+            const actions = [
+                '新しいユーザーを追加',
+                '緊急通知を送信',
+                'システムバックアップ実行',
+                'プロジェクト作成',
+                'レポート生成'
+            ];
+            
+            const action = prompt('実行するアクションを選択してください：\n\n' + 
+                actions.map((action, index) => `${index + 1}. ${action}`).join('\n'));
+            
+            if (action && action >= 1 && action <= actions.length) {
+                alert(`「${actions[action - 1]}」を実行します。`);
+            }
+        }
+
+        // リアルタイム更新のシミュレーション
+        setInterval(function() {
+            // 統計データの更新
+            const statNumbers = document.querySelectorAll('.stat-number');
+            if (Math.random() > 0.8) {
+                const randomStat = Math.floor(Math.random() * statNumbers.length);
+                const currentValue = parseInt(statNumbers[randomStat].textContent);
+                const change = Math.floor(Math.random() * 3) - 1; // -1, 0, 1
+                if (change !== 0) {
+                    statNumbers[randomStat].textContent = Math.max(0, currentValue + change);
+                }
+            }
+        }, 10000); // 10秒ごとに更新
+    </script>
+</body>
+</html>

@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 究極タスク管理ツール V5</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .ultimate-badge {
+            background: linear-gradient(135deg, #ff006e, #8338ec, #3a86ff);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 1rem 0;
+            display: inline-block;
+            animation: rainbow 3s ease-in-out infinite;
+        }
+        
+        @keyframes rainbow {
+            0%, 100% { background: linear-gradient(135deg, #ff006e, #8338ec, #3a86ff); }
+            33% { background: linear-gradient(135deg, #3a86ff, #ff006e, #8338ec); }
+            66% { background: linear-gradient(135deg, #8338ec, #3a86ff, #ff006e); }
+        }
+        
+        .canvas-container {
+            background: white;
+            margin: 1rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .toolbar {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #f7fafc;
+            transform: translateY(-1px);
+        }
+        
+        .canvas {
+            position: relative;
+            min-height: 600px;
+            background: 
+                radial-gradient(circle, #e2e8f0 1px, transparent 1px),
+                linear-gradient(90deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px);
+            background-size: 30px 30px;
+            cursor: crosshair;
+            padding: 2rem;
+        }
+        
+        .phase {
+            position: absolute;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            border: 3px solid;
+            padding: 1.5rem;
+            min-width: 280px;
+            min-height: 200px;
+            cursor: move;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .phase:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+        }
+        
+        .phase.dragging {
+            transform: scale(1.05) rotate(3deg);
+            opacity: 0.9;
+            z-index: 1000;
+        }
+        
+        .phase-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .phase-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .phase-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .phase-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #2d3748;
+        }
+        
+        .phase-actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .phase:hover .phase-actions {
+            opacity: 1;
+        }
+        
+        .phase-btn {
+            padding: 0.5rem;
+            border: none;
+            background: #f1f5f9;
+            color: #64748b;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .phase-btn:hover {
+            background: #e2e8f0;
+            color: #475569;
+            transform: scale(1.1);
+        }
+        
+        .task {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            cursor: grab;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .task:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        
+        .task:active {
+            cursor: grabbing;
+        }
+        
+        .task.dragging {
+            position: fixed;
+            opacity: 0.9;
+            transform: rotate(5deg) scale(1.05);
+            z-index: 9999;
+            pointer-events: none;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+        }
+        
+        .task-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+        
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        
+        .task-category {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .task-priority {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.7rem;
+        }
+        
+        .priority-high { background: #fee2e2; color: #dc2626; }
+        .priority-medium { background: #fef3c7; color: #d97706; }
+        .priority-low { background: #dcfce7; color: #16a34a; }
+        
+        .add-task {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem;
+            width: 100%;
+            margin-top: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .add-task:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .drop-zone {
+            min-height: 80px;
+            border: 3px dashed transparent;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            margin: 0.5rem 0;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 2px solid #f1f5f9;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        
+        #status {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 1rem 2rem;
+            margin: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .empty-canvas {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 500px;
+            text-align: center;
+            color: #64748b;
+        }
+        
+        .floating-menu {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 1rem;
+            z-index: 100;
+        }
+        
+        .menu-btn {
+            display: block;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: none;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        
+        .menu-btn:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .color-palette {
+            display: none;
+            position: absolute;
+            right: 100%;
+            top: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            padding: 1rem;
+            margin-right: 1rem;
+        }
+        
+        .color-palette.show {
+            display: block;
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0.25rem;
+            cursor: pointer;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="ultimate-badge">🚀 ULTIMATE V5</div>
+        <h1>究極のタスク管理ツール</h1>
+        <p>完全な自由度とカスタマイズ性を実現</p>
+    </div>
+    
+    <div id="status">🎯 キャンバスをクリックしてフェーズを追加、またはデモフローを作成してください！</div>
+    
+    <div class="canvas-container">
+        <div class="toolbar">
+            <div>
+                <h2>究極のカスタムフロー</h2>
+                <div style="color: #64748b; margin-top: 0.5rem;">
+                    <span id="phase-count">0</span> フェーズ・<span id="task-count">0</span> タスク
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="createDemoFlow()">
+                    🎭 デモフロー作成
+                </button>
+                <button class="btn btn-secondary" onclick="createBusinessFlow()">
+                    💼 ビジネスフロー
+                </button>
+                <button class="btn btn-secondary" onclick="clearAll()">
+                    🗑️ すべてクリア
+                </button>
+            </div>
+        </div>
+        
+        <div class="canvas" id="canvas" onclick="handleCanvasClick(event)">
+            <div class="empty-canvas" id="empty-state">
+                <div style="max-width: 600px;">
+                    <div style="font-size: 5rem; margin-bottom: 1rem;">🎯</div>
+                    <h2 style="font-size: 2rem; color: #2d3748; margin-bottom: 1rem;">究極の自由度</h2>
+                    <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 2rem;">
+                        <strong>キャンバスをクリック</strong>して自由にフェーズを追加<br>
+                        <strong>タスクはドラッグ&ドロップ</strong>で移動（フェーズは動きません）<br>
+                        <strong>フェーズもドラッグ</strong>で自由に配置
+                    </p>
+                    <button class="btn btn-primary" onclick="createDemoFlow()" style="margin: 0 auto;">
+                        🎭 デモフローで体験する
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="floating-menu">
+        <button class="menu-btn" onclick="toggleColorPalette()">
+            🎨 カラー
+        </button>
+        <div class="color-palette" id="color-palette">
+            <div class="color-option" style="background: #667eea" onclick="setPhaseColor('#667eea')"></div>
+            <div class="color-option" style="background: #10b981" onclick="setPhaseColor('#10b981')"></div>
+            <div class="color-option" style="background: #f59e0b" onclick="setPhaseColor('#f59e0b')"></div>
+            <div class="color-option" style="background: #ef4444" onclick="setPhaseColor('#ef4444')"></div>
+            <div class="color-option" style="background: #8b5cf6" onclick="setPhaseColor('#8b5cf6')"></div>
+            <div class="color-option" style="background: #06b6d4" onclick="setPhaseColor('#06b6d4')"></div>
+            <div class="color-option" style="background: #ec4899" onclick="setPhaseColor('#ec4899')"></div>
+            <div class="color-option" style="background: #14b8a6" onclick="setPhaseColor('#14b8a6')"></div>
+        </div>
+    </div>
+
+    <script>
+        let phases = [];
+        let tasks = [];
+        let draggedTask = null;
+        let draggedPhase = null;
+        let phaseCounter = 0;
+        let taskCounter = 0;
+        let selectedPhaseColor = '#667eea';
+        let dragOffset = { x: 0, y: 0 };
+        
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = `🚀 ${message}`;
+        }
+        
+        function createDemoFlow() {
+            updateStatus('究極のデモフローを作成中...');
+            
+            phases = [
+                { id: 'todo', name: 'ToDo', x: 50, y: 50, color: '#667eea' },
+                { id: 'progress', name: '進行中', x: 400, y: 50, color: '#f59e0b' },
+                { id: 'review', name: 'レビュー', x: 750, y: 50, color: '#8b5cf6' },
+                { id: 'waiting', name: '連絡待ち', x: 50, y: 350, color: '#ef4444' },
+                { id: 'approval', name: '承認待ち', x: 400, y: 350, color: '#06b6d4' },
+                { id: 'done', name: '完了', x: 750, y: 350, color: '#10b981' }
+            ];
+            
+            tasks = [
+                { id: 'task1', title: '見積書作成', category: '営業', priority: 'high', phaseId: 'todo' },
+                { id: 'task2', title: 'システム設計', category: '開発', priority: 'medium', phaseId: 'progress' },
+                { id: 'task3', title: '品質チェック', category: 'QA', priority: 'high', phaseId: 'review' },
+                { id: 'task4', title: '顧客返答待ち', category: '営業', priority: 'medium', phaseId: 'waiting' },
+                { id: 'task5', title: '予算承認待ち', category: '管理', priority: 'high', phaseId: 'approval' }
+            ];
+            
+            phaseCounter = phases.length;
+            taskCounter = tasks.length;
+            
+            render();
+            updateStatus('✨ デモフロー完成！タスクだけをドラッグ&ドロップできます');
+        }
+        
+        function createBusinessFlow() {
+            updateStatus('ビジネスフローを作成中...');
+            
+            phases = [
+                { id: 'lead', name: 'リード', x: 50, y: 100, color: '#667eea' },
+                { id: 'contact', name: '初回接触', x: 300, y: 100, color: '#06b6d4' },
+                { id: 'proposal', name: '提案', x: 550, y: 100, color: '#f59e0b' },
+                { id: 'negotiation', name: '交渉', x: 800, y: 100, color: '#8b5cf6' },
+                { id: 'contract', name: '契約', x: 550, y: 350, color: '#10b981' },
+                { id: 'lost', name: '失注', x: 800, y: 350, color: '#ef4444' }
+            ];
+            
+            tasks = [
+                { id: 'task1', title: 'A社新規案件', category: '新規', priority: 'high', phaseId: 'lead' },
+                { id: 'task2', title: 'B社アポイント', category: '営業', priority: 'medium', phaseId: 'contact' },
+                { id: 'task3', title: 'C社見積提出', category: '提案', priority: 'high', phaseId: 'proposal' }
+            ];
+            
+            phaseCounter = phases.length;
+            taskCounter = tasks.length;
+            
+            render();
+            updateStatus('💼 ビジネスフロー完成！自由にカスタマイズしてください');
+        }
+        
+        function handleCanvasClick(event) {
+            if (event.target.id !== 'canvas') return;
+            
+            const rect = event.target.getBoundingClientRect();
+            const x = event.clientX - rect.left - 140;
+            const y = event.clientY - rect.top - 100;
+            
+            const name = prompt('新しいフェーズ名を入力してください:');
+            if (name && name.trim()) {
+                addPhase(name.trim(), x, y);
+            }
+        }
+        
+        function addPhase(name, x, y) {
+            const phase = {
+                id: `phase-${++phaseCounter}`,
+                name,
+                x: Math.max(20, x),
+                y: Math.max(20, y),
+                color: selectedPhaseColor
+            };
+            
+            phases.push(phase);
+            render();
+            updateStatus(`フェーズ「${name}」を追加しました！`);
+        }
+        
+        function render() {
+            const canvas = document.getElementById('canvas');
+            const emptyState = document.getElementById('empty-state');
+            
+            // 既存要素削除
+            canvas.querySelectorAll('.phase').forEach(el => el.remove());
+            
+            if (phases.length === 0) {
+                emptyState.style.display = 'flex';
+                return;
+            } else {
+                emptyState.style.display = 'none';
+            }
+            
+            phases.forEach(phase => {
+                const phaseEl = createPhaseElement(phase);
+                canvas.appendChild(phaseEl);
+            });
+            
+            updateUI();
+        }
+        
+        function createPhaseElement(phase) {
+            const div = document.createElement('div');
+            div.className = 'phase';
+            div.style.left = `${phase.x}px`;
+            div.style.top = `${phase.y}px`;
+            div.style.borderColor = phase.color;
+            div.draggable = true;
+            
+            const phaseTasks = tasks.filter(t => t.phaseId === phase.id);
+            
+            div.innerHTML = `
+                <div class="phase-header">
+                    <div class="phase-title">
+                        <div class="phase-dot" style="background: ${phase.color}"></div>
+                        <div class="phase-name">${phase.name}</div>
+                    </div>
+                    <div class="phase-actions">
+                        <button class="phase-btn" onclick="editPhase('${phase.id}')" title="編集">✏️</button>
+                        <button class="phase-btn" onclick="deletePhase('${phase.id}')" title="削除">🗑️</button>
+                    </div>
+                </div>
+                <div class="drop-zone" data-phase-id="${phase.id}">
+                    ${phaseTasks.map(task => createTaskHTML(task, phase.color)).join('')}
+                </div>
+                <button class="add-task" onclick="addTask('${phase.id}')">
+                    ➕ タスク追加
+                </button>
+                <div class="stats">
+                    <span>📋 ${phaseTasks.length}件</span>
+                    <span>✨ ${phase.name}</span>
+                </div>
+            `;
+            
+            // フェーズのドラッグイベント
+            div.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('task')) return; // タスクの場合は無視
+                draggedPhase = phase;
+                div.classList.add('dragging');
+                const rect = div.getBoundingClientRect();
+                dragOffset.x = e.clientX - rect.left;
+                dragOffset.y = e.clientY - rect.top;
+            });
+            
+            div.addEventListener('dragend', () => {
+                if (!draggedPhase) return;
+                div.classList.remove('dragging');
+                draggedPhase = null;
+            });
+            
+            // ドロップゾーンイベント
+            const dropZone = div.querySelector('.drop-zone');
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (draggedTask) {
+                    dropZone.classList.add('drag-over');
+                }
+            });
+            
+            dropZone.addEventListener('dragleave', (e) => {
+                e.stopPropagation();
+                dropZone.classList.remove('drag-over');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('drag-over');
+                
+                if (draggedTask && draggedTask.phaseId !== phase.id) {
+                    const oldPhase = phases.find(p => p.id === draggedTask.phaseId);
+                    draggedTask.phaseId = phase.id;
+                    render();
+                    updateStatus(`✨ タスク「${draggedTask.title}」を「${oldPhase.name}」→「${phase.name}」に移動！`);
+                }
+                draggedTask = null;
+            });
+            
+            return div;
+        }
+        
+        function createTaskHTML(task, phaseColor) {
+            return `
+                <div class="task" draggable="true" 
+                     style="border-left: 4px solid ${phaseColor}"
+                     onmousedown="event.stopPropagation()"
+                     ondragstart="handleTaskDragStart(event, '${task.id}')"
+                     ondragend="handleTaskDragEnd(event)">
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-meta">
+                        <span class="task-category">${task.category}</span>
+                        <span class="task-priority priority-${task.priority}">${
+                            {high: '高', medium: '中', low: '低'}[task.priority]
+                        }</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function handleTaskDragStart(event, taskId) {
+            event.stopPropagation();
+            draggedTask = tasks.find(t => t.id === taskId);
+            event.target.classList.add('dragging');
+            
+            // ドラッグ中のタスクを追従させる
+            const rect = event.target.getBoundingClientRect();
+            dragOffset.x = event.clientX - rect.left;
+            dragOffset.y = event.clientY - rect.top;
+        }
+        
+        function handleTaskDragEnd(event) {
+            event.target.classList.remove('dragging');
+            draggedTask = null;
+        }
+        
+        // キャンバスのドロップ処理（フェーズ移動用）
+        document.getElementById('canvas').addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+        
+        document.getElementById('canvas').addEventListener('drop', (e) => {
+            e.preventDefault();
+            
+            if (draggedPhase) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                draggedPhase.x = Math.max(20, e.clientX - rect.left - dragOffset.x);
+                draggedPhase.y = Math.max(20, e.clientY - rect.top - dragOffset.y);
+                render();
+                updateStatus(`フェーズ「${draggedPhase.name}」を移動しました！`);
+                draggedPhase = null;
+            }
+        });
+        
+        function addTask(phaseId) {
+            const title = prompt('新しいタスク名を入力してください:');
+            if (!title || !title.trim()) return;
+            
+            const categories = ['営業', '開発', '管理', 'QA', '企画', 'その他'];
+            const priorities = ['high', 'medium', 'low'];
+            
+            const task = {
+                id: `task-${++taskCounter}`,
+                title: title.trim(),
+                category: categories[Math.floor(Math.random() * categories.length)],
+                priority: priorities[Math.floor(Math.random() * priorities.length)],
+                phaseId
+            };
+            
+            tasks.push(task);
+            render();
+            updateStatus(`タスク「${title}」を追加しました！`);
+        }
+        
+        function editPhase(phaseId) {
+            const phase = phases.find(p => p.id === phaseId);
+            if (!phase) return;
+            
+            const newName = prompt('新しいフェーズ名を入力してください:', phase.name);
+            if (newName && newName.trim()) {
+                phase.name = newName.trim();
+                render();
+                updateStatus(`フェーズ名を「${newName}」に変更しました！`);
+            }
+        }
+        
+        function deletePhase(phaseId) {
+            const phase = phases.find(p => p.id === phaseId);
+            if (!phase) return;
+            
+            if (confirm(`フェーズ「${phase.name}」を削除しますか？`)) {
+                phases = phases.filter(p => p.id !== phaseId);
+                tasks = tasks.filter(t => t.phaseId !== phaseId);
+                render();
+                updateStatus(`フェーズ「${phase.name}」を削除しました`);
+            }
+        }
+        
+        function clearAll() {
+            if (confirm('すべてのフェーズとタスクを削除しますか？')) {
+                phases = [];
+                tasks = [];
+                render();
+                updateStatus('すべてクリアしました');
+            }
+        }
+        
+        function updateUI() {
+            document.getElementById('phase-count').textContent = phases.length;
+            document.getElementById('task-count').textContent = tasks.length;
+        }
+        
+        function toggleColorPalette() {
+            const palette = document.getElementById('color-palette');
+            palette.classList.toggle('show');
+        }
+        
+        function setPhaseColor(color) {
+            selectedPhaseColor = color;
+            updateStatus(`フェーズカラーを変更しました`);
+            toggleColorPalette();
+        }
+        
+        // マウス追従（ドラッグ中のビジュアル改善）
+        document.addEventListener('dragover', (e) => {
+            if (draggedTask) {
+                const dragging = document.querySelector('.task.dragging');
+                if (dragging) {
+                    dragging.style.left = `${e.clientX - dragOffset.x}px`;
+                    dragging.style.top = `${e.clientY - dragOffset.y}px`;
+                }
+            }
+        });
+        
+        render();
+    </script>
+</body>
+</html>

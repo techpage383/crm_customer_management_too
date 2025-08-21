@@ -217,9 +217,7 @@ export class AuthService {
     };
 
     return jwt.sign(payload, this.JWT_SECRET, {
-      expiresIn: this.JWT_EXPIRES_IN,
-      issuer: 'crm-system',
-      audience: 'crm-users'
+      expiresIn: this.JWT_EXPIRES_IN
     });
   }
 
@@ -233,9 +231,7 @@ export class AuthService {
     };
 
     return jwt.sign(payload, this.JWT_SECRET, {
-      expiresIn: this.REFRESH_TOKEN_EXPIRES_IN,
-      issuer: 'crm-system',
-      audience: 'crm-users'
+      expiresIn: this.REFRESH_TOKEN_EXPIRES_IN
     });
   }
 

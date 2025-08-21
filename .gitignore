@@ -36,3 +36,4 @@ Thumbs.db
 /scripts/
 /__tests__/
 EOF < /dev/null
+service-account-key.json

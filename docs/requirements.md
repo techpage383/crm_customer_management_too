@@ -35,13 +35,13 @@ Gmail連携機能とAI支援を活用した、企業向け総合顧客管理シ�
 ### 2.2 ページ構成と画面設計
 
 #### 2.2.1 公開ページ（認証不要）
-- **P-001: ログインページ** (`login.html`)
+- **P-001: ログインページ** (`login.html`) → [モックアップ](../mockups/login.html)
   - メールアドレス・パスワード入力
   - Googleログインボタン
   - 新規登録リンク
 
 #### 2.2.2 メインアプリケーション（要認証）
-- **P-002: 企業管理ページ** (`company-management.html`)
+- **P-002: 企業管理ページ** (`company-management.html`) → [モックアップ](../mockups/company-management.html)
   - 企業一覧・検索・フィルタリング
   - 企業詳細情報の表示・編集
   - 担当者情報管理
@@ -53,32 +53,43 @@ Gmail連携機能とAI支援を活用した、企業向け総合顧客管理シ�
   - 添付ファイル管理
   - メール検索・フィルタリング
 
-- **P-004: システムダッシュボード** (`system-dashboard.html`)
-  - システム全体の稼働状況
-  - パフォーマンス指標
-  - アラート・通知管理
-  - ユーザー管理機能
+- **P-004: システムダッシュボード** (`system-dashboard.html`) → [モックアップ](../mockups/system-dashboard.html)
+  - システムヘルス状態の一目把握（正常・注意・異常の色分け）
+  - リアルタイムパフォーマンス指標（CPU・メモリ・ディスク・ネットワーク）
+  - アラート管理（重要度別表示・個別解決・自動更新）
+  - ユーザー統計とアクティビティ可視化
+  - システムアクション（診断・キャッシュクリア・ログエクスポート・緊急モード）
 
-- **P-005: TODOマネジメント** (`todo-management.html`)
-  - TODO一覧・管理
-  - AI抽出TODO承認機能
-  - 優先度・期限管理
-  - 進捗トラッキング
+- **P-005: TODOマネジメント** (`todo-management.html`) → [モックアップ](../mockups/todo-management.html)
+  - カンバンボード形式のTODO管理（未着手・進行中・完了）
+  - AI抽出TODO承認セクション（承認・却下・一括承認）
+  - ドラッグ&ドロップによるステータス変更
+  - 優先度・期限・企業紐付け管理
+  - フィルタリング機能（優先度別・企業別）
+  - TODO作成・編集モーダル
 
-- **P-006: 商品管理ページ** (`product-management.html`)
-  - 商材マスタ管理
-  - 企業別導入状況
-  - 分析・レポート機能
+- **P-006: 商品管理ページ** (`product-management.html`) → [モックアップ](../mockups/product-management.html)
+  - 商材×企業導入マトリックス（3状態：未提案・検討中・導入済み）
+  - 統計ダッシュボード（総商材数・導入数・売上集計）  
+  - 商材サイドバー（価格・導入統計表示）
+  - 営業効率化機能（CSV出力・一括提案作成）
+  - 商材管理（追加・編集・カテゴリ管理）
 
 - **P-007: データインポート・マッピング** (`data-import-mapping.html`)
   - CSVファイルからの顧客データインポート
   - フィールドマッピング設定
   - インポート結果確認
 
-- **P-008: 企業別契約管理** (`contract-management.html`)
-  - 契約一覧・詳細管理
-  - 更新期限管理
-  - 契約ステータス追跡
+- **P-008: 企業別契約管理** (`contract-management.html`) → [モックアップ](../mockups/contract-management.html)
+  - 企業別契約グループ表示（企業ごとに契約をまとめて表示）
+  - 契約ライフサイクル管理（アクティブ・期限間近・期限切れ・更新待ちの4段階）
+  - 契約期限タイムライン（7日間カレンダービューでの期限可視化）
+  - プログレスバー表示（契約期間の進行状況を視覚的に表示）
+  - 契約詳細情報管理（金額・期間・自動更新・担当者・備考）
+  - ワンクリック契約更新機能（期限切れ・期限間近契約の迅速更新）
+  - 契約検索・フィルタリング（ステータス別・企業別・期間別）
+  - 契約レポート出力（PDF・CSV形式での契約状況報告）
+  - 更新アラート通知（30日前・7日前・当日の自動通知）
 
 - **P-009: 提案管理** (`proposal-management.html`)
   - 提案作成・管理
@@ -179,51 +190,204 @@ Gmail連携機能とAI支援を活用した、企業向け総合顧客管理シ�
   - 手動バックアップ実行
   - データ復元機能
 
-## 3. 非機能要件
+## 3. ページ詳細
 
-### 3.1 パフォーマンス要件
+### 3.1 ログインページ (P-001)
+**モックアップ**: [login.html](/mockups/login.html)
+
+**ページ概要**: システムへのセキュアな認証を提供する入口ページ。Gmail連携を最優先とし、シンプルで効率的な認証フローを実現。
+
+**含まれる要素**:
+- **Googleログインボタン**: Gmail連携のためのメイン認証手段（視覚的に最優先）
+- **メール/パスワード入力**: 代替認証手段（最小限の2フィールド）
+- **パスワードリセットリンク**: セルフサービスでのパスワード復旧
+
+**状態と動作**:
+- **初期ロード**: メールアドレスフィールドに自動フォーカス、デモ情報の表示
+- **Google認証フロー**: OAuth2による外部認証、Gmail権限の自動取得
+- **メール認証フロー**: バリデーション付きフォーム送信、エラーハンドリング
+- **認証成功**: ユーザー情報に基づく適切なページへのリダイレクト
+- **ローディング状態**: 認証処理中のスピナー表示とメッセージ更新
+
+**データとAPI**:
+- **AuthUser**: { id: string, email: string, name: string, authProvider: 'google'|'email', gmailConnected: boolean, role: 'admin'|'manager'|'user' }
+- **AuthRequest**: { email: string, password: string }
+- **AuthResponse**: { user: AuthUser, accessToken: string, refreshToken: string }
+- `POST /api/auth/login` → メール/パスワード認証
+  - リクエスト: { email, password }
+  - 成功: { user, accessToken, refreshToken }
+  - エラー: 401 認証失敗, 429 レート制限
+- `POST /api/auth/google` → Google OAuth認証
+  - リクエスト: { googleToken: string }
+  - 成功: { user, accessToken, refreshToken }
+  - エラー: 400 不正なトークン
+- `POST /api/auth/reset-password` → パスワードリセット
+  - リクエスト: { email: string }
+  - 成功: { message: "リセット手順を送信しました" }
+  - エラー: 404 ユーザーが見つからない
+
+### 3.2 企業管理ページ (P-002)
+**モックアップ**: [company-management.html](/mockups/company-management.html)
+
+**ページ概要**: CRMの中核となる企業情報の一元管理ページ。検索優先設計により情報アクセスを高速化し、視覚的なカード形式で企業状態を即座に把握。
+
+**含まれる要素**:
+- **統計ダッシュボード**: 総企業数、ステータス別内訳をリアルタイム表示
+- **検索バー**: インクリメンタル検索による即座のフィルタリング
+- **ステータスフィルター**: ドロップダウンによる絞り込み
+- **企業カード**: 企業名、担当者、最終連絡日、ステータスを集約表示
+- **アクションボタン**: 編集、メール履歴、TODO、削除を各カードに配置
+
+**状態と動作**:
+- **初期ロード**: 全企業をカード形式で表示、統計情報を計算
+- **リアルタイム検索**: 入力と同時に企業名・担当者名でフィルタリング
+- **ステータス変更**: カード上のステータスボタンクリックで即座に切り替え
+- **モーダル編集**: 企業情報の追加・編集はモーダルダイアログで実行
+- **削除確認**: 削除前に確認ダイアログを表示
+
+**データとAPI**:
+- **Company**: { id: string, name: string, contactName: string, email: string, phone: string, status: 'prospect'|'active'|'inactive', notes: string, lastContact: string, assignedTo: string }
+- **CompanyListRequest**: { search?: string, status?: string, page?: number, limit?: number }
+- **CompanyListResponse**: { companies: Company[], total: number, stats: { total: number, active: number, prospect: number, inactive: number } }
+- `GET /api/companies` → 企業一覧取得
+  - リクエスト: { search?, status?, page?, limit? }
+  - 成功: { companies, total, stats }
+  - エラー: 401 未認証
+- `POST /api/companies` → 企業新規作成
+  - リクエスト: Company (idなし)
+  - 成功: { company: Company }
+  - エラー: 400 検証エラー
+- `PUT /api/companies/:id` → 企業情報更新
+  - リクエスト: Partial<Company>
+  - 成功: { company: Company }
+  - エラー: 404 企業が見つからない
+- `DELETE /api/companies/:id` → 企業削除
+  - 成功: { message: "削除しました" }
+  - エラー: 404 企業が見つからない
+
+### 3.3 TODOマネジメントページ (P-005)
+**モックアップ**: [todo-management.html](/mockups/todo-management.html)
+
+**ページ概要**: AI抽出TODOの承認機能とカンバンボード式のタスク管理を統合。ドラッグ&ドロップによる直感的な操作性と企業紐付けによる顧客管理との連携を実現。
+
+**含まれる要素**:
+- **AI抽出TODOセクション**: Gmail等から抽出された未承認TODOの一覧表示
+- **承認アクション**: 個別承認・却下ボタンと一括承認機能
+- **カンバンボード**: 未着手・進行中・完了の3列構成
+- **フィルター機能**: 優先度別・企業別でのTODO絞り込み
+- **TODO作成フォーム**: モーダル形式での新規TODO追加・編集
+
+**状態と動作**:
+- **初期ロード**: AI抽出TODOの表示、承認待ち件数の更新
+- **承認フロー**: AI提案の承認/却下、自動的にカンバンボードの「未着手」へ移動
+- **ドラッグ&ドロップ**: カード間でのステータス変更、リアルタイム反映
+- **TODO作成**: モーダルでの詳細入力（タイトル・内容・優先度・期限・企業紐付け）
+- **期限管理**: 期限切れ・今日期限・今後期限の視覚的な色分け表示
+
+**データとAPI**:
+- **Todo**: { id: string, title: string, content: string, priority: 'high'|'medium'|'low', deadline: string, status: 'pending'|'in_progress'|'completed', companyId?: string, companyName?: string, source: 'manual'|'ai', extractedFrom?: string, createdAt: string }
+- **AITodo**: Todo & { source: 'ai', extractedFrom: string, approved: boolean }
+- **TodoListRequest**: { priorityFilter?: string, companyFilter?: string, status?: string }
+- **TodoListResponse**: { todos: Todo[], aiTodos: AITodo[], counts: { pending: number, inProgress: number, completed: number } }
+- `GET /api/todos` → TODO一覧取得
+  - リクエスト: { priorityFilter?, companyFilter?, status? }
+  - 成功: { todos, aiTodos, counts }
+  - エラー: 401 未認証
+- `POST /api/todos` → TODO新規作成
+  - リクエスト: Todo (idなし)
+  - 成功: { todo: Todo }
+  - エラー: 400 検証エラー
+- `PUT /api/todos/:id` → TODO更新（ステータス変更含む）
+  - リクエスト: Partial<Todo>
+  - 成功: { todo: Todo }
+  - エラー: 404 TODOが見つからない
+- `PUT /api/todos/:id/approve` → AI抽出TODO承認
+  - 成功: { todo: Todo, message: "承認しました" }
+  - エラー: 404 TODOが見つからない, 400 既に承認済み
+- `DELETE /api/todos/:id` → TODO削除
+  - 成功: { message: "削除しました" }
+  - エラー: 404 TODOが見つからない
+
+#### 3.2.8 企業別契約管理API (P-008)
+- `GET /api/contracts` → 契約一覧取得（企業別グループ化・フィルタリング対応）
+  - クエリ: status, companyId, searchTerm, page, limit
+  - 成功: { contracts: Contract[], totalCount: number, summary: ContractSummary }
+  - エラー: 400 不正なフィルター条件
+- `POST /api/contracts` → 新規契約作成
+  - リクエスト: CreateContractRequest
+  - 成功: { contract: Contract, message: "契約を作成しました" }
+  - エラー: 400 バリデーションエラー, 404 企業が見つからない
+- `GET /api/contracts/:id` → 契約詳細取得
+  - 成功: { contract: Contract }
+  - エラー: 404 契約が見つからない
+- `PUT /api/contracts/:id` → 契約情報更新
+  - リクエスト: Partial<Contract>
+  - 成功: { contract: Contract, message: "契約を更新しました" }
+  - エラー: 404 契約が見つからない, 400 バリデーションエラー
+- `PUT /api/contracts/:id/renew` → 契約更新（期限延長）
+  - リクエスト: { renewalPeriod: number }
+  - 成功: { contract: Contract, message: "契約を更新しました" }
+  - エラー: 404 契約が見つからない, 400 更新不可能なステータス
+- `GET /api/contracts/timeline` → 契約期限タイムライン取得
+  - クエリ: startDate, endDate, view（week/month）
+  - 成功: { timeline: TimelineEvent[] }
+  - エラー: 400 不正な日付範囲
+- `GET /api/contracts/expiring` → 期限切れ・期限間近契約取得
+  - クエリ: days（期限までの日数）
+  - 成功: { contracts: Contract[] }
+- `GET /api/contracts/export` → 契約レポート出力
+  - クエリ: format（pdf/csv）, filters
+  - 成功: ファイルダウンロード
+  - エラー: 400 サポートされていない形式
+- `DELETE /api/contracts/:id` → 契約削除（ソフトデリート）
+  - 成功: { message: "契約を削除しました" }
+  - エラー: 404 契約が見つからない
+
+## 4. 非機能要件
+
+### 4.1 パフォーマンス要件
 - **レスポンス時間**: 一般的な操作で2秒以内
 - **Gmail同期**: 大量メール処理時も安定した動作
 - **同時接続**: 最大50ユーザーの同時利用をサポート
 
-### 3.2 セキュリティ要件
+### 4.2 セキュリティ要件
 - **認証**: OAuth2 + JWT による安全な認証
 - **データ暗号化**: 機密データの暗号化保存
 - **アクセス制御**: ロールベースのアクセス管理
 - **Gmail API**: 必要最小限の権限でのAPI利用
 
-### 3.3 可用性要件
+### 4.3 可用性要件
 - **稼働率**: 99%以上（計画メンテナンス除く）
 - **バックアップ**: 日次自動バックアップ
 - **災害復旧**: データ損失時の復旧手順整備
 
-### 3.4 拡張性要件
+### 4.4 拡張性要件
 - **ユーザー数**: 100ユーザーまでの拡張を想定
 - **データ量**: 大量メールデータの効率的な処理
 - **機能追加**: モジュール単位での機能拡張
 
-## 4. 技術要件
+## 5. 技術要件
 
-### 4.1 開発技術スタック
+### 5.1 開発技術スタック
 - **フロントエンド**: React + TypeScript
 - **バックエンド**: Node.js + Express + TypeScript
 - **データベース**: PostgreSQL または MongoDB
 - **認証**: Passport.js + JWT
 - **Gmail API**: Google APIs Client Library
 
-### 4.2 型定義管理
+### 5.2 型定義管理
 - **統合型定義**: フロントエンド・バックエンド共通の型定義
 - **APIパス管理**: 一元化されたAPIパス定義
 - **同期ルール**: 型定義ファイルの同期維持
 
-### 4.3 開発環境
+### 5.3 開発環境
 - **コード管理**: Git による版本管理
 - **CI/CD**: 自動テスト・デプロイメント
 - **開発ツール**: VSCode + 各種拡張機能
 
-## 5. データモデル要件
+## 6. データモデル要件
 
-### 5.1 主要エンティティ
+### 6.1 主要エンティティ
 - **User**: システムユーザー情報
 - **Customer**: 顧客情報（旧式）
 - **Company**: 企業情報（新CRM）
@@ -234,19 +398,19 @@ Gmail連携機能とAI支援を活用した、企業向け総合顧客管理シ�
 - **Proposal**: 提案情報
 - **Product**: 商材マスタ
 
-### 5.2 関係性
+### 6.2 関係性
 - User → 複数の Customer/Company （担当者関係）
 - Company → 複数の Contact （企業-担当者）
 - Company → 複数の Contract （企業-契約）
 - EmailMessage → Customer/Company （メール-顧客紐付け）
 - Todo → Customer/Company （TODO-顧客紐付け）
 
-## 6. ディレクトリ構造設計
+## 7. ディレクトリ構造設計
 
-### 6.1 機能中心設計思想
+### 7.1 機能中心設計思想
 技術的な層（controllers, services）ではなく、ビジネス機能（auth, companies, todos）でディレクトリを分割し、非技術者にも理解しやすい構造を採用。
 
-### 6.2 バックエンド構造
+### 7.2 バックエンド構造
 ```
 backend/
 ├── src/
@@ -317,7 +481,7 @@ backend/
 │   └── app.ts                     # アプリケーションエントリーポイント
 ```
 
-### 6.3 フロントエンド構造
+### 7.3 フロントエンド構造
 モックデータで完全動作するUIを構築し、後からAPIエンドポイントに差し替える前提の構造：
 
 ```
@@ -410,27 +574,27 @@ frontend/
 │       └── validation.ts          # バリデーション関数
 ```
 
-### 6.4 重要な設計ポイント
+### 7.4 重要な設計ポイント
 
-#### 6.4.1 モック→実API切り替え機能
+#### 7.4.1 モック→実API切り替え機能
 - `services/index.ts`がモック/実APIの切り替えを一元管理
 - 各ページは`services`を使うだけで、モック/実APIを意識しない
 - モック使用時は画面に小さくインジケーター表示
 - バックエンドAPIが完成次第、`services/index.ts`の切り替えロジックだけで順次実APIに移行
 
-#### 6.4.2 型定義同期システム
+#### 7.4.2 型定義同期システム
 - `backend/src/types/index.ts`と`frontend/src/types/index.ts`は完全同期
 - APIパスも型定義ファイルで一元管理
 - コード内でAPIパスをハードコードすることを禁止
 
-#### 6.4.3 機能中心アーキテクチャ
+#### 7.4.3 機能中心アーキテクチャ
 - 技術的な層ではなく、ビジネス機能で分割
 - 各機能ディレクトリは自己完結的な構造
 - 非技術者にも理解しやすい命名規則
 
 ## 6.5 ディレクトリ構造設計
 
-### 6.5.1 バックエンド構造
+### 7.5.1 バックエンド構造
 ```
 backend/
 ├── src/
@@ -502,7 +666,7 @@ backend/
 │   └── app.ts            # アプリケーションエントリーポイント
 ```
 
-### 6.5.2 フロントエンド構造
+### 7.5.2 フロントエンド構造
 
 モックデータで完全動作するUIを構築し、後からAPIエンドポイントに差し替える前提の構造：
 
@@ -621,7 +785,7 @@ frontend/
 │       └── constants.ts   # 定数定義
 ```
 
-### 6.5.3 重要な設計ポイント
+### 7.5.3 重要な設計ポイント
 
 1. **pages/内のファイル名にページIDをコメントで明記**
    - 要件定義書のページIDと対応関係を明確化

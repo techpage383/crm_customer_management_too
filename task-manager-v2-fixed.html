@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 営業タスク管理ツール V2 - 修正版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        /* ヘッダー */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* フロー設計エリア */
+        .flow-designer {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .flow-toolbar {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .flow-toolbar h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .toolbar-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #f7fafc;
+        }
+        
+        /* 修正：フローキャンバス */
+        .flow-canvas {
+            position: relative;
+            min-height: 400px; /* heightをmin-heightに変更 */
+            background: 
+                radial-gradient(circle, #e2e8f0 1px, transparent 1px),
+                linear-gradient(90deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px);
+            background-size: 20px 20px;
+            padding: 20px; /* パディング追加 */
+            /* overflow: hiddenを削除 */
+        }
+        
+        /* 修正：フェーズウィンドウ */
+        .phase-window {
+            position: relative; /* absoluteをrelativeに変更 */
+            display: inline-block; /* インラインブロックで横並び */
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border: 2px solid #667eea;
+            padding: 1rem;
+            margin: 1rem;
+            min-width: 200px;
+            min-height: 250px;
+            cursor: move;
+            user-select: none;
+            transition: all 0.15s ease;
+            vertical-align: top;
+        }
+        
+        .phase-window:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .phase-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .phase-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .phase-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+        
+        .phase-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.9rem;
+        }
+        
+        .phase-actions {
+            display: flex;
+            gap: 0.25rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .phase-window:hover .phase-actions {
+            opacity: 1;
+        }
+        
+        .phase-btn {
+            padding: 0.25rem;
+            border: none;
+            background: none;
+            color: #6b7280;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .phase-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .phase-content {
+            color: #6b7280;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* タスクカード */
+        .task-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 4px solid #667eea;
+        }
+        
+        .task-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+        
+        .task-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        .task-priority {
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .priority-high { background: #fef2f2; color: #dc2626; }
+        .priority-medium { background: #fefbf0; color: #d97706; }
+        .priority-low { background: #f0f9ff; color: #2563eb; }
+        
+        .task-category {
+            display: inline-block;
+            padding: 0.125rem 0.375rem;
+            background: #f3f4f6;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            color: #4b5563;
+        }
+        
+        .phase-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #9ca3af;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 0.5rem;
+        }
+        
+        /* タスク追加ボタン */
+        .add-task-btn {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px dashed #d1d5db;
+            background: transparent;
+            color: #6b7280;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .add-task-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        /* 空のキャンバス - 修正 */
+        .empty-canvas {
+            display: none; /* 最初は非表示 */
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            text-align: center;
+            color: #6b7280;
+        }
+        
+        .empty-canvas.show {
+            display: flex; /* showクラスが付いた時だけ表示 */
+        }
+        
+        .empty-content {
+            max-width: 400px;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .empty-text {
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        
+        /* ステータス表示 */
+        .status-bar {
+            background: #10b981;
+            color: white;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <div class="header">
+            <h1>🚀 営業タスク管理ツール V2</h1>
+            <p>革新的カスタムフロー設計 - 修正版</p>
+        </div>
+        
+        <!-- ステータスバー -->
+        <div class="status-bar" id="status">
+            🎯 「📋 サンプルフローを追加」をクリックしてください
+        </div>
+        
+        <!-- フロー設計エリア -->
+        <div class="flow-designer">
+            <!-- ツールバー -->
+            <div class="flow-toolbar">
+                <div>
+                    <h2 id="flow-title">カスタムフロー設計</h2>
+                    <div style="font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;">
+                        <span id="phase-count">0</span> フェーズ
+                    </div>
+                </div>
+                
+                <div class="toolbar-buttons">
+                    <button class="btn btn-primary" onclick="addSampleFlow()">
+                        📋 サンプルフローを追加
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearAll()">
+                        🗑️ クリア
+                    </button>
+                </div>
+            </div>
+            
+            <!-- キャンバス -->
+            <div class="flow-canvas" id="canvas">
+                <div class="empty-canvas show" id="empty-state">
+                    <div class="empty-content">
+                        <div class="empty-icon">✨</div>
+                        <div class="empty-title">カスタムフローを設計しましょう</div>
+                        <div class="empty-text">
+                            「📋 サンプルフローを追加」をクリックして開始
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // グローバル変数
+        let currentFlow = {
+            id: 'flow-1',
+            name: '営業フロー',
+            phases: [],
+            connections: []
+        };
+        
+        let tasks = [];
+        let phaseCounter = 0;
+        let taskCounter = 0;
+        
+        const colors = [
+            '#667eea', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
+        ];
+        
+        // ステータス更新
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+            console.log(`[STATUS] ${message}`);
+        }
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 初期化開始');
+            updateUI();
+            updateStatus('✅ 初期化完了 - サンプルフローを追加してください');
+        });
+        
+        // サンプルフロー追加
+        function addSampleFlow() {
+            updateStatus('📋 サンプルフロー作成中...');
+            
+            phaseCounter = 0;
+            taskCounter = 0;
+            
+            currentFlow.phases = [
+                { id: 'phase-1', name: '見積作成', color: colors[0], description: '顧客要件に基づく見積もり' },
+                { id: 'phase-2', name: '相手確認', color: colors[1], description: '顧客による内容確認' },
+                { id: 'phase-3', name: '承認待ち', color: colors[2], description: '社内承認プロセス' },
+                { id: 'phase-4', name: '完了', color: colors[3], description: '案件完了' }
+            ];
+            phaseCounter = 4;
+            
+            tasks = [
+                {
+                    id: 'task-1', title: 'A社向け見積書作成', category: 'estimate', priority: 'high',
+                    deadline: '2025-08-05', description: 'システム導入の見積もり', phaseId: 'phase-1',
+                    completed: false, createdAt: new Date().toISOString()
+                },
+                {
+                    id: 'task-2', title: 'B社商談資料準備', category: 'document', priority: 'medium',
+                    deadline: '2025-08-03', description: 'プレゼン資料とデモ環境', phaseId: 'phase-1',
+                    completed: false, createdAt: new Date().toISOString()
+                },
+                {
+                    id: 'task-3', title: 'C社からの返答待ち', category: 'follow_up', priority: 'medium',
+                    deadline: null, description: '先週送付した提案書の件', phaseId: 'phase-2',
+                    completed: false, createdAt: new Date().toISOString()
+                }
+            ];
+            taskCounter = 3;
+            
+            renderPhases();
+            updateUI();
+            updateStatus('✅ サンプル作成完了！タスクをクリックで次のフェーズに移動できます');
+        }
+        
+        // クリア
+        function clearAll() {
+            currentFlow.phases = [];
+            tasks = [];
+            renderPhases();
+            updateUI();
+            updateStatus('🗑️ クリア完了');
+        }
+        
+        // フェーズレンダリング
+        function renderPhases() {
+            console.log('🎨 フェーズレンダリング開始');
+            
+            const canvas = document.getElementById('canvas');
+            const emptyState = document.getElementById('empty-state');
+            
+            // 既存のフェーズウィンドウを削除
+            const existingPhases = canvas.querySelectorAll('.phase-window');
+            existingPhases.forEach(phase => phase.remove());
+            
+            if (currentFlow.phases.length === 0) {
+                emptyState.classList.add('show');
+                console.log('📋 空の状態を表示');
+                return;
+            } else {
+                emptyState.classList.remove('show');
+                console.log('📋 空の状態を非表示');
+            }
+            
+            currentFlow.phases.forEach((phase, index) => {
+                console.log(`🎯 フェーズ作成: ${phase.name} (${index + 1}/${currentFlow.phases.length})`);
+                const phaseElement = createPhaseElement(phase);
+                canvas.appendChild(phaseElement);
+            });
+            
+            console.log('✅ フェーズレンダリング完了');
+        }
+        
+        // フェーズ要素作成
+        function createPhaseElement(phase) {
+            const div = document.createElement('div');
+            div.className = 'phase-window';
+            
+            const phaseTasks = tasks.filter(task => task.phaseId === phase.id);
+            const taskCount = phaseTasks.length;
+            const completedCount = phaseTasks.filter(task => task.completed).length;
+            
+            div.innerHTML = `
+                <div class="phase-header">
+                    <div class="phase-title">
+                        <div class="phase-dot" style="background: ${phase.color}"></div>
+                        <div class="phase-name">${phase.name}</div>
+                    </div>
+                    <div class="phase-actions">
+                        <button class="phase-btn" title="編集">✏️</button>
+                        <button class="phase-btn" title="削除">🗑️</button>
+                    </div>
+                </div>
+                <div class="phase-content">
+                    ${phase.description || 'タスクをここにドロップ'}
+                </div>
+                <div class="task-list">
+                    ${phaseTasks.map(task => createTaskCard(task)).join('')}
+                </div>
+                <button class="add-task-btn" onclick="addTask('${phase.id}')">
+                    ➕ タスク追加
+                </button>
+                <div class="phase-stats">
+                    <span>タスク: ${taskCount}</span>
+                    <span>完了: ${completedCount}</span>
+                </div>
+            `;
+            
+            console.log(`✅ フェーズ要素作成完了: ${phase.name}`);
+            return div;
+        }
+        
+        // タスクカード作成
+        function createTaskCard(task) {
+            const priorityClass = `priority-${task.priority}`;
+            const priorityText = { high: '高', medium: '中', low: '低' }[task.priority];
+            const categoryText = {
+                visit: '訪問', meeting: '商談', document: '資料送付',
+                estimate: '見積作成', admin: '事務作業', follow_up: 'フォローアップ', other: 'その他'
+            }[task.category];
+            
+            const deadlineText = task.deadline ? 
+                new Date(task.deadline).toLocaleDateString('ja-JP', { month: 'MM', day: 'DD' }) : '';
+            
+            return `
+                <div class="task-card" onclick="moveTask('${task.id}')" 
+                     style="opacity: ${task.completed ? '0.6' : '1'}; border-left-color: ${task.completed ? '#10b981' : '#667eea'}">
+                    <div class="task-title"${task.completed ? ' style="text-decoration: line-through"' : ''}>
+                        ${task.completed ? '✅ ' : ''}${task.title}
+                    </div>
+                    <div class="task-meta">
+                        <div>
+                            <span class="task-category">${categoryText}</span>
+                            ${deadlineText ? `<span style="margin-left: 0.5rem;">📅 ${deadlineText}</span>` : ''}
+                        </div>
+                        <span class="task-priority ${priorityClass}">${priorityText}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // タスク移動
+        function moveTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            const currentPhaseIndex = currentFlow.phases.findIndex(p => p.id === task.phaseId);
+            const nextPhaseIndex = (currentPhaseIndex + 1) % currentFlow.phases.length;
+            const nextPhase = currentFlow.phases[nextPhaseIndex];
+            const currentPhase = currentFlow.phases[currentPhaseIndex];
+            
+            task.phaseId = nextPhase.id;
+            renderPhases();
+            updateStatus(`✅ タスク「${task.title}」を「${currentPhase.name}」→「${nextPhase.name}」に移動しました`);
+        }
+        
+        // タスク追加
+        function addTask(phaseId) {
+            const title = prompt('タスク名を入力してください:');
+            if (!title || !title.trim()) return;
+            
+            const task = {
+                id: `task-${++taskCounter}`,
+                title: title.trim(),
+                category: 'other',
+                priority: 'medium',
+                deadline: null,
+                description: '',
+                phaseId: phaseId,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+            
+            tasks.push(task);
+            renderPhases();
+            updateUI();
+            updateStatus(`✅ タスク「${task.title}」を追加しました`);
+        }
+        
+        // UI更新
+        function updateUI() {
+            document.getElementById('flow-title').textContent = currentFlow.name;
+            document.getElementById('phase-count').textContent = currentFlow.phases.length;
+        }
+        
+        console.log('🎯 スクリプト読み込み完了');
+    </script>
+</body>
+</html>

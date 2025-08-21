@@ -3,15 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>データインポート - 顧客管理ツール</title>
+    <title>データインポート・マッピング - 顧客管理ツール</title>
     
-    <!-- Material UI CDN -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://unpkg.com/@mui/material@5.14.20/umd/material-ui.development.js"></script>
-    <script src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <style>
         * {
@@ -21,8 +16,8 @@
         }
         
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8f9fa;
             line-height: 1.6;
         }
         
@@ -30,61 +25,54 @@
             background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
             color: white;
             padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .header h1 {
-            margin: 0;
             font-size: 1.5rem;
             font-weight: 500;
         }
         
-        .breadcrumb {
-            margin-top: 0.5rem;
-            opacity: 0.8;
-            font-size: 0.9rem;
-        }
-        
         .main-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
         }
         
-        .stepper {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .steps {
+        .progress-steps {
             display: flex;
-            justify-content: space-between;
-            position: relative;
+            justify-content: center;
             margin-bottom: 2rem;
-        }
-        
-        .steps::before {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #e0e0e0;
-            z-index: 1;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .step {
             display: flex;
-            flex-direction: column;
             align-items: center;
             position: relative;
-            z-index: 2;
-            background: #f5f5f5;
-            padding: 0 1rem;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            width: 80px;
+            height: 2px;
+            background: #e0e0e0;
+            margin: 0 1rem;
+        }
+        
+        .step.active:not(:last-child)::after {
+            background: #1976d2;
         }
         
         .step-circle {
@@ -97,7 +85,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 500;
-            margin-bottom: 0.5rem;
+            margin-right: 0.5rem;
         }
         
         .step.active .step-circle {
@@ -111,9 +99,8 @@
         }
         
         .step-label {
-            font-size: 0.9rem;
+            font-size: 14px;
             color: #666;
-            text-align: center;
         }
         
         .step.active .step-label {
@@ -121,159 +108,310 @@
             font-weight: 500;
         }
         
-        .upload-section {
+        .content-section {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 12px;
             padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
         }
         
-        .upload-area {
-            border: 2px dashed #ccc;
-            border-radius: 8px;
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        
+        .upload-zone {
+            border: 2px dashed #1976d2;
+            border-radius: 12px;
             padding: 3rem;
             text-align: center;
-            background: #fafafa;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
             cursor: pointer;
-            transition: all 0.3s;
         }
         
-        .upload-area:hover {
-            border-color: #1976d2;
-            background: #f3f8ff;
+        .upload-zone:hover {
+            background: #e3f2fd;
+            border-color: #1565c0;
         }
         
-        .upload-area.has-file {
-            border-color: #4caf50;
-            background: #f1f8e9;
+        .upload-zone.dragover {
+            background: #e3f2fd;
+            border-color: #1565c0;
+            transform: scale(1.02);
         }
         
         .upload-icon {
-            font-size: 3rem;
-            color: #999;
+            font-size: 4rem;
+            color: #1976d2;
             margin-bottom: 1rem;
         }
         
-        .upload-area.has-file .upload-icon {
-            color: #4caf50;
+        .upload-text {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-subtext {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .sample-download {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .sample-link {
+            color: #1976d2;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .sample-link:hover {
+            text-decoration: underline;
+        }
+        
+        .mapping-section {
+            display: none;
+        }
+        
+        .mapping-section.active {
+            display: block;
         }
         
         .file-info {
-            background: #e8f5e8;
+            background: #e8f5e9;
             padding: 1rem;
-            border-radius: 4px;
-            margin-top: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .file-details {
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
             gap: 1rem;
         }
         
-        .mapping-section {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 2rem;
-            margin-bottom: 2rem;
+        .file-name {
+            font-weight: 500;
+            color: #2e7d32;
         }
         
-        .preview-table {
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 2rem;
+        .file-stats {
+            font-size: 14px;
+            color: #4caf50;
         }
         
-        .table-header {
+        .mapping-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mapping-table th,
+        .mapping-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .mapping-table th {
             background: #f8f9fa;
-            padding: 1rem;
             font-weight: 500;
             color: #333;
         }
         
-        .mapping-row {
+        .csv-field {
+            font-weight: 500;
+            color: #1976d2;
+        }
+        
+        .mapping-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .data-type {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .preview-section {
+            display: none;
+        }
+        
+        .preview-section.active {
+            display: block;
+        }
+        
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 14px;
+        }
+        
+        .preview-table th,
+        .preview-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border: 1px solid #eee;
+        }
+        
+        .preview-table th {
+            background: #1976d2;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .preview-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .validation-summary {
             display: grid;
-            grid-template-columns: 1fr 50px 1fr 100px;
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .validation-card {
+            background: #f8f9fa;
             padding: 1rem;
-            border-bottom: 1px solid #e0e0e0;
-            align-items: center;
-        }
-        
-        .excel-column {
-            background: #f0f8ff;
-            padding: 0.75rem;
-            border-radius: 4px;
-            font-family: monospace;
-            color: #333;
-        }
-        
-        .mapping-arrow {
+            border-radius: 8px;
             text-align: center;
+        }
+        
+        .validation-number {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .valid .validation-number { color: #4caf50; }
+        .warning .validation-number { color: #ff9800; }
+        .error .validation-number { color: #f44336; }
+        
+        .validation-label {
+            font-size: 14px;
             color: #666;
         }
         
-        .system-field {
-            position: relative;
+        .error-list {
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: none;
         }
         
-        .field-select {
+        .error-list.show {
+            display: block;
+        }
+        
+        .error-title {
+            font-weight: 500;
+            color: #c62828;
+            margin-bottom: 0.5rem;
+        }
+        
+        .error-item {
+            font-size: 14px;
+            color: #d32f2f;
+            margin-bottom: 0.25rem;
+        }
+        
+        .import-section {
+            display: none;
+        }
+        
+        .import-section.active {
+            display: block;
+        }
+        
+        .progress-bar {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
+            height: 8px;
+            background: #e0e0e0;
             border-radius: 4px;
-            background: white;
+            overflow: hidden;
+            margin: 1rem 0;
         }
         
-        .field-select.mapped {
-            border-color: #4caf50;
-            background: #f1f8e9;
+        .progress-fill {
+            height: 100%;
+            background: #1976d2;
+            transition: width 0.3s ease;
+            width: 0%;
         }
         
-        .field-select.unmapped {
-            border-color: #ff9800;
-            background: #fff8e1;
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
         }
         
-        .mapping-status {
+        .result-section {
+            display: none;
+        }
+        
+        .result-section.active {
+            display: block;
+        }
+        
+        .result-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .result-number {
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .success .result-number { color: #4caf50; }
+        .failed .result-number { color: #f44336; }
+        
+        .result-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .action-buttons {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-        }
-        
-        .status-icon {
-            font-size: 18px;
-        }
-        
-        .status-mapped {
-            color: #4caf50;
-        }
-        
-        .status-unmapped {
-            color: #ff9800;
-        }
-        
-        .status-ignored {
-            color: #999;
+            justify-content: space-between;
+            margin-top: 2rem;
         }
         
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 12px 24px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
         
         .btn-primary {
@@ -286,414 +424,573 @@
         }
         
         .btn-secondary {
-            background: #f5f5f5;
-            color: #666;
+            background: #6c757d;
+            color: white;
         }
         
         .btn-secondary:hover {
-            background: #e0e0e0;
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #45a049;
         }
         
         .btn:disabled {
-            opacity: 0.5;
+            background: #e0e0e0;
+            color: #999;
             cursor: not-allowed;
         }
         
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 2rem;
-        }
-        
-        .mapping-summary {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 2rem;
-        }
-        
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-        
-        .auto-detect {
-            background: #e3f2fd;
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
         @media (max-width: 768px) {
-            .steps {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .progress-steps {
                 flex-direction: column;
+                align-items: center;
                 gap: 1rem;
             }
             
-            .steps::before {
+            .step:not(:last-child)::after {
                 display: none;
             }
             
-            .mapping-row {
+            .validation-summary,
+            .result-summary {
                 grid-template-columns: 1fr;
-                gap: 0.5rem;
             }
             
-            .mapping-arrow {
-                transform: rotate(90deg);
-            }
-            
-            .main-container {
-                padding: 1rem;
+            .action-buttons {
+                flex-direction: column;
+                gap: 1rem;
             }
         }
     </style>
 </head>
 <body>
+    <!-- ヘッダー -->
     <header class="header">
-        <h1>データインポート</h1>
-        <div class="breadcrumb">企業管理 > データインポート > 項目マッピング</div>
+        <div class="header-content">
+            <h1>データインポート・マッピング</h1>
+            <div class="user-info">
+                <span>👤 田中 太郎</span>
+            </div>
+        </div>
     </header>
-
-    <div class="main-container">
-        <div class="stepper">
-            <div class="steps">
-                <div class="step completed">
-                    <div class="step-circle">✓</div>
-                    <div class="step-label">ファイル選択</div>
-                </div>
-                <div class="step active">
-                    <div class="step-circle">2</div>
-                    <div class="step-label">項目マッピング</div>
-                </div>
-                <div class="step">
-                    <div class="step-circle">3</div>
-                    <div class="step-label">プレビュー</div>
-                </div>
-                <div class="step">
-                    <div class="step-circle">4</div>
-                    <div class="step-label">インポート実行</div>
-                </div>
+    
+    <!-- メインコンテンツ -->
+    <main class="main-container">
+        <!-- 進捗ステップ -->
+        <div class="progress-steps">
+            <div class="step active" id="step1">
+                <div class="step-circle">1</div>
+                <div class="step-label">ファイル選択</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-circle">2</div>
+                <div class="step-label">フィールドマッピング</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-circle">3</div>
+                <div class="step-label">データプレビュー</div>
+            </div>
+            <div class="step" id="step4">
+                <div class="step-circle">4</div>
+                <div class="step-label">インポート実行</div>
+            </div>
+            <div class="step" id="step5">
+                <div class="step-circle">5</div>
+                <div class="step-label">結果確認</div>
             </div>
         </div>
-
-        <div class="upload-section">
-            <h2 style="margin-bottom: 1rem; color: #333;">選択されたファイル</h2>
-            <div class="file-info">
-                <div class="file-details">
-                    <span class="material-icons" style="color: #4caf50;">description</span>
-                    <div>
-                        <div style="font-weight: 500;">顧客リスト_2024.xlsx</div>
-                        <div style="font-size: 0.9rem; color: #666;">245 KB • 150行 • 12列</div>
-                    </div>
-                </div>
-                <button class="btn btn-secondary">
-                    <span class="material-icons">change_circle</span>
-                    ファイル変更
-                </button>
+        
+        <!-- Step 1: ファイル選択 -->
+        <div class="content-section" id="uploadSection">
+            <h2 class="section-title">CSVファイルを選択してください</h2>
+            
+            <div class="upload-zone" onclick="document.getElementById('fileInput').click()" 
+                 ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">ファイルをドラッグ&ドロップ または クリックして選択</div>
+                <div class="upload-subtext">CSV形式のファイルのみ対応（最大10MB）</div>
+            </div>
+            
+            <input type="file" id="fileInput" class="file-input" accept=".csv" onchange="handleFileSelect(event)">
+            
+            <div class="sample-download">
+                <a href="#" class="sample-link" onclick="downloadSample()">📄 サンプルCSVをダウンロード</a>
             </div>
         </div>
-
-        <div class="mapping-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2 style="margin: 0; color: #333;">項目マッピング</h2>
-                <button class="btn btn-secondary" id="auto-detect-btn">
-                    <span class="material-icons">auto_fix_high</span>
-                    自動マッピング
-                </button>
-            </div>
-
-            <div class="auto-detect" id="auto-detect-result" style="display: none;">
-                <span class="material-icons" style="color: #1976d2;">smart_toy</span>
+        
+        <!-- Step 2: フィールドマッピング -->
+        <div class="content-section mapping-section" id="mappingSection">
+            <h2 class="section-title">フィールドマッピング設定</h2>
+            
+            <div class="file-info" id="fileInfo">
+                <span>📄</span>
                 <div>
-                    <strong>自動マッピング完了</strong><br>
-                    <span style="font-size: 0.9rem; color: #666;">8項目を自動的にマッピングしました。確認してください。</span>
+                    <div class="file-name" id="fileName">sample.csv</div>
+                    <div class="file-stats" id="fileStats">5行、8列のデータを検出</div>
                 </div>
             </div>
-
-            <div class="mapping-summary">
-                <div class="summary-item">
-                    <span>マッピング済み項目:</span>
-                    <span style="color: #4caf50; font-weight: 500;">8 / 12</span>
+            
+            <table class="mapping-table" id="mappingTable">
+                <thead>
+                    <tr>
+                        <th>CSVフィールド</th>
+                        <th>システムフィールド</th>
+                        <th>データ型</th>
+                        <th>サンプル値</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- マッピング行がここに動的に生成される -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Step 3: データプレビュー -->
+        <div class="content-section preview-section" id="previewSection">
+            <h2 class="section-title">データプレビュー</h2>
+            
+            <div class="validation-summary">
+                <div class="validation-card valid">
+                    <div class="validation-number" id="validCount">0</div>
+                    <div class="validation-label">正常なレコード</div>
                 </div>
-                <div class="summary-item">
-                    <span>無視される項目:</span>
-                    <span style="color: #999;">4</span>
+                <div class="validation-card warning">
+                    <div class="validation-number" id="warningCount">0</div>
+                    <div class="validation-label">警告あり</div>
                 </div>
-                <div class="summary-item">
-                    <span>インポート予定データ数:</span>
-                    <span style="color: #1976d2; font-weight: 500;">150件</span>
-                </div>
-            </div>
-
-            <div class="preview-table">
-                <div class="table-header">
-                    Excelファイル列 ➜ システム項目へのマッピング
-                </div>
-                
-                <div class="mapping-row">
-                    <div class="excel-column">A列: 会社名</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select mapped">
-                            <option value="">マッピング先を選択</option>
-                            <option value="company_name" selected>会社名 (必須)</option>
-                            <option value="contact">連絡先</option>
-                            <option value="address">住所</option>
-                            <option value="industry">業種</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-mapped">check_circle</span>
-                    </div>
-                </div>
-
-                <div class="mapping-row">
-                    <div class="excel-column">B列: 業界</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select mapped">
-                            <option value="">マッピング先を選択</option>
-                            <option value="company_name">会社名 (必須)</option>
-                            <option value="contact">連絡先</option>
-                            <option value="address">住所</option>
-                            <option value="industry" selected>業種</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-mapped">check_circle</span>
-                    </div>
-                </div>
-
-                <div class="mapping-row">
-                    <div class="excel-column">C列: 電話番号</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select mapped">
-                            <option value="">マッピング先を選択</option>
-                            <option value="company_name">会社名 (必須)</option>
-                            <option value="contact" selected>連絡先</option>
-                            <option value="address">住所</option>
-                            <option value="industry">業種</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-mapped">check_circle</span>
-                    </div>
-                </div>
-
-                <div class="mapping-row">
-                    <div class="excel-column">D列: 所在地</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select mapped">
-                            <option value="">マッピング先を選択</option>
-                            <option value="company_name">会社名 (必須)</option>
-                            <option value="contact">連絡先</option>
-                            <option value="address" selected>住所</option>
-                            <option value="industry">業種</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-mapped">check_circle</span>
-                    </div>
-                </div>
-
-                <div class="mapping-row">
-                    <div class="excel-column">E列: 従業員数</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select mapped">
-                            <option value="">マッピング先を選択</option>
-                            <option value="employee_count" selected>従業員数</option>
-                            <option value="custom_field">カスタム項目として追加</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-mapped">check_circle</span>
-                    </div>
-                </div>
-
-                <div class="mapping-row">
-                    <div class="excel-column">F列: 売上規模</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select mapped">
-                            <option value="">マッピング先を選択</option>
-                            <option value="revenue" selected>売上規模 (カスタム項目)</option>
-                            <option value="custom_field">カスタム項目として追加</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-mapped">check_circle</span>
-                    </div>
-                </div>
-
-                <div class="mapping-row">
-                    <div class="excel-column">G列: 担当営業</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select mapped">
-                            <option value="">マッピング先を選択</option>
-                            <option value="assigned_user" selected>担当者</option>
-                            <option value="custom_field">カスタム項目として追加</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-mapped">check_circle</span>
-                    </div>
-                </div>
-
-                <div class="mapping-row">
-                    <div class="excel-column">H列: ステータス</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select mapped">
-                            <option value="">マッピング先を選択</option>
-                            <option value="status" selected>企業ステータス</option>
-                            <option value="custom_field">カスタム項目として追加</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-mapped">check_circle</span>
-                    </div>
-                </div>
-
-                <div class="mapping-row">
-                    <div class="excel-column">I列: 設立年</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select unmapped">
-                            <option value="" selected>マッピング先を選択</option>
-                            <option value="established_year">設立年 (カスタム項目)</option>
-                            <option value="custom_field">カスタム項目として追加</option>
-                            <option value="ignore">この列を無視</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-unmapped">warning</span>
-                    </div>
-                </div>
-
-                <div class="mapping-row">
-                    <div class="excel-column">J列: 備考</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select unmapped">
-                            <option value="" selected>マッピング先を選択</option>
-                            <option value="notes">備考 (カスタム項目)</option>
-                            <option value="custom_field">カスタム項目として追加</option>
-                            <option value="ignore">この列を無視</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-unmapped">warning</span>
-                    </div>
-                </div>
-
-                <div class="mapping-row">
-                    <div class="excel-column">K列: ID (システム用)</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select">
-                            <option value="">マッピング先を選択</option>
-                            <option value="custom_field">カスタム項目として追加</option>
-                            <option value="ignore" selected>この列を無視</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-ignored">block</span>
-                    </div>
-                </div>
-
-                <div class="mapping-row">
-                    <div class="excel-column">L列: 更新日</div>
-                    <div class="mapping-arrow">➜</div>
-                    <div class="system-field">
-                        <select class="field-select">
-                            <option value="">マッピング先を選択</option>
-                            <option value="custom_field">カスタム項目として追加</option>
-                            <option value="ignore" selected>この列を無視</option>
-                        </select>
-                    </div>
-                    <div class="mapping-status">
-                        <span class="material-icons status-icon status-ignored">block</span>
-                    </div>
+                <div class="validation-card error">
+                    <div class="validation-number" id="errorCount">0</div>
+                    <div class="validation-label">エラー</div>
                 </div>
             </div>
-
-            <div class="actions">
-                <button class="btn btn-secondary">
-                    <span class="material-icons">arrow_back</span>
-                    戻る
-                </button>
-                <button class="btn btn-primary">
-                    プレビュー確認
-                    <span class="material-icons">arrow_forward</span>
-                </button>
+            
+            <div class="error-list" id="errorList">
+                <div class="error-title">⚠️ 検出されたエラー</div>
+                <div id="errorItems">
+                    <!-- エラー項目がここに表示される -->
+                </div>
+            </div>
+            
+            <table class="preview-table" id="previewTable">
+                <thead>
+                    <tr>
+                        <!-- ヘッダーがここに動的に生成される -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- プレビューデータがここに動的に生成される -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Step 4: インポート実行 -->
+        <div class="content-section import-section" id="importSection">
+            <h2 class="section-title">インポート実行中</h2>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">インポートを準備しています...</div>
+        </div>
+        
+        <!-- Step 5: 結果確認 -->
+        <div class="content-section result-section" id="resultSection">
+            <h2 class="section-title">インポート結果</h2>
+            
+            <div class="result-summary">
+                <div class="result-card success">
+                    <div class="result-number" id="successCount">0</div>
+                    <div class="result-label">成功</div>
+                </div>
+                <div class="result-card failed">
+                    <div class="result-number" id="failedCount">0</div>
+                    <div class="result-label">失敗</div>
+                </div>
+            </div>
+            
+            <div id="importLog">
+                <!-- インポートログがここに表示される -->
             </div>
         </div>
-    </div>
+        
+        <!-- アクションボタン -->
+        <div class="action-buttons">
+            <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()" disabled>← 前へ</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextStep()" disabled>次へ →</button>
+        </div>
+    </main>
 
     <script>
+        // グローバル変数
+        let currentStep = 1;
+        let selectedFile = null;
+        let csvData = [];
+        let mappingConfig = {};
+        let validationResults = {};
+
+        // サンプルデータ
+        const sampleMappings = [
+            { csvField: '会社名', systemField: 'company_name', dataType: 'text', sample: '株式会社ABC商事' },
+            { csvField: '担当者名', systemField: 'contact_name', dataType: 'text', sample: '山田太郎' },
+            { csvField: 'メールアドレス', systemField: 'email', dataType: 'email', sample: 'yamada@abc.com' },
+            { csvField: '電話番号', systemField: 'phone', dataType: 'phone', sample: '03-1234-5678' },
+            { csvField: '住所', systemField: 'address', dataType: 'text', sample: '東京都渋谷区...' }
+        ];
+
+        const systemFields = [
+            { value: '', label: '選択してください' },
+            { value: 'company_name', label: '企業名' },
+            { value: 'contact_name', label: '担当者名' },
+            { value: 'email', label: 'メールアドレス' },
+            { value: 'phone', label: '電話番号' },
+            { value: 'address', label: '住所' },
+            { value: 'industry', label: '業界' },
+            { value: 'skip', label: 'スキップ（インポートしない）' }
+        ];
+
+        // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            // 自動マッピング機能
-            document.getElementById('auto-detect-btn').addEventListener('click', function() {
-                const resultDiv = document.getElementById('auto-detect-result');
-                resultDiv.style.display = 'flex';
-                
-                // 未マッピングの項目を自動マッピング
-                const unmappedSelects = document.querySelectorAll('.field-select.unmapped');
-                unmappedSelects.forEach(select => {
-                    if (select.querySelector('option[value="established_year"]')) {
-                        select.value = 'established_year';
-                        select.className = 'field-select mapped';
-                        const statusIcon = select.closest('.mapping-row').querySelector('.status-icon');
-                        statusIcon.textContent = 'check_circle';
-                        statusIcon.className = 'material-icons status-icon status-mapped';
-                    } else if (select.querySelector('option[value="notes"]')) {
-                        select.value = 'notes';
-                        select.className = 'field-select mapped';
-                        const statusIcon = select.closest('.mapping-row').querySelector('.status-icon');
-                        statusIcon.textContent = 'check_circle';
-                        statusIcon.className = 'material-icons status-icon status-mapped';
-                    }
-                });
-                
-                // サマリーを更新
-                document.querySelector('.summary-item:first-child span:last-child').innerHTML = 
-                    '<span style="color: #4caf50; font-weight: 500;">10 / 12</span>';
-                document.querySelector('.summary-item:nth-child(2) span:last-child').textContent = '2';
+            updateStepDisplay();
+        });
+
+        // ファイル処理
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.target.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.target.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.target.classList.remove('dragover');
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function processFile(file) {
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                alert('CSVファイルを選択してください');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                alert('ファイルサイズが10MBを超えています');
+                return;
+            }
+            
+            selectedFile = file;
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileStats').textContent = `ファイルサイズ: ${(file.size/1024).toFixed(1)}KB`;
+            
+            // CSVを読み込み（実際の実装では FileReader を使用）
+            setTimeout(() => {
+                csvData = sampleMappings;
+                renderMappingTable();
+                document.getElementById('nextBtn').disabled = false;
+                showMessage('ファイルを読み込みました');
+            }, 1000);
+        }
+
+        // マッピングテーブル表示
+        function renderMappingTable() {
+            const tbody = document.querySelector('#mappingTable tbody');
+            tbody.innerHTML = csvData.map((item, index) => `
+                <tr>
+                    <td class="csv-field">${item.csvField}</td>
+                    <td>
+                        <select class="mapping-select" onchange="updateMapping(${index}, this.value)">
+                            ${systemFields.map(field => 
+                                `<option value="${field.value}" ${field.value === item.systemField ? 'selected' : ''}>${field.label}</option>`
+                            ).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <span>${item.dataType}</span>
+                        <div class="data-type">自動検出</div>
+                    </td>
+                    <td>${item.sample}</td>
+                </tr>
+            `).join('');
+        }
+
+        // マッピング更新
+        function updateMapping(index, value) {
+            csvData[index].systemField = value;
+            validateMappings();
+        }
+
+        // バリデーション
+        function validateMappings() {
+            const requiredFields = ['company_name', 'email'];
+            const mappedFields = csvData.map(item => item.systemField).filter(field => field && field !== 'skip');
+            
+            validationResults = {
+                valid: 0,
+                warnings: 0,
+                errors: 0,
+                errorMessages: []
+            };
+            
+            // 必須フィールドチェック
+            requiredFields.forEach(field => {
+                if (!mappedFields.includes(field)) {
+                    validationResults.errors++;
+                    validationResults.errorMessages.push(`必須フィールド「${getFieldLabel(field)}」がマッピングされていません`);
+                }
             });
             
-            // マッピング状態の変更
-            document.querySelectorAll('.field-select').forEach(select => {
-                select.addEventListener('change', function() {
-                    const row = this.closest('.mapping-row');
-                    const statusIcon = row.querySelector('.status-icon');
-                    
-                    if (this.value === '' || this.value === 'ignore') {
-                        this.className = 'field-select';
-                        if (this.value === 'ignore') {
-                            statusIcon.textContent = 'block';
-                            statusIcon.className = 'material-icons status-icon status-ignored';
-                        } else {
-                            statusIcon.textContent = 'warning';
-                            statusIcon.className = 'material-icons status-icon status-unmapped';
-                        }
-                    } else {
-                        this.className = 'field-select mapped';
-                        statusIcon.textContent = 'check_circle';
-                        statusIcon.className = 'material-icons status-icon status-mapped';
+            // 重複チェック
+            const duplicates = mappedFields.filter((field, index) => 
+                field !== 'skip' && mappedFields.indexOf(field) !== index
+            );
+            if (duplicates.length > 0) {
+                validationResults.errors++;
+                validationResults.errorMessages.push('重複するフィールドマッピングがあります');
+            }
+            
+            // サンプルデータでの仮想的な検証
+            validationResults.valid = 5 - validationResults.errors;
+            validationResults.warnings = 1; // 例：電話番号の形式警告
+            
+            updateValidationDisplay();
+        }
+
+        function getFieldLabel(value) {
+            const field = systemFields.find(f => f.value === value);
+            return field ? field.label : value;
+        }
+
+        // バリデーション表示更新
+        function updateValidationDisplay() {
+            document.getElementById('validCount').textContent = validationResults.valid;
+            document.getElementById('warningCount').textContent = validationResults.warnings;
+            document.getElementById('errorCount').textContent = validationResults.errors;
+            
+            const errorList = document.getElementById('errorList');
+            const errorItems = document.getElementById('errorItems');
+            
+            if (validationResults.errorMessages.length > 0) {
+                errorList.classList.add('show');
+                errorItems.innerHTML = validationResults.errorMessages.map(msg => 
+                    `<div class="error-item">• ${msg}</div>`
+                ).join('');
+            } else {
+                errorList.classList.remove('show');
+            }
+        }
+
+        // プレビューテーブル表示
+        function renderPreviewTable() {
+            const table = document.getElementById('previewTable');
+            const mappedFields = csvData.filter(item => item.systemField && item.systemField !== 'skip');
+            
+            // ヘッダー
+            const thead = table.querySelector('thead tr');
+            thead.innerHTML = mappedFields.map(item => `<th>${getFieldLabel(item.systemField)}</th>`).join('');
+            
+            // サンプルデータ行
+            const tbody = table.querySelector('tbody');
+            const sampleRows = [
+                ['株式会社ABC商事', '山田太郎', 'yamada@abc.com', '03-1234-5678', '東京都渋谷区...'],
+                ['XYZ株式会社', '佐藤花子', 'sato@xyz.com', '03-2345-6789', '大阪府大阪市...'],
+                ['DEF技研', '鈴木一郎', 'suzuki@def.com', '03-3456-7890', '神奈川県横浜市...']
+            ];
+            
+            tbody.innerHTML = sampleRows.map(row => 
+                `<tr>${row.slice(0, mappedFields.length).map(cell => `<td>${cell}</td>`).join('')}</tr>`
+            ).join('');
+        }
+
+        // インポート実行
+        function executeImport() {
+            let progress = 0;
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        showResults();
+                        nextStep();
+                    }, 500);
+                }
+                
+                progressFill.style.width = progress + '%';
+                progressText.textContent = progress < 100 
+                    ? `インポート中... ${Math.floor(progress)}%`
+                    : 'インポート完了！';
+            }, 200);
+        }
+
+        // 結果表示
+        function showResults() {
+            document.getElementById('successCount').textContent = validationResults.valid;
+            document.getElementById('failedCount').textContent = validationResults.errors;
+            
+            const importLog = document.getElementById('importLog');
+            importLog.innerHTML = `
+                <div style="background: #e8f5e9; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <strong>✅ インポート完了</strong><br>
+                    ${validationResults.valid}件のレコードが正常にインポートされました。<br>
+                    ${validationResults.errors > 0 ? `${validationResults.errors}件のエラーがありました。` : ''}
+                </div>
+            `;
+        }
+
+        // ステップ制御
+        function nextStep() {
+            if (currentStep < 5) {
+                if (currentStep === 2) {
+                    validateMappings();
+                    if (validationResults.errors > 0) {
+                        alert('エラーを修正してから次に進んでください');
+                        return;
                     }
-                });
+                }
+                
+                if (currentStep === 3) {
+                    renderPreviewTable();
+                }
+                
+                if (currentStep === 4) {
+                    executeImport();
+                }
+                
+                currentStep++;
+                updateStepDisplay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+
+        // ステップ表示更新
+        function updateStepDisplay() {
+            // ステップインジケーター更新
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.classList.remove('active', 'completed');
+                
+                if (i === currentStep) {
+                    step.classList.add('active');
+                } else if (i < currentStep) {
+                    step.classList.add('completed');
+                }
+            }
+            
+            // セクション表示切り替え
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
             });
-        });
+            
+            const sectionMap = {
+                1: 'uploadSection',
+                2: 'mappingSection',
+                3: 'previewSection',
+                4: 'importSection',
+                5: 'resultSection'
+            };
+            
+            const activeSection = document.getElementById(sectionMap[currentStep]);
+            if (activeSection) {
+                activeSection.style.display = 'block';
+                if (activeSection.classList.contains('mapping-section')) {
+                    activeSection.classList.add('active');
+                }
+                if (activeSection.classList.contains('preview-section')) {
+                    activeSection.classList.add('active');
+                }
+                if (activeSection.classList.contains('import-section')) {
+                    activeSection.classList.add('active');
+                }
+                if (activeSection.classList.contains('result-section')) {
+                    activeSection.classList.add('active');
+                }
+            }
+            
+            // ボタン状態更新
+            document.getElementById('prevBtn').disabled = currentStep === 1;
+            document.getElementById('nextBtn').disabled = 
+                (currentStep === 1 && !selectedFile) || 
+                (currentStep === 4) ||
+                (currentStep === 5);
+            
+            if (currentStep === 5) {
+                document.getElementById('nextBtn').textContent = '新しいインポート';
+                document.getElementById('nextBtn').disabled = false;
+                document.getElementById('nextBtn').onclick = () => location.reload();
+            }
+        }
+
+        // サンプルダウンロード
+        function downloadSample() {
+            const csvContent = '会社名,担当者名,メールアドレス,電話番号,住所\n' +
+                             '株式会社ABC商事,山田太郎,yamada@abc.com,03-1234-5678,東京都渋谷区\n' +
+                             'XYZ株式会社,佐藤花子,sato@xyz.com,03-2345-6789,大阪府大阪市';
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'sample.csv';
+            link.click();
+        }
+
+        // メッセージ表示
+        function showMessage(text) {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4caf50;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                z-index: 1001;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            `;
+            message.textContent = text;
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        }
     </script>
 </body>
 </html>

@@ -5,13 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>企業管理 - 顧客管理ツール</title>
     
-    <!-- Material UI CDN -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://unpkg.com/@mui/material@5.14.20/umd/material-ui.development.js"></script>
-    <script src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <style>
         * {
@@ -21,8 +16,8 @@
         }
         
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8f9fa;
             line-height: 1.6;
         }
         
@@ -30,13 +25,26 @@
             background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
             color: white;
             padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .header h1 {
-            margin: 0;
             font-size: 1.5rem;
             font-weight: 500;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
         
         .main-container {
@@ -45,12 +53,15 @@
             padding: 2rem;
         }
         
-        .search-bar {
+        .search-section {
             background: white;
             padding: 1.5rem;
-            border-radius: 8px;
+            border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
+        }
+        
+        .search-bar {
             display: flex;
             gap: 1rem;
             align-items: center;
@@ -60,30 +71,229 @@
         .search-input {
             flex: 1;
             min-width: 300px;
-            padding: 0.75rem;
+            padding: 12px 16px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
         }
         
-        .filter-select {
-            padding: 0.75rem;
+        .search-input:focus {
+            outline: none;
+            border-color: #1976d2;
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+        }
+        
+        .filter-dropdown {
+            padding: 12px 16px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
             background: white;
-            min-width: 150px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .add-company-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        
+        .add-company-btn:hover {
+            background: #1565c0;
+        }
+        
+        .companies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .company-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .company-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        
+        .company-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .company-name {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #1976d2;
+            margin: 0;
+        }
+        
+        .company-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .status-prospect { background: #fff3cd; color: #856404; }
+        .status-active { background: #d4edda; color: #155724; }
+        .status-inactive { background: #f8d7da; color: #721c24; }
+        
+        .company-info {
+            margin-bottom: 1rem;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 14px;
+        }
+        
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .company-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn:hover {
+            background: #f5f5f5;
+        }
+        
+        .action-btn.primary {
+            background: #1976d2;
+            color: white;
+            border-color: #1976d2;
+        }
+        
+        .action-btn.primary:hover {
+            background: #1565c0;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 500;
+            color: #1976d2;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
         }
         
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 10px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s;
+            font-size: 14px;
+            transition: all 0.2s ease;
         }
         
         .btn-primary {
@@ -91,473 +301,415 @@
             color: white;
         }
         
-        .btn-primary:hover {
-            background: #1565c0;
-        }
-        
-        .btn-success {
-            background: #4caf50;
+        .btn-secondary {
+            background: #6c757d;
             color: white;
         }
         
-        .btn-success:hover {
-            background: #45a049;
-        }
-        
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 2rem;
-            align-items: start;
-        }
-        
-        .company-list {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .list-header {
-            background: #f8f9fa;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .list-header h2 {
-            margin: 0;
-            font-size: 1.25rem;
-            color: #333;
-        }
-        
-        .company-item {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e0e0e0;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .company-item:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .company-item.active {
-            background-color: #e3f2fd;
-            border-left: 4px solid #1976d2;
-        }
-        
-        .company-name {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-        
-        .company-info {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 0.5rem;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .company-tags {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .tag {
-            background: #e1f5fe;
-            color: #0277bd;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-        }
-        
-        .tag.status-prospect { background: #fff3e0; color: #ef6c00; }
-        .tag.status-customer { background: #e8f5e8; color: #2e7d32; }
-        .tag.status-dormant { background: #fce4ec; color: #c2185b; }
-        
-        .details-panel {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-            height: fit-content;
-            position: sticky;
-            top: 2rem;
-        }
-        
-        .details-header {
-            background: #1976d2;
-            color: white;
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .details-content {
-            padding: 1.5rem;
-        }
-        
-        .field-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .field-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .field-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        
-        .field-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        
-        .custom-fields {
-            border-top: 1px solid #e0e0e0;
-            padding-top: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        
-        .custom-field-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .btn-add-field {
-            background: #f5f5f5;
-            color: #666;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-        }
-        
-        .btn-add-field:hover {
-            background: #e0e0e0;
-        }
-        
-        .assigned-users {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-top: 0.5rem;
-        }
-        
-        .user-chip {
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 0.25rem 0.75rem;
-            border-radius: 16px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .actions {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            gap: 1rem;
-        }
-        
-        @media (max-width: 1200px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .details-panel {
-                position: static;
-            }
+        .btn:hover {
+            opacity: 0.9;
         }
         
         @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .companies-grid {
+                grid-template-columns: 1fr;
+            }
+            
             .search-bar {
                 flex-direction: column;
                 align-items: stretch;
             }
             
-            .search-input, .filter-select {
-                min-width: unset;
+            .search-input {
+                min-width: auto;
             }
             
-            .field-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .main-container {
-                padding: 1rem;
+            .stats-bar {
+                flex-wrap: wrap;
+                gap: 1rem;
             }
         }
     </style>
 </head>
 <body>
+    <!-- ヘッダー -->
     <header class="header">
-        <h1>企業管理</h1>
-    </header>
-
-    <div class="main-container">
-        <div class="search-bar">
-            <input type="text" class="search-input" placeholder="企業名で検索..." value="サンプル">
-            <select class="filter-select">
-                <option value="">ステータス</option>
-                <option value="prospect">見込み客</option>
-                <option value="customer">既存顧客</option>
-                <option value="dormant">休眠</option>
-            </select>
-            <select class="filter-select">
-                <option value="">担当者</option>
-                <option value="tanaka">田中</option>
-                <option value="sato">佐藤</option>
-                <option value="suzuki">鈴木</option>
-            </select>
-            <button class="btn btn-primary">
-                <span class="material-icons">search</span>
-                検索
-            </button>
-            <button class="btn btn-success">
-                <span class="material-icons">add</span>
-                新規企業登録
-            </button>
+        <div class="header-content">
+            <h1>企業管理</h1>
+            <div class="user-info">
+                <span>👤 田中 太郎</span>
+                <span>|</span>
+                <a href="#" onclick="logout()" style="color: white; text-decoration: none;">ログアウト</a>
+            </div>
         </div>
-
-        <div class="content-grid">
-            <div class="company-list">
-                <div class="list-header">
-                    <h2>企業一覧 (3件)</h2>
-                </div>
-                
-                <div class="company-item active">
-                    <div class="company-name">サンプル株式会社</div>
-                    <div class="company-info">
-                        <span>IT・ソフトウェア</span>
-                        <span>従業員100名</span>
-                        <span>担当: 田中</span>
-                    </div>
-                    <div class="company-tags">
-                        <span class="tag status-customer">既存顧客</span>
-                        <span class="tag">重要</span>
-                    </div>
-                </div>
-                
-                <div class="company-item">
-                    <div class="company-name">テスト商事株式会社</div>
-                    <div class="company-info">
-                        <span>商社・貿易</span>
-                        <span>従業員50名</span>
-                        <span>担当: 佐藤</span>
-                    </div>
-                    <div class="company-tags">
-                        <span class="tag status-prospect">見込み客</span>
-                    </div>
-                </div>
-                
-                <div class="company-item">
-                    <div class="company-name">デモ工業株式会社</div>
-                    <div class="company-info">
-                        <span>製造業</span>
-                        <span>従業員200名</span>
-                        <span>担当: 鈴木, 田中</span>
-                    </div>
-                    <div class="company-tags">
-                        <span class="tag status-dormant">休眠</span>
-                        <span class="tag">要フォロー</span>
-                    </div>
-                </div>
+    </header>
+    
+    <!-- メインコンテンツ -->
+    <main class="main-container">
+        <!-- 統計情報 -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" id="totalCompanies">15</div>
+                <div class="stat-label">総企業数</div>
             </div>
-
-            <div class="details-panel">
-                <div class="details-header">
-                    <h3>サンプル株式会社</h3>
-                    <button class="btn" style="background: rgba(255,255,255,0.2); color: white;">
-                        <span class="material-icons">edit</span>
-                    </button>
-                </div>
-                
-                <div class="details-content">
-                    <div class="field-group">
-                        <label class="field-label">会社名 *</label>
-                        <input type="text" class="field-input" value="サンプル株式会社">
-                    </div>
-                    
-                    <div class="field-row">
-                        <div class="field-group">
-                            <label class="field-label">業種</label>
-                            <input type="text" class="field-input" value="IT・ソフトウェア">
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">従業員数</label>
-                            <input type="number" class="field-input" value="100">
-                        </div>
-                    </div>
-                    
-                    <div class="field-group">
-                        <label class="field-label">連絡先</label>
-                        <input type="text" class="field-input" value="03-1234-5678">
-                    </div>
-                    
-                    <div class="field-group">
-                        <label class="field-label">住所</label>
-                        <input type="text" class="field-input" value="東京都渋谷区1-2-3">
-                    </div>
-                    
-                    <div class="field-group">
-                        <label class="field-label">ステータス</label>
-                        <select class="field-input">
-                            <option value="prospect">見込み客</option>
-                            <option value="customer" selected>既存顧客</option>
-                            <option value="dormant">休眠</option>
-                        </select>
-                    </div>
-                    
-                    <div class="field-group">
-                        <label class="field-label">担当者</label>
-                        <div class="assigned-users">
-                            <span class="user-chip">
-                                田中
-                                <span class="material-icons" style="font-size: 16px; cursor: pointer;">close</span>
-                            </span>
-                        </div>
-                        <select class="field-input" style="margin-top: 0.5rem;">
-                            <option value="">担当者を追加</option>
-                            <option value="sato">佐藤</option>
-                            <option value="suzuki">鈴木</option>
-                        </select>
-                    </div>
-                    
-                    <div class="custom-fields">
-                        <div class="custom-field-header">
-                            <h4 style="margin: 0; color: #333;">カスタム項目</h4>
-                            <button class="btn btn-add-field">
-                                <span class="material-icons">add</span>
-                                項目追加
-                            </button>
-                        </div>
-                        
-                        <div class="field-group">
-                            <label class="field-label">資本金</label>
-                            <input type="text" class="field-input" value="1億円">
-                        </div>
-                        
-                        <div class="field-group">
-                            <label class="field-label">設立年</label>
-                            <input type="text" class="field-input" value="2010年">
-                        </div>
-                        
-                        <div class="field-group">
-                            <label class="field-label">主要取引先</label>
-                            <input type="text" class="field-input" value="大手商社A, メーカーB">
-                        </div>
-                    </div>
-                    
-                    <div class="actions">
-                        <button class="btn btn-primary">
-                            <span class="material-icons">save</span>
-                            保存
-                        </button>
-                        <button class="btn" style="background: #f5f5f5; color: #666;">
-                            キャンセル
-                        </button>
-                    </div>
-                </div>
+            <div class="stat-item">
+                <div class="stat-number" id="activeCompanies">8</div>
+                <div class="stat-label">アクティブ</div>
             </div>
+            <div class="stat-item">
+                <div class="stat-number" id="prospectCompanies">5</div>
+                <div class="stat-label">見込み客</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="inactiveCompanies">2</div>
+                <div class="stat-label">非アクティブ</div>
+            </div>
+        </div>
+        
+        <!-- 検索・フィルター -->
+        <div class="search-section">
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    placeholder="企業名、担当者名で検索..."
+                    id="searchInput"
+                    oninput="filterCompanies()"
+                >
+                <select class="filter-dropdown" id="statusFilter" onchange="filterCompanies()">
+                    <option value="">全てのステータス</option>
+                    <option value="active">アクティブ</option>
+                    <option value="prospect">見込み客</option>
+                    <option value="inactive">非アクティブ</option>
+                </select>
+                <button class="add-company-btn" onclick="openAddModal()">
+                    ＋ 企業追加
+                </button>
+            </div>
+        </div>
+        
+        <!-- 企業一覧 -->
+        <div class="companies-grid" id="companiesGrid">
+            <!-- 企業カードがここに動的に生成される -->
+        </div>
+    </main>
+    
+    <!-- 企業追加/編集モーダル -->
+    <div class="modal" id="companyModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">企業追加</h2>
+            <form onsubmit="saveCompany(event)">
+                <div class="form-group">
+                    <label class="form-label">企業名 *</label>
+                    <input type="text" class="form-input" id="companyName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">担当者名</label>
+                    <input type="text" class="form-input" id="contactName">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">メールアドレス</label>
+                    <input type="email" class="form-input" id="contactEmail">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">電話番号</label>
+                    <input type="tel" class="form-input" id="contactPhone">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ステータス</label>
+                    <select class="form-input" id="companyStatus">
+                        <option value="prospect">見込み客</option>
+                        <option value="active">アクティブ</option>
+                        <option value="inactive">非アクティブ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">メモ</label>
+                    <textarea class="form-input" id="companyNotes" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
-        // 基本的なインタラクション
+        // モックデータ
+        let companies = [
+            {
+                id: 1,
+                name: "株式会社ABC商事",
+                contactName: "山田 太郎",
+                email: "yamada@abc-corp.com",
+                phone: "03-1234-5678",
+                status: "active",
+                notes: "主力取引先。月次定例会議実施中。",
+                lastContact: "2024-07-25",
+                assignedTo: "田中 太郎"
+            },
+            {
+                id: 2,
+                name: "XYZ株式会社",
+                contactName: "佐藤 花子",
+                email: "sato@xyz-inc.com",
+                phone: "03-2345-6789",
+                status: "prospect",
+                notes: "新規開拓案件。来月プレゼン予定。",
+                lastContact: "2024-07-20",
+                assignedTo: "田中 太郎"
+            },
+            {
+                id: 3,
+                name: "DEF技研",
+                contactName: "鈴木 一郎",
+                email: "suzuki@def-tech.co.jp",
+                phone: "03-3456-7890",
+                status: "active",
+                notes: "技術案件が中心。定期的なサポート契約有り。",
+                lastContact: "2024-07-28",
+                assignedTo: "田中 太郎"
+            },
+            {
+                id: 4,
+                name: "GHI製作所",
+                contactName: "田中 次郎",
+                email: "tanaka@ghi-mfg.com",
+                phone: "03-4567-8901",
+                status: "inactive",
+                notes: "過去取引あり。現在は休眠状態。",
+                lastContact: "2024-06-15",
+                assignedTo: "田中 太郎"
+            },
+            {
+                id: 5,
+                name: "JKL商店",
+                contactName: "高橋 美子",
+                email: "takahashi@jkl-shop.jp",
+                phone: "03-5678-9012",
+                status: "prospect",
+                notes: "小規模案件。価格重視の傾向。",
+                lastContact: "2024-07-22",
+                assignedTo: "田中 太郎"
+            }
+        ];
+
+        let editingCompanyId = null;
+
+        // ページ初期化
         document.addEventListener('DOMContentLoaded', function() {
-            // 企業アイテムのクリック処理
-            const companyItems = document.querySelectorAll('.company-item');
-            companyItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    companyItems.forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // 選択された企業の詳細を表示（実際のアプリでは詳細データを取得）
-                    const companyName = this.querySelector('.company-name').textContent;
-                    document.querySelector('.details-header h3').textContent = companyName;
-                });
+            renderCompanies();
+            updateStats();
+        });
+
+        // 企業カード生成
+        function createCompanyCard(company) {
+            const statusClass = `status-${company.status}`;
+            const statusText = {
+                'active': 'アクティブ',
+                'prospect': '見込み客',
+                'inactive': '非アクティブ'
+            }[company.status];
+
+            return `
+                <div class="company-card" onclick="editCompany(${company.id})">
+                    <div class="company-header">
+                        <h3 class="company-name">${company.name}</h3>
+                        <span class="company-status ${statusClass}" onclick="event.stopPropagation(); changeStatus(${company.id})">${statusText}</span>
+                    </div>
+                    <div class="company-info">
+                        <div class="info-row">
+                            <span class="info-label">担当者:</span>
+                            <span class="info-value">${company.contactName || '未設定'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">メール:</span>
+                            <span class="info-value">${company.email || '未設定'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">最終連絡:</span>
+                            <span class="info-value">${company.lastContact}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">担当:</span>
+                            <span class="info-value">${company.assignedTo}</span>
+                        </div>
+                    </div>
+                    <div class="company-actions" onclick="event.stopPropagation()">
+                        <button class="action-btn primary" onclick="editCompany(${company.id})">編集</button>
+                        <button class="action-btn" onclick="viewGmailLog(${company.id})">📧 メール</button>
+                        <button class="action-btn" onclick="viewTodos(${company.id})">📋 TODO</button>
+                        <button class="action-btn" onclick="deleteCompany(${company.id})" style="color: #dc3545;">削除</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 企業一覧表示
+        function renderCompanies() {
+            const grid = document.getElementById('companiesGrid');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filteredCompanies = companies.filter(company => {
+                const matchesSearch = company.name.toLowerCase().includes(searchTerm) ||
+                                    (company.contactName && company.contactName.toLowerCase().includes(searchTerm));
+                const matchesStatus = !statusFilter || company.status === statusFilter;
+                return matchesSearch && matchesStatus;
             });
+
+            grid.innerHTML = filteredCompanies.map(createCompanyCard).join('');
+        }
+
+        // 統計情報更新
+        function updateStats() {
+            const total = companies.length;
+            const active = companies.filter(c => c.status === 'active').length;
+            const prospect = companies.filter(c => c.status === 'prospect').length;
+            const inactive = companies.filter(c => c.status === 'inactive').length;
+
+            document.getElementById('totalCompanies').textContent = total;
+            document.getElementById('activeCompanies').textContent = active;
+            document.getElementById('prospectCompanies').textContent = prospect;
+            document.getElementById('inactiveCompanies').textContent = inactive;
+        }
+
+        // 検索・フィルター
+        function filterCompanies() {
+            renderCompanies();
+        }
+
+        // モーダル制御
+        function openAddModal() {
+            editingCompanyId = null;
+            document.getElementById('modalTitle').textContent = '企業追加';
+            document.getElementById('companyModal').classList.add('show');
+            clearForm();
+        }
+
+        function editCompany(id) {
+            const company = companies.find(c => c.id === id);
+            if (!company) return;
+
+            editingCompanyId = id;
+            document.getElementById('modalTitle').textContent = '企業編集';
+            document.getElementById('companyName').value = company.name;
+            document.getElementById('contactName').value = company.contactName || '';
+            document.getElementById('contactEmail').value = company.email || '';
+            document.getElementById('contactPhone').value = company.phone || '';
+            document.getElementById('companyStatus').value = company.status;
+            document.getElementById('companyNotes').value = company.notes || '';
+            document.getElementById('companyModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('companyModal').classList.remove('show');
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('companyName').value = '';
+            document.getElementById('contactName').value = '';
+            document.getElementById('contactEmail').value = '';
+            document.getElementById('contactPhone').value = '';
+            document.getElementById('companyStatus').value = 'prospect';
+            document.getElementById('companyNotes').value = '';
+        }
+
+        // 企業保存
+        function saveCompany(event) {
+            event.preventDefault();
             
-            // 検索機能
-            const searchInput = document.querySelector('.search-input');
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                companyItems.forEach(item => {
-                    const companyName = item.querySelector('.company-name').textContent.toLowerCase();
-                    if (companyName.includes(searchTerm)) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-            });
-            
-            // 担当者追加機能
-            const userSelect = document.querySelector('.field-group:last-of-type select');
-            userSelect.addEventListener('change', function() {
-                if (this.value) {
-                    const assignedUsers = document.querySelector('.assigned-users');
-                    const newChip = document.createElement('span');
-                    newChip.className = 'user-chip';
-                    newChip.innerHTML = `
-                        ${this.options[this.selectedIndex].text}
-                        <span class="material-icons" style="font-size: 16px; cursor: pointer;">close</span>
-                    `;
-                    
-                    // 削除機能
-                    newChip.querySelector('.material-icons').addEventListener('click', function() {
-                        newChip.remove();
-                    });
-                    
-                    assignedUsers.appendChild(newChip);
-                    this.value = '';
-                }
-            });
-            
-            // 既存の担当者削除機能
-            document.querySelectorAll('.user-chip .material-icons').forEach(icon => {
-                icon.addEventListener('click', function() {
-                    this.parentElement.remove();
-                });
-            });
-            
-            // カスタム項目追加機能
-            document.querySelector('.btn-add-field').addEventListener('click', function() {
-                const customFields = document.querySelector('.custom-fields');
-                const newField = document.createElement('div');
-                newField.className = 'field-group';
-                newField.innerHTML = `
-                    <label class="field-label">
-                        <input type="text" placeholder="項目名" style="border: none; background: transparent; width: 150px;">
-                    </label>
-                    <input type="text" class="field-input" placeholder="値を入力">
-                `;
-                
-                // 新しい項目を追加ボタンの前に挿入
-                customFields.insertBefore(newField, this.parentElement);
-            });
+            const formData = {
+                name: document.getElementById('companyName').value,
+                contactName: document.getElementById('contactName').value,
+                email: document.getElementById('contactEmail').value,
+                phone: document.getElementById('contactPhone').value,
+                status: document.getElementById('companyStatus').value,
+                notes: document.getElementById('companyNotes').value,
+                assignedTo: '田中 太郎',
+                lastContact: new Date().toISOString().split('T')[0]
+            };
+
+            if (editingCompanyId) {
+                // 編集
+                const index = companies.findIndex(c => c.id === editingCompanyId);
+                companies[index] = { ...companies[index], ...formData };
+                alert('企業情報を更新しました');
+            } else {
+                // 新規追加
+                const newCompany = {
+                    id: Math.max(...companies.map(c => c.id)) + 1,
+                    ...formData
+                };
+                companies.push(newCompany);
+                alert('企業を追加しました');
+            }
+
+            closeModal();
+            renderCompanies();
+            updateStats();
+        }
+
+        // ステータス変更
+        function changeStatus(id) {
+            const company = companies.find(c => c.id === id);
+            if (!company) return;
+
+            const statuses = ['prospect', 'active', 'inactive'];
+            const currentIndex = statuses.indexOf(company.status);
+            const nextIndex = (currentIndex + 1) % statuses.length;
+            company.status = statuses[nextIndex];
+
+            renderCompanies();
+            updateStats();
+            alert(`ステータスを変更しました: ${company.name}`);
+        }
+
+        // 削除
+        function deleteCompany(id) {
+            const company = companies.find(c => c.id === id);
+            if (!company) return;
+
+            if (confirm(`「${company.name}」を削除しますか？`)) {
+                companies = companies.filter(c => c.id !== id);
+                renderCompanies();
+                updateStats();
+                alert('企業を削除しました');
+            }
+        }
+
+        // その他のアクション
+        function viewGmailLog(id) {
+            const company = companies.find(c => c.id === id);
+            alert(`${company.name}のGmailログを表示します`);
+        }
+
+        function viewTodos(id) {
+            const company = companies.find(c => c.id === id);
+            alert(`${company.name}のTODOを表示します`);
+        }
+
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                alert('ログアウトしました');
+            }
+        }
+
+        // キーボードショートカット
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                openAddModal();
+            }
         });
     </script>
 </body>

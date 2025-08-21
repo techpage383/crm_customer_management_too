@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ログイン - 顧客管理ツール</title>
+    <meta charset="UTF-8">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0; 
+            padding: 50px; 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-width: 400px; 
+            width: 100%;
+            text-align: center;
+        }
+        h1 { color: #1976d2; margin-bottom: 8px; }
+        .subtitle { color: #666; margin-bottom: 30px; }
+        .google-btn { 
+            background: #4285f4; 
+            color: white; 
+            border: none; 
+            padding: 14px 24px; 
+            border-radius: 8px; 
+            width: 100%; 
+            font-size: 15px; 
+            cursor: pointer; 
+            margin-bottom: 20px;
+        }
+        .google-btn:hover { background: #357ae8; }
+        .divider { margin: 20px 0; color: #999; text-align: center; }
+        input { 
+            width: 100%; 
+            padding: 14px 16px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            margin-bottom: 16px; 
+            font-size: 15px; 
+            box-sizing: border-box;
+        }
+        .login-btn { 
+            background: #1976d2; 
+            color: white; 
+            border: none; 
+            padding: 14px 24px; 
+            border-radius: 8px; 
+            width: 100%; 
+            font-size: 15px; 
+            cursor: pointer; 
+        }
+        .login-btn:hover { background: #1565c0; }
+        .footer { margin-top: 24px; font-size: 13px; }
+        .footer a { color: #1976d2; text-decoration: none; }
+        .demo-info { 
+            margin-top: 20px; 
+            padding: 12px; 
+            background: #e3f2fd; 
+            border-radius: 6px; 
+            font-size: 12px; 
+            color: #1565c0;
+        }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 6px; 
+            display: none; 
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h1>顧客管理ツール</h1>
+        <p class="subtitle">Gmail連携による統合CRM</p>
+        
+        <div id="status" class="status"></div>
+        
+        <button class="google-btn" onclick="handleGoogleLogin()">
+            🔗 Googleアカウントで続ける
+        </button>
+        
+        <div class="divider">または</div>
+        
+        <form onsubmit="handleEmailLogin(event)">
+            <input type="email" placeholder="メールアドレス" id="email" required>
+            <input type="password" placeholder="パスワード" id="password" required>
+            <button type="submit" class="login-btn">ログイン</button>
+        </form>
+        
+        <div class="footer">
+            <a href="#" onclick="handlePasswordReset()">パスワードを忘れた場合</a>
+        </div>
+        
+        <div class="demo-info">
+            <strong>デモ用ログイン情報:</strong><br>
+            メール: demo@example.com<br>
+            パスワード: demo123
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.className = 'status ' + type;
+            status.textContent = message;
+            status.style.display = 'block';
+            setTimeout(() => status.style.display = 'none', 4000);
+        }
+
+        function handleGoogleLogin() {
+            showStatus('Google認証中...', 'info');
+            setTimeout(() => {
+                showStatus('Google認証成功！企業管理ページに移動します', 'success');
+                setTimeout(() => {
+                    alert('✅ ログイン成功！\n\n👤 田中 太郎さん\n🏢 企業管理ページへ移動します\n📧 Gmail連携済み');
+                }, 2000);
+            }, 1500);
+        }
+
+        function handleEmailLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            showStatus('認証中...', 'info');
+            
+            setTimeout(() => {
+                if (email === 'demo@example.com' && password === 'demo123') {
+                    showStatus('認証成功！ダッシュボードに移動します', 'success');
+                    setTimeout(() => {
+                        alert('✅ ログイン成功！\n\n👤 山田 花子さん\n⚙️ Gmail設定ページへ移動します\n📧 Gmail連携が必要です');
+                    }, 2000);
+                } else {
+                    showStatus('メールアドレスまたはパスワードが正しくありません', 'error');
+                }
+            }, 1000);
+        }
+
+        function handlePasswordReset() {
+            const email = document.getElementById('email').value || 
+                         prompt('パスワードリセット用のメールアドレスを入力:');
+            if (email) {
+                showStatus(email + ' にリセット手順を送信しました', 'success');
+            }
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('email').focus();
+            setTimeout(() => {
+                showStatus('動作テストページです。上記の情報でログインしてください', 'info');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -3,23 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TODO管理 - 顧客管理ツール</title>
+    <title>TODOマネジメント - 顧客管理ツール</title>
     
-    <!-- Material UI CDN -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     
-    <!-- React and ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Material UI -->
-    <script src="https://unpkg.com/@mui/material@5.15.10/umd/material-ui.production.min.js"></script>
-    
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
     <style>
         * {
             margin: 0;
@@ -28,236 +16,320 @@
         }
         
         body {
-            font-family: 'Roboto', sans-serif;
-            background: #f5f5f5;
-            height: 100vh;
-            overflow: hidden;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
         }
         
-        .app-header {
-            background: #1976d2;
+        .header {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
             color: white;
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 1rem 2rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
-        .app-title {
-            font-size: 20px;
-            font-weight: 500;
-        }
-        
-        .ai-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-        
-        .ai-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4caf50;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .main-container {
-            display: flex;
-            height: calc(100vh - 64px);
-        }
-        
-        .sidebar {
-            width: 280px;
-            background: white;
-            border-right: 1px solid #e0e0e0;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .view-tabs {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .view-tab {
-            padding: 12px 16px;
-            background: #f5f5f5;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .view-tab.active {
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .controls-section {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .filter-dropdown {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .add-todo-btn {
             background: #1976d2;
             color: white;
-        }
-        
-        .tab-count {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        
-        .view-tab.active .tab-count {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        .ai-pending-section {
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
-            background: #fff3e0;
-        }
-        
-        .ai-pending-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        
-        .ai-pending-title {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            color: #ef6c00;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
         
-        .pending-todo {
-            background: white;
-            border: 1px solid #ffcc02;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 8px;
+        .add-todo-btn:hover {
+            background: #1565c0;
+        }
+        
+        .ai-todos-section {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 2px dashed #1976d2;
+        }
+        
+        .ai-todos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .ai-todos-header h3 {
+            color: #1976d2;
+            font-size: 1.1rem;
+        }
+        
+        .approve-all-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
             font-size: 12px;
         }
         
-        .pending-actions {
-            margin-top: 8px;
-            display: flex;
-            gap: 6px;
+        .approve-all-btn:hover {
+            background: #45a049;
         }
         
-        .btn-small {
-            padding: 4px 8px;
-            border: none;
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .kanban-column {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 400px;
+        }
+        
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .column-title {
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .column-count {
+            background: #e0e0e0;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .todo-pending .column-header { border-bottom-color: #ff9800; }
+        .todo-in-progress .column-header { border-bottom-color: #2196f3; }
+        .todo-completed .column-header { border-bottom-color: #4caf50; }
+        
+        .todo-card {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            cursor: move;
+            transition: all 0.2s ease;
+        }
+        
+        .todo-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .todo-card.ai-suggested {
+            border-color: #1976d2;
+            background: #e3f2fd;
+        }
+        
+        .todo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .todo-title {
+            font-weight: 500;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .todo-priority {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .priority-high { background: #ffcdd2; color: #c62828; }
+        .priority-medium { background: #fff3cd; color: #f57c00; }
+        .priority-low { background: #c8e6c9; color: #2e7d32; }
+        
+        .todo-content {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .todo-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .todo-deadline {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .deadline-overdue { color: #d32f2f; }
+        .deadline-today { color: #ff9800; }
+        .deadline-upcoming { color: #666; }
+        
+        .todo-source {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .ai-badge {
+            background: #1976d2;
+            color: white;
+            padding: 2px 6px;
             border-radius: 4px;
             font-size: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
         }
         
-        .btn-approve {
+        .ai-todo-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 8px;
+        }
+        
+        .approve-btn, .reject-btn {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .approve-btn {
             background: #4caf50;
             color: white;
         }
         
-        .btn-reject {
+        .reject-btn {
             background: #f44336;
             color: white;
         }
         
-        .btn-edit {
-            background: #2196f3;
-            color: white;
-        }
-        
-        .quick-stats {
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        
-        .stat-card {
-            text-align: center;
-            padding: 12px;
-            background: #fafafa;
-            border-radius: 6px;
-        }
-        
-        .stat-number {
-            font-size: 20px;
-            font-weight: bold;
-            color: #1976d2;
-        }
-        
-        .stat-label {
-            font-size: 11px;
-            color: #666;
-            margin-top: 4px;
-        }
-        
-        .main-content {
-            flex: 1;
-            background: white;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .content-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
             align-items: center;
         }
         
-        .content-title {
-            font-size: 24px;
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
             font-weight: 500;
             color: #333;
         }
         
-        .header-actions {
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-actions {
             display: flex;
-            gap: 12px;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
         }
         
         .btn {
-            padding: 8px 16px;
+            padding: 10px 20px;
             border: none;
             border-radius: 6px;
-            font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            font-size: 14px;
         }
         
         .btn-primary {
@@ -266,856 +338,496 @@
         }
         
         .btn-secondary {
-            background: #f5f5f5;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-        
-        .filters-bar {
-            padding: 16px 24px;
-            background: #fafafa;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-        
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .filter-label {
-            font-size: 12px;
-            color: #666;
-            font-weight: 500;
-        }
-        
-        .filter-select {
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-        
-        .search-box {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        
-        .content-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px;
-        }
-        
-        .todo-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .todo-item {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 16px;
-            transition: box-shadow 0.2s;
-            position: relative;
-        }
-        
-        .todo-item:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .todo-item.urgent {
-            border-left: 4px solid #f44336;
-            background: #ffebee;
-        }
-        
-        .todo-item.high {
-            border-left: 4px solid #ff9800;
-            background: #fff3e0;
-        }
-        
-        .todo-item.medium {
-            border-left: 4px solid #2196f3;
-            background: #e3f2fd;
-        }
-        
-        .todo-item.low {
-            border-left: 4px solid #4caf50;
-            background: #e8f5e8;
-        }
-        
-        .todo-item.completed {
-            opacity: 0.6;
-            background: #f5f5f5;
-        }
-        
-        .todo-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-        
-        .todo-title {
-            font-size: 16px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 4px;
-        }
-        
-        .todo-meta {
-            font-size: 12px;
-            color: #666;
-            display: flex;
-            gap: 12px;
-        }
-        
-        .todo-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .action-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            border-radius: 50%;
-            background: #f5f5f5;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .action-btn:hover {
-            background: #e0e0e0;
-        }
-        
-        .action-btn.complete {
-            background: #4caf50;
+            background: #6c757d;
             color: white;
         }
         
-        .todo-description {
-            font-size: 14px;
-            line-height: 1.5;
-            color: #333;
-            margin-bottom: 12px;
-        }
-        
-        .todo-tags {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
-        
-        .todo-tag {
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-        
-        .tag-ai { background: #fff3e0; color: #ef6c00; }
-        .tag-urgent { background: #ffebee; color: #c62828; }
-        .tag-follow-up { background: #e8f5e8; color: #2e7d32; }
-        
-        .todo-source {
-            margin-top: 12px;
-            padding: 8px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-        
-        .todo-source:hover {
-            background: #e9ecef;
-        }
-        
-        .deadline-indicator {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: bold;
-        }
-        
-        .deadline-today { background: #ffebee; color: #c62828; }
-        .deadline-tomorrow { background: #fff3e0; color: #ef6c00; }
-        .deadline-week { background: #e3f2fd; color: #1976d2; }
-        .deadline-overdue { background: #f44336; color: white; animation: blink 1s infinite; }
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.5; }
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #666;
-        }
-        
-        .empty-state i {
-            font-size: 48px;
-            color: #ccc;
-            margin-bottom: 16px;
-        }
-        
-        .bulk-actions {
-            padding: 12px 24px;
-            background: #e3f2fd;
-            border-bottom: 1px solid #e0e0e0;
-            display: none;
-            gap: 12px;
-            align-items: center;
-        }
-        
-        .bulk-actions.visible {
-            display: flex;
-        }
-        
-        @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                height: auto;
-                max-height: 200px;
-                overflow-y: auto;
-            }
-            
-            .todo-header {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .todo-meta {
-                flex-direction: column;
-                gap: 4px;
+        @media (max-width: 1024px) {
+            .kanban-board {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <!-- ヘッダー -->
-    <header class="app-header">
-        <div class="app-title">TODO管理</div>
-        <div class="ai-status">
-            <div class="ai-indicator"></div>
-            <span>AI TODO抽出: 稼働中</span>
-        </div>
-        <div class="user-info">
-            <span>田中 太郎</span>
-            <i class="material-icons">account_circle</i>
+    <header class="header">
+        <div class="header-content">
+            <h1>TODOマネジメント</h1>
+            <div class="user-info">
+                <span>👤 田中 太郎</span>
+            </div>
         </div>
     </header>
-
-    <!-- メインコンテナ -->
-    <div class="main-container">
-        <!-- サイドバー: ビュー・フィルター -->
-        <div class="sidebar">
-            <!-- ビュータブ -->
-            <div class="sidebar-header">
-                <div class="view-tabs">
-                    <button class="view-tab active" onclick="switchView('my-todos')">
-                        <span>自分のTODO</span>
-                        <span class="tab-count">8</span>
-                    </button>
-                    <button class="view-tab" onclick="switchView('team-todos')">
-                        <span>チーム全体</span>
-                        <span class="tab-count">23</span>
-                    </button>
-                    <button class="view-tab" onclick="switchView('by-company')">
-                        <span>企業別</span>
-                        <span class="tab-count">15</span>
-                    </button>
-                    <button class="view-tab" onclick="switchView('urgent')">
-                        <span>緊急・重要</span>
-                        <span class="tab-count">5</span>
-                    </button>
+    
+    <!-- メインコンテンツ -->
+    <main class="main-container">
+        <!-- コントロール -->
+        <div class="controls-section">
+            <div class="filter-controls">
+                <select class="filter-dropdown" id="priorityFilter" onchange="filterTodos()">
+                    <option value="">全ての優先度</option>
+                    <option value="high">高優先度</option>
+                    <option value="medium">中優先度</option>
+                    <option value="low">低優先度</option>
+                </select>
+                <select class="filter-dropdown" id="companyFilter" onchange="filterTodos()">
+                    <option value="">全ての企業</option>
+                    <option value="1">株式会社ABC商事</option>
+                    <option value="2">XYZ株式会社</option>
+                    <option value="3">DEF技研</option>
+                </select>
+            </div>
+            <button class="add-todo-btn" onclick="openAddModal()">＋ TODO追加</button>
+        </div>
+        
+        <!-- AI提案TODO -->
+        <div class="ai-todos-section" id="aiTodosSection">
+            <div class="ai-todos-header">
+                <h3>🤖 AI抽出TODO（承認待ち: <span id="aiTodoCount">3</span>件）</h3>
+                <button class="approve-all-btn" onclick="approveAllAI()">すべて承認</button>
+            </div>
+            <div id="aiTodosList"></div>
+        </div>
+        
+        <!-- カンバンボード -->
+        <div class="kanban-board">
+            <div class="kanban-column todo-pending">
+                <div class="column-header">
+                    <h3 class="column-title">未着手</h3>
+                    <span class="column-count" id="pendingCount">0</span>
+                </div>
+                <div class="column-content" id="pendingColumn" ondrop="drop(event, 'pending')" ondragover="allowDrop(event)">
+                    <!-- TODOカードがここに動的に生成される -->
                 </div>
             </div>
-
-            <!-- AI抽出待機TODO -->
-            <div class="ai-pending-section">
-                <div class="ai-pending-header">
-                    <div class="ai-pending-title">
-                        <i class="material-icons" style="font-size: 16px;">smart_toy</i>
-                        AI抽出TODO (承認待ち)
-                    </div>
+            
+            <div class="kanban-column todo-in-progress">
+                <div class="column-header">
+                    <h3 class="column-title">進行中</h3>
+                    <span class="column-count" id="inProgressCount">0</span>
                 </div>
-                <div class="pending-todo">
-                    「来週火曜日14:00の会議予約確認」
-                    <div class="pending-actions">
-                        <button class="btn-small btn-approve" onclick="approveTodo(1)">承認</button>
-                        <button class="btn-small btn-edit" onclick="editTodo(1)">編集</button>
-                        <button class="btn-small btn-reject" onclick="rejectTodo(1)">拒否</button>
-                    </div>
-                </div>
-                <div class="pending-todo">
-                    「見積書の送付（明日まで）」
-                    <div class="pending-actions">
-                        <button class="btn-small btn-approve" onclick="approveTodo(2)">承認</button>
-                        <button class="btn-small btn-edit" onclick="editTodo(2)">編集</button>
-                        <button class="btn-small btn-reject" onclick="rejectTodo(2)">拒否</button>
-                    </div>
+                <div class="column-content" id="inProgressColumn" ondrop="drop(event, 'in_progress')" ondragover="allowDrop(event)">
+                    <!-- TODOカードがここに動的に生成される -->
                 </div>
             </div>
-
-            <!-- クイック統計 -->
-            <div class="quick-stats">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number">5</div>
-                        <div class="stat-label">今日期限</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">12</div>
-                        <div class="stat-label">今週期限</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">3</div>
-                        <div class="stat-label">期限超過</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">85%</div>
-                        <div class="stat-label">完了率</div>
-                    </div>
+            
+            <div class="kanban-column todo-completed">
+                <div class="column-header">
+                    <h3 class="column-title">完了</h3>
+                    <span class="column-count" id="completedCount">0</span>
+                </div>
+                <div class="column-content" id="completedColumn" ondrop="drop(event, 'completed')" ondragover="allowDrop(event)">
+                    <!-- TODOカードがここに動的に生成される -->
                 </div>
             </div>
         </div>
-
-        <!-- メインコンテンツ: TODO一覧 -->
-        <div class="main-content">
-            <div class="content-header">
-                <div class="content-title" id="contentTitle">自分のTODO</div>
-                <div class="header-actions">
-                    <button class="btn btn-secondary" onclick="bulkApproveAI()">
-                        <i class="material-icons" style="font-size: 16px;">done_all</i>
-                        AI TODO一括承認
-                    </button>
-                    <button class="btn btn-primary" onclick="addManualTodo()">
-                        <i class="material-icons" style="font-size: 16px;">add</i>
-                        手動TODO追加
-                    </button>
+    </main>
+    
+    <!-- TODO追加/編集モーダル -->
+    <div class="modal" id="todoModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">TODO追加</h2>
+            <form onsubmit="saveTodo(event)">
+                <div class="form-group">
+                    <label class="form-label">タイトル *</label>
+                    <input type="text" class="form-input" id="todoTitle" required>
                 </div>
-            </div>
-            
-            <!-- フィルターバー -->
-            <div class="filters-bar">
-                <div class="filter-group">
-                    <span class="filter-label">優先度:</span>
-                    <select class="filter-select" id="priorityFilter" onchange="applyFilters()">
-                        <option value="">すべて</option>
-                        <option value="urgent">緊急</option>
-                        <option value="high">高</option>
-                        <option value="medium">中</option>
+                <div class="form-group">
+                    <label class="form-label">詳細</label>
+                    <textarea class="form-textarea" id="todoContent"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">優先度</label>
+                    <select class="form-select" id="todoPriority">
                         <option value="low">低</option>
+                        <option value="medium">中</option>
+                        <option value="high">高</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <span class="filter-label">期限:</span>
-                    <select class="filter-select" id="deadlineFilter" onchange="applyFilters()">
-                        <option value="">すべて</option>
-                        <option value="overdue">期限超過</option>
-                        <option value="today">今日</option>
-                        <option value="tomorrow">明日</option>
-                        <option value="week">今週</option>
+                <div class="form-group">
+                    <label class="form-label">期限</label>
+                    <input type="date" class="form-input" id="todoDeadline">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">関連企業</label>
+                    <select class="form-select" id="todoCompany">
+                        <option value="">未設定</option>
+                        <option value="1">株式会社ABC商事</option>
+                        <option value="2">XYZ株式会社</option>
+                        <option value="3">DEF技研</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <span class="filter-label">ステータス:</span>
-                    <select class="filter-select" id="statusFilter" onchange="applyFilters()">
-                        <option value="pending">未完了</option>
-                        <option value="completed">完了</option>
-                        <option value="all">すべて</option>
-                    </select>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
                 </div>
-                <input type="text" class="search-box" placeholder="TODO内容で検索..." id="searchInput">
-            </div>
-            
-            <!-- 一括操作バー -->
-            <div class="bulk-actions" id="bulkActions">
-                <span>選択中: <span id="selectedCount">0</span>件</span>
-                <button class="btn btn-primary" onclick="bulkComplete()">一括完了</button>
-                <button class="btn btn-secondary" onclick="bulkSetPriority()">優先度変更</button>
-                <button class="btn btn-secondary" onclick="bulkDelete()">一括削除</button>
-            </div>
-
-            <div class="content-body" id="contentBody">
-                <!-- TODO一覧はJavaScriptで動的生成 -->
-            </div>
+            </form>
         </div>
     </div>
 
     <script>
         // モックデータ
-        const todos = [
+        let todos = [
             {
                 id: 1,
-                title: 'au法人契約更新の会議準備',
-                description: '株式会社サンプル商事との契約更新会議（来週火曜日14:00）の資料準備。プラン見直し提案を含む。',
-                priority: 'high',
-                deadline: '2024-01-29',
-                completed: false,
-                assignee: '田中 太郎',
-                company: '株式会社サンプル商事',
-                tags: ['契約更新', '会議準備', 'AI抽出'],
-                source: {
-                    type: 'email',
-                    id: 'mail-3',
-                    subject: 'Re: au法人契約の更新について',
-                    from: 'info@sample-corp.jp'
-                },
-                createdDate: '2024-01-27',
-                aiExtracted: true
+                title: "月次レポート作成",
+                content: "ABC商事向けの7月分月次レポートを作成",
+                priority: "high",
+                deadline: "2024-07-31",
+                status: "in_progress",
+                companyId: "1",
+                companyName: "株式会社ABC商事",
+                source: "manual",
+                createdAt: "2024-07-28"
             },
             {
                 id: 2,
-                title: '新規回線見積書の送付',
-                description: 'テック株式会社向けの新規10回線追加見積書を明日までに送付する。',
-                priority: 'urgent',
-                deadline: '2024-01-28',
-                completed: false,
-                assignee: '田中 太郎',
-                company: 'テック株式会社',
-                tags: ['見積書', '新規回線', '緊急'],
-                source: {
-                    type: 'email',
-                    id: 'mail-4',
-                    subject: '新規回線追加のお見積り依頼',
-                    from: 'procurement@sample-corp.jp'
-                },
-                createdDate: '2024-01-24',
-                aiExtracted: false
+                title: "プレゼン資料準備",
+                content: "XYZ株式会社の新規提案用プレゼン資料を準備",
+                priority: "medium",
+                deadline: "2024-08-05",
+                status: "pending",
+                companyId: "2",
+                companyName: "XYZ株式会社",
+                source: "manual",
+                createdAt: "2024-07-27"
             },
             {
                 id: 3,
-                title: '5Gプラン提案のフォローアップ',
-                description: 'テック株式会社に送付した5Gプラン提案への返答確認。1週間経過後にフォローアップする。',
-                priority: 'medium',
-                deadline: '2024-02-02',
-                completed: false,
-                assignee: '佐藤 次郎',
-                company: 'テック株式会社',
-                tags: ['フォローアップ', '5G', 'AI抽出'],
-                source: {
-                    type: 'email',
-                    id: 'mail-6',
-                    subject: 'au 5Gプランのご案内',
-                    from: 'sato@company.com'
-                },
-                createdDate: '2024-01-26',
-                aiExtracted: true
+                title: "契約書レビュー",
+                content: "DEF技研との保守契約書の内容確認",
+                priority: "high",
+                deadline: "2024-07-30",
+                status: "pending",
+                companyId: "3",
+                companyName: "DEF技研",
+                source: "manual",
+                createdAt: "2024-07-28"
             },
             {
                 id: 4,
-                title: '契約更新リマインダー送付',
-                description: '3月末契約満了企業向けのリマインダーメール送付。15社対象。',
-                priority: 'medium',
-                deadline: '2024-01-31',
-                completed: false,
-                assignee: '山田 花子',
-                company: '複数企業',
-                tags: ['契約更新', 'リマインダー', '手動追加'],
-                source: {
-                    type: 'manual',
-                    note: '定期業務として手動で追加'
-                },
-                createdDate: '2024-01-25',
-                aiExtracted: false
-            },
-            {
-                id: 5,
-                title: 'au新料金プランの資料作成',
-                description: '4月開始予定の新料金プラン説明資料を作成。営業チーム向けの勉強会資料も含む。',
-                priority: 'low',
-                deadline: '2024-02-05',
-                completed: false,
-                assignee: '田中 太郎',
-                company: '社内',
-                tags: ['資料作成', '新プラン', '勉強会'],
-                source: {
-                    type: 'manual',
-                    note: '営業部門からの依頼'
-                },
-                createdDate: '2024-01-26',
-                aiExtracted: false
-            },
-            {
-                id: 6,
-                title: 'メンテナンス案内の送付確認',
-                description: '2月15日メンテナンス案内が全顧客に送付されたか確認。未送付があれば再送。',
-                priority: 'medium',
-                deadline: '2024-01-30',
-                completed: true,
-                assignee: '山田 花子',
-                company: '全顧客',
-                tags: ['メンテナンス', '案内', '確認完了'],
-                source: {
-                    type: 'email',
-                    id: 'mail-7',
-                    subject: '定期メンテナンスのお知らせ',
-                    from: 'yamada@company.com'
-                },
-                createdDate: '2024-01-20',
-                completedDate: '2024-01-27',
-                aiExtracted: true
+                title: "定例会議の準備",
+                content: "来週の定例会議用の進捗資料を準備",
+                priority: "low",
+                deadline: "2024-08-02",
+                status: "completed",
+                companyId: "1",
+                companyName: "株式会社ABC商事",
+                source: "manual",
+                createdAt: "2024-07-26"
             }
         ];
 
-        let currentView = 'my-todos';
-        let filteredTodos = [];
-        let selectedTodos = new Set();
+        let aiTodos = [
+            {
+                id: 101,
+                title: "見積書の送付",
+                content: "メールで依頼された追加機能の見積書を作成して送付",
+                priority: "high",
+                deadline: "2024-07-30",
+                companyId: "1",
+                companyName: "株式会社ABC商事",
+                source: "ai",
+                extractedFrom: "Gmail: RE: 追加機能について"
+            },
+            {
+                id: 102,
+                title: "デモ環境の準備",
+                content: "来週のデモンストレーション用の環境を構築",
+                priority: "medium",
+                deadline: "2024-08-03",
+                companyId: "2",
+                companyName: "XYZ株式会社",
+                source: "ai",
+                extractedFrom: "Gmail: デモのお願い"
+            },
+            {
+                id: 103,
+                title: "技術質問への回答",
+                content: "API連携についての技術的な質問に回答",
+                priority: "medium",
+                deadline: "2024-07-31",
+                companyId: "3",
+                companyName: "DEF技研",
+                source: "ai",
+                extractedFrom: "Gmail: API連携について"
+            }
+        ];
+
+        let editingTodoId = null;
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            applyFilters();
-            setupEventListeners();
+            renderTodos();
+            renderAITodos();
+            updateCounts();
         });
 
-        // TODOレンダリング
-        function renderTodos() {
-            const contentBody = document.getElementById('contentBody');
+        // TODOカード生成
+        function createTodoCard(todo, isDraggable = true) {
+            const priorityClass = `priority-${todo.priority}`;
+            const priorityText = { high: '高', medium: '中', low: '低' }[todo.priority];
+            const deadlineClass = getDeadlineClass(todo.deadline);
             
-            if (filteredTodos.length === 0) {
-                contentBody.innerHTML = `
-                    <div class="empty-state">
-                        <i class="material-icons">task_alt</i>
-                        <div>該当するTODOがありません</div>
+            return `
+                <div class="todo-card ${todo.source === 'ai' ? 'ai-suggested' : ''}" 
+                     id="todo-${todo.id}" 
+                     ${isDraggable ? `draggable="true" ondragstart="drag(event)"` : ''}>
+                    <div class="todo-header">
+                        <h4 class="todo-title">${todo.title}</h4>
+                        <span class="todo-priority ${priorityClass}">${priorityText}</span>
                     </div>
-                `;
-                return;
-            }
-
-            contentBody.innerHTML = `
-                <div class="todo-list">
-                    ${filteredTodos.map(todo => {
-                        const deadlineClass = getDeadlineClass(todo.deadline);
-                        const deadlineText = getDeadlineText(todo.deadline);
-                        
-                        return `
-                            <div class="todo-item ${todo.priority} ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
-                                ${deadlineClass !== 'normal' ? `<div class="deadline-indicator ${deadlineClass}">${deadlineText}</div>` : ''}
-                                
-                                <div class="todo-header">
-                                    <div>
-                                        <div class="todo-title">${todo.title}</div>
-                                        <div class="todo-meta">
-                                            <span>👤 ${todo.assignee}</span>
-                                            <span>🏢 ${todo.company}</span>
-                                            <span>📅 ${todo.deadline}</span>
-                                            <span>🔥 ${getPriorityText(todo.priority)}</span>
-                                        </div>
-                                    </div>
-                                    <div class="todo-actions">
-                                        <input type="checkbox" onchange="toggleTodoSelection(${todo.id})" 
-                                               ${selectedTodos.has(todo.id) ? 'checked' : ''}>
-                                        ${!todo.completed ? 
-                                            `<button class="action-btn complete" onclick="completeTodo(${todo.id})" title="完了にする">
-                                                <i class="material-icons" style="font-size: 16px;">check</i>
-                                            </button>` : ''
-                                        }
-                                        <button class="action-btn" onclick="editTodo(${todo.id})" title="編集">
-                                            <i class="material-icons" style="font-size: 16px;">edit</i>
-                                        </button>
-                                        <button class="action-btn" onclick="deleteTodo(${todo.id})" title="削除">
-                                            <i class="material-icons" style="font-size: 16px;">delete</i>
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="todo-description">${todo.description}</div>
-                                
-                                <div class="todo-tags">
-                                    ${todo.tags.map(tag => {
-                                        const tagClass = tag === 'AI抽出' ? 'tag-ai' : 
-                                                        tag === '緊急' ? 'tag-urgent' : 
-                                                        tag === 'フォローアップ' ? 'tag-follow-up' : '';
-                                        return `<span class="todo-tag ${tagClass}">${tag}</span>`;
-                                    }).join('')}
-                                </div>
-                                
-                                ${todo.source ? `
-                                    <div class="todo-source" onclick="openSource('${todo.source.type}', '${todo.source.id}')">
-                                        <i class="material-icons" style="font-size: 16px;">
-                                            ${todo.source.type === 'email' ? 'email' : 'note'}
-                                        </i>
-                                        <span>
-                                            ${todo.source.type === 'email' ? 
-                                                `元メール: ${todo.source.subject} (${todo.source.from})` :
-                                                `手動追加: ${todo.source.note}`
-                                            }
-                                        </span>
-                                    </div>
-                                ` : ''}
-                            </div>
-                        `;
-                    }).join('')}
+                    <div class="todo-content">${todo.content}</div>
+                    <div class="todo-meta">
+                        <div class="todo-deadline ${deadlineClass}">
+                            📅 ${formatDate(todo.deadline)}
+                        </div>
+                        <div class="todo-source">
+                            ${todo.companyName ? `<span>🏢 ${todo.companyName}</span>` : ''}
+                            ${todo.source === 'ai' ? '<span class="ai-badge">AI</span>' : ''}
+                        </div>
+                    </div>
+                    ${todo.source === 'ai' && !isDraggable ? `
+                        <div class="ai-todo-actions">
+                            <button class="approve-btn" onclick="approveAITodo(${todo.id})">承認</button>
+                            <button class="reject-btn" onclick="rejectAITodo(${todo.id})">却下</button>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
 
-        // 期限クラス判定
-        function getDeadlineClass(deadline) {
-            const today = new Date();
-            const deadlineDate = new Date(deadline);
-            const diffDays = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+        // TODO表示
+        function renderTodos() {
+            const pendingColumn = document.getElementById('pendingColumn');
+            const inProgressColumn = document.getElementById('inProgressColumn');
+            const completedColumn = document.getElementById('completedColumn');
             
-            if (diffDays < 0) return 'deadline-overdue';
-            if (diffDays === 0) return 'deadline-today';
-            if (diffDays === 1) return 'deadline-tomorrow';
-            if (diffDays <= 7) return 'deadline-week';
-            return 'normal';
-        }
-
-        // 期限テキスト取得
-        function getDeadlineText(deadline) {
-            const today = new Date();
-            const deadlineDate = new Date(deadline);
-            const diffDays = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+            pendingColumn.innerHTML = '';
+            inProgressColumn.innerHTML = '';
+            completedColumn.innerHTML = '';
             
-            if (diffDays < 0) return `${Math.abs(diffDays)}日超過`;
-            if (diffDays === 0) return '今日期限';
-            if (diffDays === 1) return '明日期限';
-            if (diffDays <= 7) return `${diffDays}日後`;
-            return '';
-        }
-
-        // 優先度テキスト取得
-        function getPriorityText(priority) {
-            const priorityMap = {
-                'urgent': '緊急',
-                'high': '高',
-                'medium': '中',
-                'low': '低'
-            };
-            return priorityMap[priority] || '中';
-        }
-
-        // ビュー切り替え
-        function switchView(view) {
-            currentView = view;
-            
-            // アクティブタブ更新
-            document.querySelectorAll('.view-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // タイトル更新
-            const titles = {
-                'my-todos': '自分のTODO',
-                'team-todos': 'チーム全体のTODO',
-                'by-company': '企業別TODO',
-                'urgent': '緊急・重要TODO'
-            };
-            document.getElementById('contentTitle').textContent = titles[view];
-            
-            applyFilters();
-        }
-
-        // フィルター適用
-        function applyFilters() {
             const priorityFilter = document.getElementById('priorityFilter').value;
-            const deadlineFilter = document.getElementById('deadlineFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-
-            filteredTodos = todos.filter(todo => {
-                // ビューフィルター
-                if (currentView === 'my-todos' && todo.assignee !== '田中 太郎') return false;
-                if (currentView === 'urgent' && !['urgent', 'high'].includes(todo.priority)) return false;
-                
-                // 優先度フィルター
-                if (priorityFilter && todo.priority !== priorityFilter) return false;
-                
-                // 期限フィルター
-                if (deadlineFilter) {
-                    const deadlineClass = getDeadlineClass(todo.deadline);
-                    if (deadlineFilter === 'overdue' && !deadlineClass.includes('overdue')) return false;
-                    if (deadlineFilter === 'today' && !deadlineClass.includes('today')) return false;
-                    if (deadlineFilter === 'tomorrow' && !deadlineClass.includes('tomorrow')) return false;
-                    if (deadlineFilter === 'week' && !deadlineClass.includes('week') && !deadlineClass.includes('today') && !deadlineClass.includes('tomorrow')) return false;
-                }
-                
-                // ステータスフィルター
-                if (statusFilter === 'pending' && todo.completed) return false;
-                if (statusFilter === 'completed' && !todo.completed) return false;
-                
-                // 検索フィルター
-                if (searchTerm && !todo.title.toLowerCase().includes(searchTerm) && 
-                    !todo.description.toLowerCase().includes(searchTerm)) return false;
-                
-                return true;
+            const companyFilter = document.getElementById('companyFilter').value;
+            
+            let filteredTodos = todos.filter(todo => {
+                const matchesPriority = !priorityFilter || todo.priority === priorityFilter;
+                const matchesCompany = !companyFilter || todo.companyId === companyFilter;
+                return matchesPriority && matchesCompany;
             });
-
-            // 並び順: 期限超過 > 今日期限 > 明日期限 > 優先度 > 期限日
-            filteredTodos.sort((a, b) => {
-                const aDeadlineClass = getDeadlineClass(a.deadline);
-                const bDeadlineClass = getDeadlineClass(b.deadline);
-                const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
-                
-                // 期限による優先順位
-                if (aDeadlineClass !== bDeadlineClass) {
-                    const deadlineOrder = {
-                        'deadline-overdue': 5,
-                        'deadline-today': 4,
-                        'deadline-tomorrow': 3,
-                        'deadline-week': 2,
-                        'normal': 1
-                    };
-                    return (deadlineOrder[bDeadlineClass] || 0) - (deadlineOrder[aDeadlineClass] || 0);
+            
+            filteredTodos.forEach(todo => {
+                const card = createTodoCard(todo);
+                switch(todo.status) {
+                    case 'pending':
+                        pendingColumn.innerHTML += card;
+                        break;
+                    case 'in_progress':
+                        inProgressColumn.innerHTML += card;
+                        break;
+                    case 'completed':
+                        completedColumn.innerHTML += card;
+                        break;
                 }
-                
-                // 優先度による並び順
-                return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
             });
+            
+            updateCounts();
+        }
 
+        // AI TODO表示
+        function renderAITodos() {
+            const aiTodosList = document.getElementById('aiTodosList');
+            const aiTodoCount = document.getElementById('aiTodoCount');
+            const aiTodosSection = document.getElementById('aiTodosSection');
+            
+            if (aiTodos.length === 0) {
+                aiTodosSection.style.display = 'none';
+                return;
+            }
+            
+            aiTodosSection.style.display = 'block';
+            aiTodoCount.textContent = aiTodos.length;
+            aiTodosList.innerHTML = aiTodos.map(todo => createTodoCard(todo, false)).join('');
+        }
+
+        // カウント更新
+        function updateCounts() {
+            const pending = todos.filter(t => t.status === 'pending').length;
+            const inProgress = todos.filter(t => t.status === 'in_progress').length;
+            const completed = todos.filter(t => t.status === 'completed').length;
+            
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('inProgressCount').textContent = inProgress;
+            document.getElementById('completedCount').textContent = completed;
+        }
+
+        // ドラッグ&ドロップ
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev, newStatus) {
+            ev.preventDefault();
+            const todoId = ev.dataTransfer.getData("text");
+            const todoElement = document.getElementById(todoId);
+            const id = parseInt(todoId.replace('todo-', ''));
+            
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.status = newStatus;
+                renderTodos();
+                showMessage(`タスクを${getStatusText(newStatus)}に移動しました`);
+            }
+        }
+
+        // AI TODO承認
+        function approveAITodo(id) {
+            const aiTodo = aiTodos.find(t => t.id === id);
+            if (aiTodo) {
+                const newTodo = {
+                    id: Math.max(...todos.map(t => t.id)) + 1,
+                    ...aiTodo,
+                    status: 'pending'
+                };
+                todos.push(newTodo);
+                aiTodos = aiTodos.filter(t => t.id !== id);
+                renderTodos();
+                renderAITodos();
+                showMessage('TODOを承認しました');
+            }
+        }
+
+        // AI TODO却下
+        function rejectAITodo(id) {
+            aiTodos = aiTodos.filter(t => t.id !== id);
+            renderAITodos();
+            showMessage('TODOを却下しました');
+        }
+
+        // すべてのAI TODO承認
+        function approveAllAI() {
+            aiTodos.forEach(aiTodo => {
+                const newTodo = {
+                    id: Math.max(...todos.map(t => t.id)) + 1,
+                    ...aiTodo,
+                    status: 'pending'
+                };
+                todos.push(newTodo);
+            });
+            aiTodos = [];
+            renderTodos();
+            renderAITodos();
+            showMessage('すべてのAI提案を承認しました');
+        }
+
+        // モーダル制御
+        function openAddModal() {
+            editingTodoId = null;
+            document.getElementById('modalTitle').textContent = 'TODO追加';
+            document.getElementById('todoModal').classList.add('show');
+            clearForm();
+        }
+
+        function closeModal() {
+            document.getElementById('todoModal').classList.remove('show');
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('todoTitle').value = '';
+            document.getElementById('todoContent').value = '';
+            document.getElementById('todoPriority').value = 'medium';
+            document.getElementById('todoDeadline').value = '';
+            document.getElementById('todoCompany').value = '';
+        }
+
+        // TODO保存
+        function saveTodo(event) {
+            event.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('todoTitle').value,
+                content: document.getElementById('todoContent').value,
+                priority: document.getElementById('todoPriority').value,
+                deadline: document.getElementById('todoDeadline').value,
+                companyId: document.getElementById('todoCompany').value,
+                companyName: document.getElementById('todoCompany').selectedOptions[0].text,
+                source: 'manual',
+                status: 'pending',
+                createdAt: new Date().toISOString().split('T')[0]
+            };
+            
+            const newTodo = {
+                id: Math.max(...todos.map(t => t.id)) + 1,
+                ...formData
+            };
+            todos.push(newTodo);
+            
+            closeModal();
+            renderTodos();
+            showMessage('TODOを追加しました');
+        }
+
+        // フィルター
+        function filterTodos() {
             renderTodos();
         }
 
-        // TODO選択
-        function toggleTodoSelection(todoId) {
-            if (selectedTodos.has(todoId)) {
-                selectedTodos.delete(todoId);
-            } else {
-                selectedTodos.add(todoId);
-            }
+        // ユーティリティ関数
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            const diffTime = date - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            updateBulkActions();
+            if (diffDays < 0) return `${Math.abs(diffDays)}日遅延`;
+            if (diffDays === 0) return '今日';
+            if (diffDays === 1) return '明日';
+            return `${date.getMonth() + 1}/${date.getDate()}`;
         }
 
-        // 一括操作バー更新
-        function updateBulkActions() {
-            const bulkActions = document.getElementById('bulkActions');
-            const selectedCount = document.getElementById('selectedCount');
+        function getDeadlineClass(deadline) {
+            const date = new Date(deadline);
+            const today = new Date();
+            const diffDays = Math.ceil((date - today) / (1000 * 60 * 60 * 24));
             
-            if (selectedTodos.size > 0) {
-                bulkActions.classList.add('visible');
-                selectedCount.textContent = selectedTodos.size;
-            } else {
-                bulkActions.classList.remove('visible');
-            }
+            if (diffDays < 0) return 'deadline-overdue';
+            if (diffDays === 0) return 'deadline-today';
+            return 'deadline-upcoming';
         }
 
-        // イベントリスナー設定
-        function setupEventListeners() {
-            // 検索
-            document.getElementById('searchInput').addEventListener('input', applyFilters);
+        function getStatusText(status) {
+            return {
+                'pending': '未着手',
+                'in_progress': '進行中',
+                'completed': '完了'
+            }[status];
         }
 
-        // アクション関数
-        function completeTodo(todoId) {
-            const todo = todos.find(t => t.id === todoId);
-            if (todo) {
-                todo.completed = true;
-                todo.completedDate = new Date().toISOString().split('T')[0];
-                applyFilters();
-            }
-        }
-
-        function editTodo(todoId) {
-            alert(`TODO編集画面を開きます (ID: ${todoId})`);
-        }
-
-        function deleteTodo(todoId) {
-            if (confirm('このTODOを削除しますか？')) {
-                const index = todos.findIndex(t => t.id === todoId);
-                if (index > -1) {
-                    todos.splice(index, 1);
-                    applyFilters();
-                }
-            }
-        }
-
-        function openSource(type, id) {
-            if (type === 'email') {
-                alert(`元メールを開きます (メールID: ${id})`);
-            } else {
-                alert('手動追加されたTODOです');
-            }
-        }
-
-        function approveTodo(pendingId) {
-            alert(`AI抽出TODO承認 (ID: ${pendingId})`);
-        }
-
-        function rejectTodo(pendingId) {
-            alert(`AI抽出TODO拒否 (ID: ${pendingId})`);
-        }
-
-        function bulkApproveAI() {
-            alert('AI抽出TODO一括承認を実行します');
-        }
-
-        function addManualTodo() {
-            alert('手動TODO追加画面を開きます');
-        }
-
-        function bulkComplete() {
-            selectedTodos.forEach(todoId => {
-                const todo = todos.find(t => t.id === todoId);
-                if (todo) {
-                    todo.completed = true;
-                    todo.completedDate = new Date().toISOString().split('T')[0];
-                }
-            });
-            selectedTodos.clear();
-            applyFilters();
-            updateBulkActions();
-        }
-
-        function bulkSetPriority() {
-            const priority = prompt('優先度を選択してください (urgent/high/medium/low):');
-            if (priority && ['urgent', 'high', 'medium', 'low'].includes(priority)) {
-                selectedTodos.forEach(todoId => {
-                    const todo = todos.find(t => t.id === todoId);
-                    if (todo) {
-                        todo.priority = priority;
-                    }
-                });
-                selectedTodos.clear();
-                applyFilters();
-                updateBulkActions();
-            }
-        }
-
-        function bulkDelete() {
-            if (confirm(`選択した${selectedTodos.size}件のTODOを削除しますか？`)) {
-                selectedTodos.forEach(todoId => {
-                    const index = todos.findIndex(t => t.id === todoId);
-                    if (index > -1) {
-                        todos.splice(index, 1);
-                    }
-                });
-                selectedTodos.clear();
-                applyFilters();
-                updateBulkActions();
-            }
+        function showMessage(text) {
+            // 簡易的なメッセージ表示
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4caf50;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                z-index: 1001;
+            `;
+            message.textContent = text;
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
         }
     </script>
 </body>

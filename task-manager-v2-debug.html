@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 営業タスク管理ツール V2 - DEBUG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        /* ヘッダー */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        /* デバッグエリア */
+        .debug-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .debug-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .debug-log {
+            font-family: monospace;
+            font-size: 0.9rem;
+            background: #1f2937;
+            color: #10b981;
+            padding: 1rem;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        /* フロー設計エリア */
+        .flow-designer {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .flow-toolbar {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .flow-toolbar h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .toolbar-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #f7fafc;
+        }
+        
+        /* フローキャンバス */
+        .flow-canvas {
+            position: relative;
+            height: 600px;
+            background: 
+                radial-gradient(circle, #e2e8f0 1px, transparent 1px),
+                linear-gradient(90deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(226, 232, 240, 0.3) 1px, transparent 1px);
+            background-size: 20px 20px;
+            cursor: crosshair;
+            overflow: hidden;
+        }
+        
+        /* 空のキャンバス */
+        .empty-canvas {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: #6b7280;
+        }
+        
+        .empty-content {
+            max-width: 400px;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .empty-text {
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <div class="header">
+            <h1>🚀 営業タスク管理ツール V2 - DEBUG</h1>
+            <p>革新的カスタムフロー設計 - デバッグモード</p>
+        </div>
+        
+        <!-- デバッグエリア -->
+        <div class="debug-area">
+            <div class="debug-title">🐛 Debug Log</div>
+            <div class="debug-log" id="debug-log"></div>
+        </div>
+        
+        <!-- フロー設計エリア -->
+        <div class="flow-designer">
+            <!-- ツールバー -->
+            <div class="flow-toolbar">
+                <div>
+                    <h2 id="flow-title">カスタムフロー設計</h2>
+                    <div style="font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;">
+                        <span id="phase-count">0</span> フェーズ
+                    </div>
+                </div>
+                
+                <div class="toolbar-buttons">
+                    <button class="btn btn-primary" onclick="debugAddSampleFlow()">
+                        📋 サンプルフローを追加
+                    </button>
+                    <button class="btn btn-secondary" onclick="debugTestClick()">
+                        🧪 テストクリック
+                    </button>
+                </div>
+            </div>
+            
+            <!-- キャンバス -->
+            <div class="flow-canvas" id="canvas" onclick="debugCanvasClick(event)">
+                <div class="empty-canvas" id="empty-state">
+                    <div class="empty-content">
+                        <div class="empty-icon">✨</div>
+                        <div class="empty-title">カスタムフローを設計しましょう</div>
+                        <div class="empty-text">
+                            キャンバスをクリックしてフェーズを追加<br>
+                            まずは「📋 サンプルフローを追加」をクリック
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // デバッグログ機能
+        function debugLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('debug-log');
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[DEBUG] ${message}`);
+        }
+        
+        // グローバル変数
+        let currentFlow = {
+            id: 'flow-1',
+            name: '営業フロー',
+            phases: [],
+            connections: []
+        };
+        
+        let tasks = [];
+        let phaseCounter = 0;
+        let taskCounter = 0;
+        
+        const colors = [
+            '#667eea', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
+        ];
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('🚀 初期化開始');
+            updateUI();
+            debugLog('✅ 初期化完了');
+        });
+        
+        // デバッグ用テストクリック
+        function debugTestClick() {
+            debugLog('🧪 テストクリック実行');
+            debugAddPhase('テストフェーズ', 200, 150);
+        }
+        
+        // デバッグ用サンプルフロー追加
+        function debugAddSampleFlow() {
+            debugLog('📋 サンプルフロー追加開始');
+            
+            phaseCounter = 0;
+            taskCounter = 0;
+            
+            currentFlow.phases = [
+                { id: 'phase-1', name: '見積作成', x: 100, y: 100, color: colors[0], description: '顧客要件に基づく見積もり' },
+                { id: 'phase-2', name: '相手確認', x: 350, y: 100, color: colors[1], description: '顧客による内容確認' },
+                { id: 'phase-3', name: '承認待ち', x: 600, y: 100, color: colors[2], description: '社内承認プロセス' }
+            ];
+            phaseCounter = 3;
+            
+            tasks = [
+                {
+                    id: 'task-1', title: 'A社向け見積書作成', category: 'estimate', priority: 'high',
+                    deadline: '2025-08-05', description: 'システム導入の見積もり', phaseId: 'phase-1',
+                    completed: false, createdAt: new Date().toISOString()
+                },
+                {
+                    id: 'task-2', title: 'B社からの返答待ち', category: 'follow_up', priority: 'medium',
+                    deadline: null, description: '先週送付した提案書の件', phaseId: 'phase-2',
+                    completed: false, createdAt: new Date().toISOString()
+                }
+            ];
+            taskCounter = 2;
+            
+            debugLog(`📋 フェーズ数: ${currentFlow.phases.length}`);
+            debugLog(`📋 タスク数: ${tasks.length}`);
+            
+            renderPhases();
+            updateUI();
+            debugLog('✅ サンプルフロー追加完了');
+        }
+        
+        // デバッグ用フェーズ追加
+        function debugAddPhase(name, x, y) {
+            debugLog(`➕ フェーズ追加: ${name} (${x}, ${y})`);
+            
+            const phase = {
+                id: `phase-${++phaseCounter}`,
+                name,
+                x: Math.max(10, Math.min(x - 100, 1000)),
+                y: Math.max(10, Math.min(y - 60, 500)),
+                color: colors[phaseCounter % colors.length],
+                description: ''
+            };
+            
+            currentFlow.phases.push(phase);
+            debugLog(`✅ フェーズ追加完了: ${phase.id}`);
+            
+            renderPhases();
+            updateUI();
+        }
+        
+        // キャンバスクリック（デバッグ版）
+        function debugCanvasClick(event) {
+            debugLog('🖱️ キャンバスクリック検出');
+            
+            if (event.target.id !== 'canvas') {
+                debugLog(`⚠️ クリック対象が異なります: ${event.target.id}`);
+                return;
+            }
+            
+            const rect = event.target.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            debugLog(`📍 クリック座標: (${x}, ${y})`);
+            
+            const phaseName = prompt('フェーズ名を入力してください:') || 'デフォルトフェーズ';
+            debugLog(`📝 入力されたフェーズ名: ${phaseName}`);
+            
+            debugAddPhase(phaseName, x, y);
+        }
+        
+        // フェーズレンダリング
+        function renderPhases() {
+            debugLog('🎨 フェーズレンダリング開始');
+            
+            const canvas = document.getElementById('canvas');
+            const emptyState = document.getElementById('empty-state');
+            
+            // 既存のフェーズウィンドウを削除
+            const existingPhases = canvas.querySelectorAll('.phase-window');
+            debugLog(`🗑️ 既存フェーズ削除: ${existingPhases.length}個`);
+            existingPhases.forEach(phase => phase.remove());
+            
+            if (currentFlow.phases.length === 0) {
+                emptyState.style.display = 'flex';
+                debugLog('📋 空の状態を表示');
+                return;
+            } else {
+                emptyState.style.display = 'none';
+                debugLog('📋 空の状態を非表示');
+            }
+            
+            currentFlow.phases.forEach((phase, index) => {
+                debugLog(`🎯 フェーズレンダリング: ${phase.name} (${index + 1}/${currentFlow.phases.length})`);
+                const phaseElement = createPhaseElement(phase);
+                canvas.appendChild(phaseElement);
+            });
+            
+            debugLog('✅ フェーズレンダリング完了');
+        }
+        
+        // フェーズ要素作成
+        function createPhaseElement(phase) {
+            debugLog(`🏗️ フェーズ要素作成: ${phase.name}`);
+            
+            const div = document.createElement('div');
+            div.className = 'phase-window';
+            div.style.cssText = `
+                position: absolute;
+                left: ${phase.x}px;
+                top: ${phase.y}px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+                border: 1px solid #e2e8f0;
+                padding: 1rem;
+                min-width: 200px;
+                min-height: 120px;
+                cursor: move;
+                user-select: none;
+                transition: all 0.15s ease;
+            `;
+            
+            const phaseTasks = tasks.filter(task => task.phaseId === phase.id);
+            const taskCount = phaseTasks.length;
+            const completedCount = phaseTasks.filter(task => task.completed).length;
+            
+            div.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: ${phase.color};"></div>
+                        <div style="font-weight: 600; color: #2d3748; font-size: 0.9rem;">${phase.name}</div>
+                    </div>
+                </div>
+                <div style="color: #6b7280; font-size: 0.8rem; margin-bottom: 0.5rem;">
+                    ${phase.description || 'タスクをここにドロップ'}
+                </div>
+                <div style="font-size: 0.8rem; color: #6b7280;">
+                    📋 ${phaseTasks.map(task => `
+                        <div style="background: #f3f4f6; padding: 0.5rem; margin: 0.25rem 0; border-radius: 6px; border-left: 3px solid ${phase.color};">
+                            <div style="font-weight: 600; color: #2d3748;">${task.title}</div>
+                            <div style="font-size: 0.7rem; color: #6b7280;">優先度: ${task.priority}</div>
+                        </div>
+                    `).join('') || '<div style="text-align: center; padding: 1rem; color: #9ca3af;">タスクなし</div>'}
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.75rem; color: #9ca3af;">
+                    <span>タスク: ${taskCount}</span>
+                    <span>完了: ${completedCount}</span>
+                </div>
+            `;
+            
+            debugLog(`✅ フェーズ要素作成完了: ${phase.name}`);
+            return div;
+        }
+        
+        // UI更新
+        function updateUI() {
+            debugLog('🔄 UI更新開始');
+            
+            const titleElement = document.getElementById('flow-title');
+            const countElement = document.getElementById('phase-count');
+            
+            if (titleElement) titleElement.textContent = currentFlow.name;
+            if (countElement) countElement.textContent = currentFlow.phases.length;
+            
+            debugLog(`🔄 UI更新完了 - フロー名: ${currentFlow.name}, フェーズ数: ${currentFlow.phases.length}`);
+        }
+        
+        debugLog('🎯 スクリプト読み込み完了');
+    </script>
+</body>
+</html>

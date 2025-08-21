@@ -22,8 +22,9 @@ export function requireAuth(authService: AuthService) {
       
       if (!token) {
         return res.status(401).json({
+          success: false,
           error: '認証が必要です',
-          code: 'AUTH_REQUIRED',
+          code: 'AUTHENTICATION_REQUIRED',
           redirectTo: '/login'
         });
       }
@@ -57,7 +58,7 @@ export function requireAuth(authService: AuthService) {
  * ロールベース認証ミドルウェア
  */
 export function requireRole(allowedRoles: UserRole[]) {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+  return (req: AuthRequest, res: Response, next: NextFunction): Response | void => {
     if (!req.user) {
       return res.status(401).json({
         error: '認証が必要です',
@@ -82,7 +83,7 @@ export function requireRole(allowedRoles: UserRole[]) {
  * 上位権限者チェックミドルウェア
  */
 export function requireUpperRole() {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+  return (req: AuthRequest, res: Response, next: NextFunction): Response | void => {
     if (!req.user) {
       return res.status(401).json({
         error: '認証が必要です',
@@ -93,8 +94,9 @@ export function requireUpperRole() {
 
     if (!isUpperRole(req.user.role)) {
       return res.status(403).json({
+        success: false,
         error: 'この操作には管理者権限が必要です',
-        code: 'PERMISSION_DENIED',
+        code: 'INSUFFICIENT_ROLE',
         requiredRole: 'COMPANY_LEADER, MANAGER, または TEAM_LEADER'
       });
     }
@@ -108,12 +110,13 @@ export function requireUpperRole() {
  * 企業・TODO・契約などの編集時に担当者であることを確認
  */
 export function requireAssigneeOrUpperRole(entityService: any, entityIdParam: string = 'id') {
-  return async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  return async (req: AuthRequest, res: Response, next: NextFunction): Promise<Response | void> => {
     try {
       if (!req.user) {
         return res.status(401).json({
+          success: false,
           error: '認証が必要です',
-          code: 'AUTH_REQUIRED',
+          code: 'AUTHENTICATION_REQUIRED',
           redirectTo: '/login'
         });
       }
@@ -166,7 +169,7 @@ export function requireAssigneeOrUpperRole(entityService: any, entityIdParam: st
  * Gmail アクセス権限チェックミドルウェア
  */
 export function requireGmailAccess(accessType: 'personal' | 'shared' | 'both' = 'personal') {
-  return async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  return async (req: AuthRequest, res: Response, next: NextFunction): Promise<Response | void> => {
     if (!req.user) {
       return res.status(401).json({
         error: '認証が必要です',
@@ -221,7 +224,7 @@ export function requireGmailAccess(accessType: 'personal' | 'shared' | 'both' = 
 export function rateLimit(maxRequests: number = 100, windowMs: number = 15 * 60 * 1000) {
   const requests = new Map<string, { count: number; resetTime: number }>();
 
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, res: Response, next: NextFunction): Response | void => {
     const clientId = getClientId(req);
     const now = Date.now();
     
@@ -254,9 +257,14 @@ export function rateLimit(maxRequests: number = 100, windowMs: number = 15 * 60 
  * CSRF保護ミドルウェア
  */
 export function csrfProtection() {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, res: Response, next: NextFunction): Response | void => {
     // GET、HEAD、OPTIONSは除外
     if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+      return next();
+    }
+
+    // 開発・テスト環境では無効化
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
       return next();
     }
 
@@ -279,7 +287,7 @@ export function csrfProtection() {
  * セキュリティヘッダー設定ミドルウェア
  */
 export function securityHeaders() {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (_req: Request, res: Response, next: NextFunction): void => {
     // セキュリティヘッダー設定
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
@@ -330,7 +338,7 @@ function getClientId(req: Request): string {
  * 認証エラーハンドラー
  */
 export function authErrorHandler() {
-  return (error: Error, req: Request, res: Response, next: NextFunction): void => {
+  return (error: Error, _req: Request, res: Response, next: NextFunction): Response | void => {
     if (error instanceof AuthenticationError) {
       return res.status(error.statusCode).json({
         error: error.message,

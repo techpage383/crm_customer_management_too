@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メインダッシュボード - 最強タスク管理ツール</title>
+    
+    <!-- Material UI CSS -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Material UI JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+    <style>
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+            color: white;
+            padding: 0 20px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .notification-badge {
+            position: relative;
+        }
+        
+        .badge-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff5722;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .project-selector {
+            margin-bottom: 15px;
+        }
+        
+        .quick-stats {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-chip {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 8px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .kanban-board {
+            display: flex;
+            gap: 20px;
+            min-height: 600px;
+            padding-bottom: 20px;
+        }
+        
+        .status-column {
+            background: white;
+            border-radius: 8px;
+            min-width: 300px;
+            max-width: 300px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .column-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .column-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .task-count {
+            background: #e0e0e0;
+            color: #666;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .todo-count { background: #ffecb3; color: #f57f17; }
+        .progress-count { background: #e1f5fe; color: #0277bd; }
+        .review-count { background: #fff3e0; color: #ef6c00; }
+        .done-count { background: #e8f5e8; color: #2e7d32; }
+        
+        .task-list {
+            flex: 1;
+            padding: 20px;
+            min-height: 500px;
+        }
+        
+        .task-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: grab;
+            transition: all 0.2s;
+            border-left: 4px solid #e0e0e0;
+        }
+        
+        .task-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .task-card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+        
+        .task-card.high-priority {
+            border-left-color: #f44336;
+        }
+        
+        .task-card.medium-priority {
+            border-left-color: #ff9800;
+        }
+        
+        .task-card.low-priority {
+            border-left-color: #4caf50;
+        }
+        
+        .task-card.overdue {
+            background: #ffebee;
+            border-left-color: #d32f2f;
+        }
+        
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .task-assignee {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1976d2, #42a5f5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+        
+        .task-due {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .overdue-text {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        
+        .add-task-btn {
+            background: #f5f5f5;
+            border: 2px dashed #ccc;
+            color: #666;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .add-task-btn:hover {
+            background: #eeeeee;
+            border-color: #999;
+        }
+        
+        .drop-zone {
+            min-height: 100px;
+            border: 2px dashed transparent;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #1976d2;
+            background: #e3f2fd;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 4px;
+        }
+        
+        .menu-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .menu-item.active {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .menu-icon {
+            font-size: 20px;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .fab:hover {
+            background: #1565c0;
+            transform: scale(1.1);
+        }
+        
+        .notification-panel {
+            position: absolute;
+            top: 64px;
+            right: 0;
+            width: 400px;
+            background: white;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            height: calc(100vh - 64px);
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+        
+        .notification-panel.open {
+            transform: translateX(0);
+        }
+        
+        .notification-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: bold;
+        }
+        
+        .notification-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .notification-item.unread {
+            background: #f8f9fa;
+        }
+        
+        .notification-icon {
+            color: #1976d2;
+            margin-top: 2px;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .notification-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .notification-time {
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="logo">
+            <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">dashboard</i>
+            最強タスク管理ツール
+        </div>
+        
+        <div class="user-info">
+            <div class="notification-badge" onclick="toggleNotifications()">
+                <i class="material-icons" style="cursor: pointer; font-size: 24px;">notifications</i>
+                <span class="badge-count">3</span>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="avatar">田</div>
+                <span>田中太郎</span>
+            </div>
+            
+            <i class="material-icons" style="cursor: pointer; font-size: 24px;">logout</i>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- サイドバー -->
+        <nav class="sidebar">
+            <div class="menu-item active">
+                <i class="material-icons menu-icon">dashboard</i>
+                <span>メインダッシュボード</span>
+            </div>
+            
+            <div class="menu-item">
+                <i class="material-icons menu-icon">folder</i>
+                <span>プロジェクト管理</span>
+            </div>
+            
+            <div class="menu-item">
+                <i class="material-icons menu-icon">settings</i>
+                <span>個人設定</span>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 0 16px; color: #666; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                統計
+            </div>
+            
+            <div style="margin-top: 15px; padding: 0 16px;">
+                <div style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="font-size: 12px; color: #666; margin-bottom: 8px;">今週の完了率</div>
+                    <div style="height: 60px;">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                    <div style="text-align: center; margin-top: 8px; font-weight: bold; color: #1976d2;">
+                        75%
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- メインコンテンツ -->
+        <main class="content">
+            <!-- フィルターセクション -->
+            <div class="filter-section">
+                <div class="project-selector">
+                    <select class="browser-default" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 200px;">
+                        <option>全プロジェクト</option>
+                        <option>Webサイト制作</option>
+                        <option>システム改修</option>
+                        <option>営業資料作成</option>
+                    </select>
+                </div>
+                
+                <div class="quick-stats">
+                    <span class="stat-chip">今日の期限: 3件</span>
+                    <span class="stat-chip">遅延中: 1件</span>
+                    <span class="stat-chip">完了済み（今週）: 12件</span>
+                </div>
+            </div>
+
+            <!-- カンバンボード -->
+            <div class="kanban-board">
+                <!-- TO DO列 -->
+                <div class="status-column">
+                    <div class="column-header">
+                        <span class="column-title">TO DO</span>
+                        <span class="task-count todo-count">5</span>
+                    </div>
+                    <div class="task-list drop-zone" data-status="todo">
+                        <div class="task-card high-priority" draggable="true" data-task-id="1">
+                            <div class="task-title">お客様向け提案書の作成</div>
+                            <div class="task-meta">
+                                <div class="task-assignee">
+                                    <div class="avatar">田</div>
+                                    <span>田中太郎</span>
+                                </div>
+                                <div class="task-due">
+                                    <i class="material-icons" style="font-size: 14px;">schedule</i>
+                                    <span>1/30</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-card medium-priority" draggable="true" data-task-id="2">
+                            <div class="task-title">システム要件の整理</div>
+                            <div class="task-meta">
+                                <div class="task-assignee">
+                                    <div class="avatar">佐</div>
+                                    <span>佐藤花子</span>
+                                </div>
+                                <div class="task-due">
+                                    <i class="material-icons" style="font-size: 14px;">schedule</i>
+                                    <span>2/1</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-card low-priority overdue" draggable="true" data-task-id="3">
+                            <div class="task-title">定期報告書の更新</div>
+                            <div class="task-meta">
+                                <div class="task-assignee">
+                                    <div class="avatar">田</div>
+                                    <span>田中太郎</span>
+                                </div>
+                                <div class="task-due overdue-text">
+                                    <i class="material-icons" style="font-size: 14px;">warning</i>
+                                    <span>1/28 遅延</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="add-task-btn" onclick="addNewTask('todo')">
+                            <i class="material-icons">add</i>
+                            <div>新しいタスクを追加</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 進行中列 -->
+                <div class="status-column">
+                    <div class="column-header">
+                        <span class="column-title">進行中</span>
+                        <span class="task-count progress-count">3</span>
+                    </div>
+                    <div class="task-list drop-zone" data-status="progress">
+                        <div class="task-card high-priority" draggable="true" data-task-id="4">
+                            <div class="task-title">UIデザインの作成</div>
+                            <div class="task-meta">
+                                <div class="task-assignee">
+                                    <div class="avatar">山</div>
+                                    <span>山田次郎</span>
+                                </div>
+                                <div class="task-due">
+                                    <i class="material-icons" style="font-size: 14px;">schedule</i>
+                                    <span>2/3</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-card medium-priority" draggable="true" data-task-id="5">
+                            <div class="task-title">データベース設計</div>
+                            <div class="task-meta">
+                                <div class="task-assignee">
+                                    <div class="avatar">佐</div>
+                                    <span>佐藤花子</span>
+                                </div>
+                                <div class="task-due">
+                                    <i class="material-icons" style="font-size: 14px;">schedule</i>
+                                    <span>2/5</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="add-task-btn" onclick="addNewTask('progress')">
+                            <i class="material-icons">add</i>
+                            <div>新しいタスクを追加</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- レビュー中列 -->
+                <div class="status-column">
+                    <div class="column-header">
+                        <span class="column-title">レビュー中</span>
+                        <span class="task-count review-count">2</span>
+                    </div>
+                    <div class="task-list drop-zone" data-status="review">
+                        <div class="task-card medium-priority" draggable="true" data-task-id="6">
+                            <div class="task-title">マーケティング資料のチェック</div>
+                            <div class="task-meta">
+                                <div class="task-assignee">
+                                    <div class="avatar">田</div>
+                                    <span>田中太郎</span>
+                                </div>
+                                <div class="task-due">
+                                    <i class="material-icons" style="font-size: 14px;">schedule</i>
+                                    <span>1/31</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="add-task-btn" onclick="addNewTask('review')">
+                            <i class="material-icons">add</i>
+                            <div>新しいタスクを追加</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 完了列 -->
+                <div class="status-column">
+                    <div class="column-header">
+                        <span class="column-title">完了</span>
+                        <span class="task-count done-count">8</span>
+                    </div>
+                    <div class="task-list drop-zone" data-status="done">
+                        <div class="task-card low-priority" draggable="true" data-task-id="7">
+                            <div class="task-title">週次ミーティング資料作成</div>
+                            <div class="task-meta">
+                                <div class="task-assignee">
+                                    <div class="avatar">山</div>
+                                    <span>山田次郎</span>
+                                </div>
+                                <div class="task-due">
+                                    <i class="material-icons" style="font-size: 14px; color: #4caf50;">check_circle</i>
+                                    <span style="color: #4caf50;">1/26完了</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-card low-priority" draggable="true" data-task-id="8">
+                            <div class="task-title">サーバー環境の設定</div>
+                            <div class="task-meta">
+                                <div class="task-assignee">
+                                    <div class="avatar">佐</div>
+                                    <span>佐藤花子</span>
+                                </div>
+                                <div class="task-due">
+                                    <i class="material-icons" style="font-size: 14px; color: #4caf50;">check_circle</i>
+                                    <span style="color: #4caf50;">1/25完了</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 通知パネル -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>通知</span>
+                <i class="material-icons" style="cursor: pointer;" onclick="toggleNotifications()">close</i>
+            </div>
+        </div>
+        
+        <div class="notification-item unread">
+            <i class="material-icons notification-icon">warning</i>
+            <div class="notification-content">
+                <div class="notification-title">期限切れタスクがあります</div>
+                <div class="notification-text">「定期報告書の更新」が期限を過ぎています</div>
+                <div class="notification-time">2時間前</div>
+            </div>
+        </div>
+        
+        <div class="notification-item unread">
+            <i class="material-icons notification-icon">assignment</i>
+            <div class="notification-content">
+                <div class="notification-title">新しいタスクが割り当てられました</div>
+                <div class="notification-text">「システム要件の整理」が佐藤花子により作成されました</div>
+                <div class="notification-time">1日前</div>
+            </div>
+        </div>
+        
+        <div class="notification-item">
+            <i class="material-icons notification-icon">check_circle</i>
+            <div class="notification-content">
+                <div class="notification-title">タスクが完了されました</div>
+                <div class="notification-text">山田次郎が「週次ミーティング資料作成」を完了しました</div>
+                <div class="notification-time">3日前</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" onclick="addNewTask('todo')">
+        <i class="material-icons">add</i>
+    </button>
+
+    <script>
+        // ドラッグ&ドロップ機能
+        let draggedElement = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+            initChart();
+        });
+
+        function setupDragAndDrop() {
+            const taskCards = document.querySelectorAll('.task-card');
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            taskCards.forEach(card => {
+                card.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                card.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                    draggedElement = null;
+                });
+            });
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drag-over');
+                    e.dataTransfer.dropEffect = 'move';
+                });
+
+                zone.addEventListener('dragleave', function() {
+                    this.classList.remove('drag-over');
+                });
+
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    if (draggedElement) {
+                        const addBtn = this.querySelector('.add-task-btn');
+                        this.insertBefore(draggedElement, addBtn);
+                        
+                        // ステータス更新のシミュレーション
+                        const newStatus = this.dataset.status;
+                        const taskId = draggedElement.dataset.taskId;
+                        updateTaskStatus(taskId, newStatus);
+                        
+                        // カウント更新
+                        updateTaskCounts();
+                    }
+                });
+            });
+        }
+
+        function updateTaskStatus(taskId, newStatus) {
+            console.log(`タスク ${taskId} のステータスを ${newStatus} に更新`);
+            // 実際のAPIコール処理がここに入る
+        }
+
+        function updateTaskCounts() {
+            const columns = document.querySelectorAll('.status-column');
+            columns.forEach(column => {
+                const tasks = column.querySelectorAll('.task-card:not(.add-task-btn)');
+                const countElement = column.querySelector('.task-count');
+                countElement.textContent = tasks.length;
+            });
+        }
+
+        function toggleNotifications() {
+            const panel = document.getElementById('notificationPanel');
+            panel.classList.toggle('open');
+        }
+
+        function addNewTask(status) {
+            const title = prompt('新しいタスクのタイトルを入力してください：');
+            if (title) {
+                // 新しいタスクカードを作成
+                const taskCard = document.createElement('div');
+                taskCard.className = 'task-card medium-priority';
+                taskCard.draggable = true;
+                taskCard.dataset.taskId = Date.now().toString();
+                
+                taskCard.innerHTML = `
+                    <div class="task-title">${title}</div>
+                    <div class="task-meta">
+                        <div class="task-assignee">
+                            <div class="avatar">田</div>
+                            <span>田中太郎</span>
+                        </div>
+                        <div class="task-due">
+                            <i class="material-icons" style="font-size: 14px;">schedule</i>
+                            <span>未設定</span>
+                        </div>
+                    </div>
+                `;
+                
+                // ドラッグ&ドロップイベントを追加
+                taskCard.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                taskCard.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                    draggedElement = null;
+                });
+                
+                // 適切な列に追加
+                const targetColumn = document.querySelector(`[data-status="${status}"]`);
+                const addBtn = targetColumn.querySelector('.add-task-btn');
+                targetColumn.insertBefore(taskCard, addBtn);
+                
+                updateTaskCounts();
+            }
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [75, 25],
+                        backgroundColor: ['#1976d2', '#e0e0e0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // 外部クリックで通知パネルを閉じる
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('notificationPanel');
+            const notificationBtn = document.querySelector('.notification-badge');
+            
+            if (!panel.contains(e.target) && !notificationBtn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>

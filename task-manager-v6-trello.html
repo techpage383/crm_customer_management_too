@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 シンプルタスク管理 V6 - トレロスタイル</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f4f5f7;
+            min-height: 100vh;
+            color: #172b4d;
+        }
+        
+        .header {
+            background: #026aa7;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .board-header {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #dfe1e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .board-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #0079bf;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            background: #026aa7;
+        }
+        
+        .btn-light {
+            background: #f4f5f7;
+            color: #172b4d;
+            border: 1px solid #dfe1e6;
+        }
+        
+        .btn-light:hover {
+            background: #ebecf0;
+        }
+        
+        .board-wrapper {
+            padding: 1.5rem;
+            overflow-x: auto;
+            height: calc(100vh - 120px);
+        }
+        
+        .board {
+            display: flex;
+            gap: 1rem;
+            min-width: max-content;
+        }
+        
+        .column {
+            background: #ebecf0;
+            border-radius: 3px;
+            width: 272px;
+            padding: 0.75rem;
+            max-height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .column-header {
+            font-weight: 600;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .column-title {
+            font-size: 0.875rem;
+            color: #172b4d;
+        }
+        
+        .column-count {
+            background: rgba(0,0,0,0.15);
+            color: #5e6c84;
+            padding: 0.125rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .column-cards {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 50px;
+            border: 2px dashed transparent;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+        }
+        
+        .column-cards.drag-over {
+            border-color: #0079bf;
+            background: rgba(0, 121, 191, 0.05);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 3px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            box-shadow: 0 1px 0 rgba(9,30,66,.25);
+            transition: all 0.2s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(9,30,66,.25);
+            transform: translateY(-1px);
+        }
+        
+        .card.dragging {
+            opacity: 0.5;
+            transform: rotate(3deg);
+            cursor: grabbing;
+        }
+        
+        .card-title {
+            font-size: 0.875rem;
+            color: #172b4d;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .card-badge {
+            padding: 0.125rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-waiting {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-urgent {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-review {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .badge-done {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-category {
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .card-date {
+            font-size: 0.75rem;
+            color: #5e6c84;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .add-card {
+            padding: 0.5rem;
+            border: none;
+            background: transparent;
+            color: #5e6c84;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            border-radius: 3px;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .add-card:hover {
+            background: rgba(9,30,66,.08);
+            color: #172b4d;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 3px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #172b4d;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #5e6c84;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #172b4d;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #dfe1e6;
+            border-radius: 3px;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #0079bf;
+        }
+        
+        .status-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .status-option {
+            padding: 0.5rem 1rem;
+            border: 2px solid #dfe1e6;
+            border-radius: 3px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .status-option:hover {
+            border-color: #0079bf;
+        }
+        
+        .status-option.selected {
+            background: #0079bf;
+            color: white;
+            border-color: #0079bf;
+        }
+        
+        #status-bar {
+            background: #5ba4cf;
+            color: white;
+            padding: 0.75rem 2rem;
+            text-align: center;
+            font-size: 0.875rem;
+            display: none;
+        }
+        
+        #status-bar.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 シンプルタスク管理ボード</h1>
+    </div>
+    
+    <div id="status-bar"></div>
+    
+    <div class="board-header">
+        <div class="board-title">営業案件管理</div>
+        <div>
+            <button class="btn btn-light" onclick="addColumn()">➕ リスト追加</button>
+            <button class="btn" onclick="createSampleBoard()">📋 サンプル作成</button>
+        </div>
+    </div>
+    
+    <div class="board-wrapper">
+        <div class="board" id="board"></div>
+    </div>
+    
+    <!-- タスク編集モーダル -->
+    <div class="modal" id="task-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">タスク編集</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <form onsubmit="saveTask(event)">
+                <div class="form-group">
+                    <label class="form-label">タイトル</label>
+                    <input type="text" class="form-input" id="task-title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">状態・備考</label>
+                    <div class="status-options">
+                        <label class="status-option">
+                            <input type="checkbox" value="waiting" onchange="toggleStatus(this)">
+                            ⏳ 連絡待ち
+                        </label>
+                        <label class="status-option">
+                            <input type="checkbox" value="urgent" onchange="toggleStatus(this)">
+                            🔥 緊急
+                        </label>
+                        <label class="status-option">
+                            <input type="checkbox" value="review" onchange="toggleStatus(this)">
+                            👀 確認中
+                        </label>
+                        <label class="status-option">
+                            <input type="checkbox" value="done" onchange="toggleStatus(this)">
+                            ✅ 完了
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">カテゴリ</label>
+                    <select class="form-input" id="task-category">
+                        <option value="">なし</option>
+                        <option value="営業">営業</option>
+                        <option value="見積">見積</option>
+                        <option value="契約">契約</option>
+                        <option value="サポート">サポート</option>
+                        <option value="その他">その他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">期限</label>
+                    <input type="date" class="form-input" id="task-deadline">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">メモ</label>
+                    <textarea class="form-input" id="task-memo" rows="3"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-light" onclick="closeModal()">キャンセル</button>
+                    <button type="submit" class="btn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let columns = [];
+        let tasks = [];
+        let draggedTask = null;
+        let columnCounter = 0;
+        let taskCounter = 0;
+        let editingTask = null;
+        
+        function showStatus(message) {
+            const statusBar = document.getElementById('status-bar');
+            statusBar.textContent = message;
+            statusBar.classList.add('show');
+            setTimeout(() => statusBar.classList.remove('show'), 3000);
+        }
+        
+        function createSampleBoard() {
+            columns = [
+                { id: 'todo', title: 'TODO', order: 0 },
+                { id: 'progress', title: '進行中', order: 1 },
+                { id: 'waiting', title: '対応待ち', order: 2 },
+                { id: 'done', title: '完了', order: 3 }
+            ];
+            
+            tasks = [
+                {
+                    id: 'task1',
+                    title: 'A社向け見積書作成',
+                    columnId: 'todo',
+                    status: [],
+                    category: '見積',
+                    deadline: '2025-08-05',
+                    memo: '要件確認済み'
+                },
+                {
+                    id: 'task2',
+                    title: 'B社からの返答待ち',
+                    columnId: 'waiting',
+                    status: ['waiting'],
+                    category: '営業',
+                    deadline: null,
+                    memo: '月曜日に再度連絡予定'
+                },
+                {
+                    id: 'task3',
+                    title: 'C社契約書確認',
+                    columnId: 'progress',
+                    status: ['urgent', 'review'],
+                    category: '契約',
+                    deadline: '2025-08-02',
+                    memo: '法務確認中'
+                },
+                {
+                    id: 'task4',
+                    title: 'D社案件完了',
+                    columnId: 'done',
+                    status: ['done'],
+                    category: 'サポート',
+                    deadline: null,
+                    memo: '納品完了、請求書送付済み'
+                }
+            ];
+            
+            columnCounter = columns.length;
+            taskCounter = tasks.length;
+            
+            render();
+            showStatus('📋 サンプルボードを作成しました');
+        }
+        
+        function addColumn() {
+            const title = prompt('新しいリストの名前:');
+            if (!title || !title.trim()) return;
+            
+            const column = {
+                id: `col-${++columnCounter}`,
+                title: title.trim(),
+                order: columns.length
+            };
+            
+            columns.push(column);
+            render();
+            showStatus(`リスト「${title}」を追加しました`);
+        }
+        
+        function render() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            
+            columns.sort((a, b) => a.order - b.order);
+            
+            columns.forEach(column => {
+                const columnEl = createColumnElement(column);
+                board.appendChild(columnEl);
+            });
+        }
+        
+        function createColumnElement(column) {
+            const div = document.createElement('div');
+            div.className = 'column';
+            
+            const columnTasks = tasks.filter(t => t.columnId === column.id);
+            
+            div.innerHTML = `
+                <div class="column-header">
+                    <span class="column-title">${column.title}</span>
+                    <span class="column-count">${columnTasks.length}</span>
+                </div>
+                <div class="column-cards" data-column-id="${column.id}">
+                    ${columnTasks.map(task => createTaskCard(task)).join('')}
+                </div>
+                <button class="add-card" onclick="addTask('${column.id}')">
+                    ＋ カードを追加
+                </button>
+            `;
+            
+            const cardsContainer = div.querySelector('.column-cards');
+            
+            // ドロップイベント
+            cardsContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                cardsContainer.classList.add('drag-over');
+            });
+            
+            cardsContainer.addEventListener('dragleave', () => {
+                cardsContainer.classList.remove('drag-over');
+            });
+            
+            cardsContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                cardsContainer.classList.remove('drag-over');
+                
+                if (draggedTask && draggedTask.columnId !== column.id) {
+                    const oldColumn = columns.find(c => c.id === draggedTask.columnId);
+                    draggedTask.columnId = column.id;
+                    render();
+                    showStatus(`「${draggedTask.title}」を「${oldColumn.title}」→「${column.title}」に移動`);
+                }
+            });
+            
+            return div;
+        }
+        
+        function createTaskCard(task) {
+            const statusBadges = task.status.map(s => {
+                const badges = {
+                    waiting: '<span class="card-badge badge-waiting">⏳ 連絡待ち</span>',
+                    urgent: '<span class="card-badge badge-urgent">🔥 緊急</span>',
+                    review: '<span class="card-badge badge-review">👀 確認中</span>',
+                    done: '<span class="card-badge badge-done">✅ 完了</span>'
+                };
+                return badges[s] || '';
+            }).join('');
+            
+            const categoryBadge = task.category ? 
+                `<span class="card-badge badge-category">${task.category}</span>` : '';
+            
+            const deadlineText = task.deadline ? 
+                `<div class="card-date">📅 ${new Date(task.deadline).toLocaleDateString('ja-JP')}</div>` : '';
+            
+            return `
+                <div class="card" draggable="true" 
+                     onclick="editTask('${task.id}')"
+                     ondragstart="draggedTask = tasks.find(t => t.id === '${task.id}'); event.target.classList.add('dragging')"
+                     ondragend="event.target.classList.remove('dragging'); draggedTask = null">
+                    <div class="card-title">${task.title}</div>
+                    ${(statusBadges || categoryBadge || deadlineText) ? `
+                        <div class="card-meta">
+                            ${statusBadges}
+                            ${categoryBadge}
+                            ${deadlineText}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        function addTask(columnId) {
+            const title = prompt('新しいカードのタイトル:');
+            if (!title || !title.trim()) return;
+            
+            const task = {
+                id: `task-${++taskCounter}`,
+                title: title.trim(),
+                columnId,
+                status: [],
+                category: '',
+                deadline: null,
+                memo: ''
+            };
+            
+            tasks.push(task);
+            render();
+            showStatus(`カード「${title}」を追加しました`);
+        }
+        
+        function editTask(taskId) {
+            editingTask = tasks.find(t => t.id === taskId);
+            if (!editingTask) return;
+            
+            document.getElementById('task-title').value = editingTask.title;
+            document.getElementById('task-category').value = editingTask.category || '';
+            document.getElementById('task-deadline').value = editingTask.deadline || '';
+            document.getElementById('task-memo').value = editingTask.memo || '';
+            
+            // ステータスのチェックボックスをリセット
+            document.querySelectorAll('.status-option input').forEach(input => {
+                input.checked = editingTask.status.includes(input.value);
+                input.parentElement.classList.toggle('selected', input.checked);
+            });
+            
+            document.getElementById('task-modal').classList.add('show');
+        }
+        
+        function toggleStatus(checkbox) {
+            checkbox.parentElement.classList.toggle('selected', checkbox.checked);
+        }
+        
+        function saveTask(event) {
+            event.preventDefault();
+            
+            if (!editingTask) return;
+            
+            editingTask.title = document.getElementById('task-title').value.trim();
+            editingTask.category = document.getElementById('task-category').value;
+            editingTask.deadline = document.getElementById('task-deadline').value || null;
+            editingTask.memo = document.getElementById('task-memo').value.trim();
+            
+            // ステータスを更新
+            editingTask.status = [];
+            document.querySelectorAll('.status-option input:checked').forEach(input => {
+                editingTask.status.push(input.value);
+            });
+            
+            render();
+            closeModal();
+            showStatus(`カード「${editingTask.title}」を更新しました`);
+        }
+        
+        function closeModal() {
+            document.getElementById('task-modal').classList.remove('show');
+            editingTask = null;
+        }
+        
+        // 初期化
+        createSampleBoard();
+    </script>
+</body>
+</html>
