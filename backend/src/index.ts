@@ -25,6 +25,9 @@ import todoRoutes from './features/todos/todo.routes.js';
 // Gmail integration system
 import { createGmailRoutes } from './features/gmail/gmail.routes.js';
 
+// Notification system (メール通知)
+import { createNotificationRoutes } from './features/notifications/notification.routes.js';
+
 // Workflow management system (最強タスク管理ツール)
 import { createWorkflowRoutes } from './features/workflows/workflow.routes.js';
 
@@ -97,6 +100,9 @@ app.use('/api/todos', todoRoutes);
 
 // Mount Gmail integration routes
 app.use('/api/gmail', createGmailRoutes(dbPool));
+
+// Mount notification routes (メール通知)
+app.use('/api/notifications', createNotificationRoutes(dbPool));
 
 // Mount workflow management routes (最強タスク管理ツール) - temporarily disabled
 // app.use('/api/workflows', createWorkflowRoutes(process.env.DATABASE_URL));
